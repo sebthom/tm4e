@@ -32,6 +32,7 @@
 	<modules>
 		<module>target-platform</module>
 		<module>org.eclipse.tm4e.core</module>
+		<module>org.eclipse.tm4e.core.benchmarks</module>
 		<module>org.eclipse.tm4e.core.tests</module>
 		<module>org.eclipse.tm4e.registry</module>
 		<module>org.eclipse.tm4e.ui</module>
