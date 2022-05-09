@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-SymbolicName: org.eclipse.tm4e.core.benchmarks;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Require-Bundle: org.eclipse.tm4e.core,
+ net.sf.jopt-simple.jopt-simple;bundle-version="5.0.4",
+ org.apache.commons.math3;bundle-version="3.2.0",
+ org.openjdk.jmh.jmh-core;bundle-version="1.35.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.tm4e.core.benchmarks
