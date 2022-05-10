@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.tm4e.core.internal.utils.IntArrayList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -34,7 +35,7 @@ final class PListContentHandler<T> extends DefaultHandler {
 
 	private static final class PListPathImpl implements PListPath {
 		final LinkedList<String> keys = new LinkedList<>();
-		final List<Integer> keysDepths = new ArrayList<>();
+		final IntArrayList keysDepths = new IntArrayList();
 		int depth = 0;
 
 		void add(final String key) {

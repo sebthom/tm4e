@@ -32,6 +32,7 @@ import org.eclipse.tm4e.core.internal.types.IRawCaptures;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
+import org.eclipse.tm4e.core.internal.utils.IntArrayList;
 
 /**
  * @see <a href=
@@ -160,7 +161,7 @@ public final class RuleFactory {
 			return new CompilePatternsResult(new int[0], false);
 		}
 
-		final var r = new ArrayList<Integer>();
+		final var r = new IntArrayList();
 		for (final IRawRule pattern : patterns) {
 			int patternId = -1;
 			final var patternInclude = pattern.getInclude();
@@ -257,6 +258,6 @@ public final class RuleFactory {
 			}
 		}
 
-		return new CompilePatternsResult(r.stream().mapToInt(Integer::intValue).toArray(), patterns.size() != r.size());
+		return new CompilePatternsResult(r.toArray(), patterns.size() != r.size());
 	}
 }

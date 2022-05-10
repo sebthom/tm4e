@@ -32,18 +32,6 @@ public final class MoreCollections {
 		return list.get(list.size() - 1);
 	}
 
-	/**
-	 * Removes the last element in this list.
-	 *
-	 * @return the element previously at the specified position
-	 *
-	 * @throws UnsupportedOperationException if the {@code remove} operation is not supported by this list
-	 * @throws IndexOutOfBoundsException if the list is empty
-	 */
-	public static <T> T removeLastElement(final List<T> list) {
-		return list.remove(list.size() - 1);
-	}
-
    private MoreCollections() {
    }
 }

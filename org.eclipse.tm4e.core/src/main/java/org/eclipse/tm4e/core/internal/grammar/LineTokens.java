@@ -17,19 +17,17 @@
 package org.eclipse.tm4e.core.internal.grammar;
 
 import static java.lang.System.Logger.Level.*;
-import static org.eclipse.tm4e.core.internal.utils.MoreCollections.*;
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.*;
 
 import java.lang.System.Logger;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IToken;
 import org.eclipse.tm4e.core.internal.theme.FontStyle;
+import org.eclipse.tm4e.core.internal.utils.IntArrayList;
 
 final class LineTokens {
 
@@ -53,7 +51,7 @@ final class LineTokens {
 	/**
 	 * used only if `emitBinaryTokens` is true.
 	 */
-	private final List<Integer> binaryTokens;
+	private final IntArrayList binaryTokens;
 
 	private int lastTokenEndIndex = 0;
 
@@ -68,10 +66,10 @@ final class LineTokens {
 		this.lineText = LOGGER.isLoggable(TRACE) ? lineText : null; // store line only if it's logged
 		if (this.emitBinaryTokens) {
 			this.tokens = EMPTY_DEQUE;
-			this.binaryTokens = new ArrayList<>();
+			this.binaryTokens = new IntArrayList();
 		} else {
 			this.tokens = new ArrayDeque<>();
-			this.binaryTokens = Collections.emptyList();
+			this.binaryTokens = IntArrayList.EMPTY;
 		}
 		this.tokenTypeOverrides = tokenTypeOverrides;
 		this.balancedBracketSelectors = balancedBracketSelectors;
@@ -126,7 +124,7 @@ final class LineTokens {
 						0);
 			}
 
-			if (!this.binaryTokens.isEmpty() && getLastElement(this.binaryTokens) == metadata) {
+			if (this.binaryTokens.isNotEmpty() && this.binaryTokens.getLast() == metadata) {
 				// no need to push a token with the same metadata
 				this.lastTokenEndIndex = endIndex;
 				return;
@@ -188,10 +186,10 @@ final class LineTokens {
 	}
 
 	int[] getBinaryResult(final StackElement stack, final int lineLength) {
-		if (!this.binaryTokens.isEmpty() && this.binaryTokens.get(binaryTokens.size() - 2) == lineLength - 1) {
+		if (this.binaryTokens.isNotEmpty() && this.binaryTokens.getLast(2) == lineLength - 1) {
 			// pop produced token for newline
-			removeLastElement(this.binaryTokens);
-			removeLastElement(this.binaryTokens);
+			this.binaryTokens.removeLast();
+			this.binaryTokens.removeLast();
 		}
 
 		if (this.binaryTokens.isEmpty()) {
@@ -200,6 +198,6 @@ final class LineTokens {
 			this.binaryTokens.set(binaryTokens.size() - 2, 0);
 		}
 
-		return binaryTokens.stream().mapToInt(Integer::intValue).toArray();
+		return binaryTokens.toArray();
 	}
 }
