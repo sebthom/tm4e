@@ -60,6 +60,7 @@ import org.eclipse.tm4e.ui.internal.widgets.ContentTypesBindingWidget;
 import org.eclipse.tm4e.ui.internal.widgets.GrammarDefinitionContentProvider;
 import org.eclipse.tm4e.ui.internal.widgets.GrammarDefinitionLabelProvider;
 import org.eclipse.tm4e.ui.internal.widgets.GrammarInfoWidget;
+import org.eclipse.tm4e.ui.internal.widgets.GrammarInjectionsWidget;
 import org.eclipse.tm4e.ui.internal.widgets.TMViewer;
 import org.eclipse.tm4e.ui.internal.widgets.ThemeAssociationsWidget;
 import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
@@ -87,23 +88,30 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 	private IThemeManager themeManager = new WorkingCopyThemeManager(TMUIPlugin.getThemeManager());
 	private ISnippetManager snippetManager = TMUIPlugin.getSnippetManager();
 
-	// Grammar list
+	/** Grammar list */
 	@Nullable
 	private TableViewer grammarViewer;
 
 	@Nullable
 	private Button grammarRemoveButton;
 
-	// General tab
+	/**General tab*/
 	@Nullable
 	private GrammarInfoWidget grammarInfoWidget;
-	// Content type tab
+
+	/** Content type tab*/
 	@Nullable
 	private ContentTypesBindingWidget contentTypesWidget;
-	// Theme associations tab
+
+	/** Injections tab*/
+	@Nullable
+	private GrammarInjectionsWidget injectionsWidget;
+
+	/**Theme associations tab*/
 	@Nullable
 	private ThemeAssociationsWidget themeAssociationsWidget;
-	// Preview
+
+	/** Grammar preview */
 	@Nullable
 	private TMViewer previewViewer;
 
@@ -263,6 +271,8 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 				fillContentTypeTab(scopeName);
 				// Fill "Theme" tab
 				final IThemeAssociation selectedAssociation = fillThemeTab(definition);
+				// Fill "Injections" tab
+				fillInjectionsTab(scopeName);
 				// Fill preview
 				fillPreview(scopeName, selectedAssociation);
 			}
@@ -275,6 +285,11 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 			private void fillContentTypeTab(final String scopeName) {
 				// Load the content type binding for the given grammar
 				castNonNull(contentTypesWidget).setInput(grammarRegistryManager.getContentTypesForScope(scopeName));
+			}
+
+			private void fillInjectionsTab(final String scopeName) {
+				final var injections = grammarRegistryManager.getInjections(scopeName);
+				castNonNull(injectionsWidget).setInput(injections == null ? null : injections.toArray(String[]::new));
 			}
 
 			@Nullable
@@ -427,6 +442,23 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 	}
 
 	/**
+	 * Create "Injection" tab
+	 */
+	private void createInjectionTab(final TabFolder folder) {
+		final var tab = new TabItem(folder, SWT.NONE);
+		tab.setText(TMUIMessages.GrammarPreferencePage_tab_injection_text);
+
+		final var parent = new Composite(folder, SWT.NONE);
+		parent.setLayout(new GridLayout());
+		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		injectionsWidget = new GrammarInjectionsWidget(parent, SWT.NONE);
+		injectionsWidget.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		tab.setControl(parent);
+	}
+
+	/**
 	 * Create "Theme" tab
 	 */
 	private void createThemeTab(final TabFolder folder) {
@@ -471,24 +503,6 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 		if (theme != null && previewViewer != null) {
 			previewViewer.setTheme(theme);
 		}
-	}
-
-	/**
-	 * Create "Injection" tab
-	 *
-	 * @param folder
-	 */
-	private void createInjectionTab(final TabFolder folder) {
-		final var tab = new TabItem(folder, SWT.NONE);
-		tab.setText(TMUIMessages.GrammarPreferencePage_tab_injection_text);
-
-		final var parent = new Composite(folder, SWT.NONE);
-		parent.setLayout(new GridLayout());
-		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		// TODO: manage UI injection
-
-		tab.setControl(parent);
 	}
 
 	private int computeMinimumColumnWidth(final GC gc, final String string) {
