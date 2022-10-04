@@ -502,8 +502,8 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 		editor.selectAndReveal(newSelection.getOffset(), newSelection.getLength());
 	}
 
-	private void removeBlockComment(final IDocument document, final ITextSelection selection,
-			final IRegion existingBlock, final CharacterPair blockComment, final ITextEditor editor)
+	private  void  removeBlockComment(final IDocument document, final ITextSelection selection,
+			final IRegion existingBlock, final CharacterPair blockComment, boolean skipSelection,  final ITextEditor editor)
 			throws BadLocationException {
 		final int openOffset = existingBlock.getOffset();
 		final int openLength = blockComment.open.length();
@@ -523,7 +523,9 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 		}
 		final var newSelection = new TextSelection(selection.getOffset() - offsetFix,
 				selection.getLength() - lengthFix);
-		editor.selectAndReveal(newSelection.getOffset(), newSelection.getLength());
+		if (!skipSelection) {
+			editor.selectAndReveal(newSelection.getOffset(), newSelection.getLength());
+		}
 	}
 
 	private void addBlockComment(final IDocument document, final ITextSelection selection,
