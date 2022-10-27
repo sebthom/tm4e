@@ -9,12 +9,15 @@
 package org.eclipse.tm4e.languageconfiguration.tests;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.io.ByteArrayInputStream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.tm4e.languageconfiguration.internal.ToggleLineCommentHandler;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -22,7 +25,6 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-
 
 public class TestComment {
 
@@ -51,12 +53,48 @@ public class TestComment {
 		editor.getSelectionProvider().setSelection(new TextSelection(0, text.length()));
 		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
 		assertEquals("/*a*/\n\n/*b*/\n\n/*c*/", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 2, 15);
 		
 		// Repeatedly executed toggle comment command should remove the comments inserted previously
 		text = doc.get();
 		editor.getSelectionProvider().setSelection(new TextSelection(0,text.length()));
 		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
 		assertEquals("a\n\nb\n\nc", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 0, 7);
+	}
+	
+	@Test
+	public void testToggleLineCommentUseBlockCommentnPartiallyIncludedEnds() throws Exception {
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		String text = "/* a */";
+		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		editor.getSelectionProvider().setSelection(new TextSelection(1,5)); // [* a *]
+		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
+		
+		text = doc.get();
+		assertEquals(" a ", text);
+		ISelection selection = editor.getSelectionProvider().getSelection();
+		assertNotNull(selection);
+		assertInstanceOf(ITextSelection.class, selection);
+		ITextSelection textSelection = (ITextSelection)selection;
+		assertEquals(0, textSelection.getOffset());
+		assertEquals(3, textSelection.getLength());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 0, 3);
+		
+		// Repeatedly executed toggle comment command should remove the comments inserted previously
+		editor.getSelectionProvider().setSelection(new TextSelection(0,text.length()));
+		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
+		assertEquals("/* a */", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 2, 3);
 	}
 	
 	/**
@@ -76,16 +114,16 @@ public class TestComment {
 				"org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
-		String text = doc.get();
 		editor.getSelectionProvider().setSelection(new TextSelection(0, 0)); // No matter the selection length
 		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
 		assertEquals("/*a*/\r\n\r\nb\r\n\r\nc", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 2, 0);
 		
 		// Repeatedly executed toggle comment command should remove the comments inserted previously
-		text = doc.get();
 		editor.getSelectionProvider().setSelection(new TextSelection(0, 0)); // No matter the selection length
 		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
 		assertEquals("a\r\n\r\nb\r\n\r\nc", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 0, 0);
 	}
 	
 	@Test
@@ -105,11 +143,163 @@ public class TestComment {
 		editor.getSelectionProvider().setSelection(new TextSelection(0, text.length()));
 		service.executeCommand(ToggleLineCommentHandler.ADD_BLOCK_COMMENT_COMMAND_ID, null);
 		assertEquals("//a\n//\n//b\n//\n//c", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 2, 15);
 		
 		// Repeatedly executed toggle comment command should remove the comments inserted previously
 		text = doc.get();
 		editor.getSelectionProvider().setSelection(new TextSelection(0,text.length()));
 		service.executeCommand(ToggleLineCommentHandler.REMOVE_BLOCK_COMMENT_COMMAND_ID, null);
 		assertEquals("a\n\nb\n\nc", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 0, 7);
+	}
+
+	@Test
+	public void testRemoveBlockComment() throws Exception {
+		final String text = "/* a */";
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		editor.getSelectionProvider().setSelection(new TextSelection(0, text.length())); 
+		service.executeCommand(ToggleLineCommentHandler.REMOVE_BLOCK_COMMENT_COMMAND_ID, null);
+		assertEquals(" a ", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 0, 0);
+	}
+
+	@Test
+	public void testRemoveBlockCommentMultiplesComments() throws Exception {
+		final String text = "/* a */ b /* c */";
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		editor.getSelectionProvider().setSelection(new TextSelection(0, text.length())); 
+		service.executeCommand(ToggleLineCommentHandler.REMOVE_BLOCK_COMMENT_COMMAND_ID, null);
+		assertEquals(" a  b  c ", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 0, 0);
+	}
+
+	@Test
+	public void testRemoveBlockCommentPartiallyIncludedEnds() throws Exception {
+		final String text = "/* a */";
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		editor.getSelectionProvider().setSelection(new TextSelection(1, text.length() - 2)); 
+		service.executeCommand(ToggleLineCommentHandler.REMOVE_BLOCK_COMMENT_COMMAND_ID, null);
+		assertEquals(" a ", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 0, 0);
+	}
+
+	@Test
+	public void testRemoveBlockCommentMultiplesCommentsBrokenEnds() throws Exception {
+		final String text = "/* a */ b /* c */";
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		editor.getSelectionProvider().setSelection(new TextSelection(5, 7)); // [*/ b /*]  
+		service.executeCommand(ToggleLineCommentHandler.REMOVE_BLOCK_COMMENT_COMMAND_ID, null);
+		assertEquals(" a  b  c ", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 3, 0);
+	}
+
+	@Test
+	public void testRemoveBlockCommentMultiplesCommentsBrokenPartiallyIncludedEnds() throws Exception {
+		final String text = "/* a */ b /* c */";
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		editor.getSelectionProvider().setSelection(new TextSelection(6,5)); // [/ b /]  
+		service.executeCommand(ToggleLineCommentHandler.REMOVE_BLOCK_COMMENT_COMMAND_ID, null);
+		assertEquals(" a  b  c ", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 3, 0);
+	}
+	
+	@Test
+	public void testAddBlockComment() throws Exception {
+		final String text = "a b c";
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		editor.getSelectionProvider().setSelection(new TextSelection(2,1)); // [b]  
+		service.executeCommand(ToggleLineCommentHandler.ADD_BLOCK_COMMENT_COMMAND_ID, null);
+		assertEquals("a /*b*/ c", doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 4, 0);
+	}
+
+	@Test
+	public void testAddBlockCommentInsideExistingBockComment() throws Exception {
+		final String text = "/*a b c*/";
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		editor.getSelectionProvider().setSelection(new TextSelection(4,1)); // [b]  
+		service.executeCommand(ToggleLineCommentHandler.ADD_BLOCK_COMMENT_COMMAND_ID, null);
+		
+		// No comment is to be added because the selection is already inside a block comment
+		assertEquals(text, doc.get());
+		checktTextSelection(editor.getSelectionProvider().getSelection(), 4, 1);
+	}
+	
+	private void checktTextSelection(ISelection selection, int expectedOffset, int expectedLength) {
+		assertNotNull(selection);
+		assertInstanceOf(ITextSelection.class, selection);
+		ITextSelection textSelection = (ITextSelection)selection;
+		assertEquals(expectedOffset, textSelection.getOffset());
+		assertEquals(expectedLength, textSelection.getLength());
 	}
 }
