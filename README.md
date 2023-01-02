@@ -48,6 +48,7 @@ Here are some projects that use tm4e:
 	* [Phaser Editor 2D](https://phasereditor2d.com) - An IDE for the creation of HTML5 games.
 	* [Solargraph](https://github.com/PyvesB/eclipse-solargraph) - Ruby development tools for Eclipse.
 	* [Dartboard](https://github.com/eclipse/dartboard) - Dart language support in the Eclipse IDE.
+    * [dart4e](https://github.com/dart4e/dart4e) - Dart/Flutter development support for the Eclipse IDE.
     * [haxe4e](https://github.com/haxe4e/haxe4e) - [Haxe](https://haxe.org/) programming language support for the Eclipse IDE.
 * [Apache NetBeans](https://github.com/apache/netbeans) - A multi-language IDE written in Java that uses TM4E core parts to support syntax highlighting based on TextMate grammars.
 
