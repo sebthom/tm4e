@@ -115,24 +115,23 @@
    <extension point="org.eclipse.ui.menus">
 
       <!-- register commands as entries in main window menu -->
-      <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=edit">
-         <menu id="org.eclipse.tm4e.source.menu" label="%LanguageConfiguration.menu.source.name" mnemonic="S">
-            <command commandId="org.eclipse.tm4e.languageconfiguration.toggleLineCommentCommand" >
-               <visibleWhen>
-                  <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
-               </visibleWhen>
-             </command>
-             <command commandId="org.eclipse.tm4e.languageconfiguration.addBlockCommentCommand">
-                <visibleWhen>
-                   <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
-                </visibleWhen>
-             </command>
-             <command commandId="org.eclipse.tm4e.languageconfiguration.removeBlockCommentCommand">
-                <visibleWhen>
-                   <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
-                </visibleWhen>
-             </command>
-          </menu>
+      <menuContribution locationURI="menu:org.eclipse.tm4e.source.menu?before=contributions">
+         <separator name="commentGroup" visible="true" />
+         <command commandId="org.eclipse.tm4e.languageconfiguration.toggleLineCommentCommand" >
+            <visibleWhen>
+               <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
+            </visibleWhen>
+         </command>
+         <command commandId="org.eclipse.tm4e.languageconfiguration.addBlockCommentCommand">
+            <visibleWhen>
+               <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
+            </visibleWhen>
+         </command>
+         <command commandId="org.eclipse.tm4e.languageconfiguration.removeBlockCommentCommand">
+            <visibleWhen>
+               <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
+            </visibleWhen>
+         </command>
       </menuContribution>
 
       <!-- register commands as entries in editor context menu -->

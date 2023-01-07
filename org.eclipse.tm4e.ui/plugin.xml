@@ -86,6 +86,19 @@
 
    <!-- Contextual Menu -->
    <extension point="org.eclipse.ui.menus">
+
+      <!-- Contribute a "Source" menu entry in the main window menu -->
+      <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=edit">
+         <menu id="org.eclipse.tm4e.source.menu" label="%menu.source.name" mnemonic="S">
+            <separator name="contributions" visible="true">
+               <!--
+                  because of some bug in Eclipse naming this separator "contributions" instead of "additions".
+                  if it is named "additions" inserting entries at specific locations using e.g. "?after=additions" is not working.
+               -->
+            </separator>
+         </menu>
+      </menuContribution>
+
       <!-- Editor "TextMate" contribution -->
       <menuContribution allPopups="true" locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <menu id="org.eclipse.tm4e.ui.internal.menus.Theme" label="%menu.textmate.theme.label" >
