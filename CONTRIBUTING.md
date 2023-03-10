@@ -4,6 +4,7 @@ Welcome to the Eclipse TM4E contributor land, and thanks in advance for your hel
 
 🏠 Official Eclipse TM4E Git repo is [https://github.com/eclipse/tm4e](https://github.com/eclipse/tm4e) .
 
+
 ## ⚖️ Legal and Eclipse Foundation terms
 
 The project license is available at [LICENSE](LICENSE).
@@ -11,14 +12,15 @@ The project license is available at [LICENSE](LICENSE).
 This Eclipse Foundation open project is governed by the Eclipse Foundation
 Development Process and operates under the terms of the Eclipse IP Policy.
 
-Before your contribution can be accepted by the project team, 
-contributors must have an Eclipse Foundation account and 
+Before your contribution can be accepted by the project team,
+contributors must have an Eclipse Foundation account and
 must electronically sign the Eclipse Contributor Agreement (ECA).
 
 * [http://www.eclipse.org/legal/ECA.php](http://www.eclipse.org/legal/ECA.php)
 
 For more information, please see the Eclipse Committer Handbook:
 [https://www.eclipse.org/projects/handbook/#resources-commit](https://www.eclipse.org/projects/handbook/#resources-commit).
+
 
 ## 💬 Get in touch with the community
 
@@ -27,28 +29,47 @@ Eclipse TM4E use mainly 2 channels for strategical and technical discussions
 * 🐞 View and report issues through uses GitHub Issues at https://github.com/eclipse/m2e-tm4e/issues.
 * 📧 Join the tm4e-dev@eclipse.org mailing-list to get in touch with other contributors about project organization and planning, and browse archive at 📜 [https://accounts.eclipse.org/mailing-list/tm4e-dev](https://accounts.eclipse.org/mailing-list/tm4e-dev)
 
+
 ## 🆕 Trying latest builds
 
 Latest builds, for testing, can usually be found at `https://download.eclipse.org/tm4e/snapshots/` .
+
 
 ## 🧑‍💻 Developer resources
 
 ### ⌨️ Setting up the Development Environment manually
 
-
-* Use Eclipse IDE with Plugin Development Environment installed.
-* Clone this repository <a href="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirect.html"><img src="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/cloneToEclipseBadge.png" alt="Clone to Eclipse IDE"/></a> for m2e-core.
-* _File > Open Projects from Filesystem..._ , select the path to tm4e Git repo and the relevant children projects you want to import
+* Download and install the **Eclipse IDE for Eclipse Committers** from https://www.eclipse.org/downloads/packages/ or another Eclipse installation with the [Plug-in Development Environment (PDE)](https://www.eclipse.org/pde/) installed.
+* Clone this repository <a href="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/redirect.html"><img src="https://mickaelistria.github.io/redirctToEclipseIDECloneCommand/cloneToEclipseBadge.png" alt="Clone to Eclipse IDE"/></a>.
+* _File > Open Projects from Filesystem..._ , select the path to the tm4e Git repo and the relevant children projects you want to import
 
 ### 🏗️ Build
 
-Prerequisite: Latest Maven release or Eclipse m2e.
+Prerequisite: Latest Maven release or Eclipse [m2e](https://www.eclipse.org/m2e/).
 
-then `mvn clean verify` from CLI or Right-click on the tm4e root folder > Run As > Maven build
+1. From the command line: run `mvn clean verify`
+1. From within Eclipse : right-click on the tm4e root folder > Run As > Maven build
+
+#### Running the CI job locally:
+
+The GitHub actions wokflow is compatible with [nektos/act](https://github.com/nektos/act) a command-line tool that allows you to run GitHub action workflows locally.
+
+1. Install docker
+1. Install [nektos/act](https://github.com/nektos/act)
+1. From the commandline navigate into the tm4e rpoject root
+1. Run the command `act`
+1. On subsequent re-runs you can use `act -r` to reuse previous container which avoids reinstallation system packages and reduces build time.
+
+In case of build failures the docker container will still be running and you can ssh into it for analysis using `docker exec -u root -it <CONTAINER_ID> /bin/bash`, e.g.:
+```bash
+container_id=$(docker container ps --filter status=running --filter name=act-Build-build --format {{.ID}})
+docker exec -u root -it $container_id /bin/bash
+```
 
 ### ⬆️ Version bump
 
-tm4e tries to use OSGi Semantic Version (to properly expose its API contracts and breakage) and Reproducible Version Qualifiers (to minimize the avoid producing multiple equivalent artifacts for identical source). This requires the developer to manually bump version from time to time. Somes rules are that:
+tm4e tries to use OSGi Semantic Version (to properly expose its API contracts and breakage) and Reproducible Version Qualifiers (to minimize the avoid producing multiple equivalent artifacts for identical source).
+This requires the developer to manually bump version from time to time. Somes rules are that:
 
 * Versions are bumped on a __per module grain__ (bump version of individual bundles/features one by one when necessary), __DON'T bump version of parent pom, nor of other modules you don't change__
 * __Versions are bumped maximum once per release__ (don't bump versions that were already bumped since last release)

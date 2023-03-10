@@ -3,9 +3,9 @@ name: Build
 
 on:
   push:
-    branches:     # build all branches
+    branches:    # build all branches
     - '**'
-    tags-ignore:  # but don't build tags
+    tags-ignore: # but don't build tags
     - '**'
     paths-ignore:
     - '**/*.md'
@@ -39,8 +39,22 @@ jobs:
         distribution: 'temurin'
         java-version: 17
 
+    - name: Configure Fast APT Mirror
+      uses: vegardit/fast-apt-mirror.sh@v1
+
     - name: Install xvfb
-      run: sudo apt-get install -o Acquire::Retries=3 --no-install-recommends -y xvfb
+      run: |
+        sudo apt-get install --no-install-recommends -y xvfb
+
+        sudo apt-get install --no-install-recommends -y dbus-x11
+        # prevents: "Failed to execute child process “dbus-launch” (No such file or directory)"
+
+        sudo apt-get install --no-install-recommends -y libswt-gtk-*-java
+        # prevents:
+        #  java.lang.UnsatisfiedLinkError: Could not load SWT library. Reasons:
+        #    no swt-pi4-gtk-4956r13 in java.library.path: /usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        #    no swt-pi4-gtk in java.library.path: /usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        #    no swt-pi4 in java.library.path: /usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib
 
     - name: "Cache: Local Maven Repository"
       uses: actions/cache@v3
@@ -79,9 +93,3 @@ jobs:
           --no-transfer-progress \
           ${{ github.event.inputs.additional_maven_args }} \
           clean verify
-
-    - name: "Delete intermediate build artifacts"
-      uses: geekyeggo/delete-artifact@v2 # https://github.com/GeekyEggo/delete-artifact/
-      with:
-        name: "*"
-        failOnError: false
