@@ -1,13 +1,13 @@
 /**
- *  Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2017 Angelo ZERR.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Contributors:
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.tm4e.registry;
 
@@ -51,6 +51,7 @@ public interface IGrammarRegistryManager {
 
 	/**
 	 * Save the grammar definitions.
+	 * 
 	 * @throws BackingStoreException
 	 */
 	void save() throws BackingStoreException;
@@ -59,12 +60,13 @@ public interface IGrammarRegistryManager {
 
 	/**
 	 * @param contentTypes the content types to lookup for grammar association.
+	 * 
 	 * @return the first {@link IGrammar} that applies to given content-types, or
-	 * <code>null</code> if no content-type has a grammar associated. Grammars associated
-	 * with parent content-types will be returned if applicable.
+	 *         <code>null</code> if no content-type has a grammar associated. Grammars associated
+	 *         with parent content-types will be returned if applicable.
 	 */
 	@Nullable
-	IGrammar getGrammarFor(IContentType @Nullable[] contentTypes);
+	IGrammar getGrammarFor(IContentType @Nullable [] contentTypes);
 
 	/**
 	 * Returns the {@link IGrammar} for the given scope name and null otherwise.

@@ -64,9 +64,9 @@ public class TMTokenization implements ITokenizationSupport {
 
 	@Override
 	public TokenizationResult tokenize(final String line,
-		@Nullable final IStateStack state,
-		@Nullable final Integer offsetDeltaOrNull,
-		@Nullable final Duration timeLimit) {
+			@Nullable final IStateStack state,
+			@Nullable final Integer offsetDeltaOrNull,
+			@Nullable final Duration timeLimit) {
 
 		final int offsetDelta = offsetDeltaOrNull == null ? 0 : offsetDeltaOrNull;
 		final var tokenizationResult = _grammar.tokenizeLine(line, state, timeLimit);
@@ -89,15 +89,15 @@ public class TMTokenization implements ITokenizationSupport {
 		final var lastToken = tokens[tokens.length - 1];
 
 		return new TokenizationResult(
-			tmTokens,
+				tmTokens,
 
-			// TODO Math.min() is a temporary workaround because currently in some cases lastToken.getEndIndex()
-			// incorrectly returns larger values than line.length() for some reasons.
-			// See for example GrammarTest#testTokenize1IllegalToken()
-			offsetDelta + Math.min(line.length(), lastToken.getEndIndex()),
+				// TODO Math.min() is a temporary workaround because currently in some cases lastToken.getEndIndex()
+				// incorrectly returns larger values than line.length() for some reasons.
+				// See for example GrammarTest#testTokenize1IllegalToken()
+				offsetDelta + Math.min(line.length(), lastToken.getEndIndex()),
 
-			tokenizationResult.getRuleStack(),
-			tokenizationResult.isStoppedEarly());
+				tokenizationResult.getRuleStack(),
+				tokenizationResult.isStoppedEarly());
 	}
 
 	private String decodeTextMateToken(final DecodeMap decodeMap, final List<String> scopes) {
@@ -134,8 +134,8 @@ public class TMTokenization implements ITokenizationSupport {
 
 	@NonNullByDefault({})
 	private record TMTokenDecodeData(
-		@NonNull List<String> scopes,
-		@NonNull Map<Integer, Map<Integer, Boolean>> scopeTokensMaps) {
+			@NonNull List<String> scopes,
+			@NonNull Map<Integer, Map<Integer, Boolean>> scopeTokensMaps) {
 	}
 
 	private static final class DecodeMap {

@@ -40,11 +40,11 @@ final class LanguageConfigurationLabelProvider extends LabelProvider implements 
 		final var definition = (ILanguageConfigurationDefinition) element;
 
 		return switch (columnIndex) {
-		case 0 -> definition.getContentType().getName();
-		case 1 -> definition.getContentType().getId();
-		case 2 -> definition.getPluginId();
-		case 3 -> definition.getPath();
-		default -> ""; //$NON-NLS-1$
+			case 0 -> definition.getContentType().getName();
+			case 1 -> definition.getContentType().getId();
+			case 2 -> definition.getPluginId();
+			case 3 -> definition.getPath();
+			default -> ""; //$NON-NLS-1$
 		};
 	}
 }

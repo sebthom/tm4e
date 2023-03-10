@@ -81,12 +81,12 @@ public final class ThemeManager extends AbstractThemeManager {
 		for (final var configElement : config) {
 			final String name = configElement.getName();
 			switch (name) {
-			case THEME_ELT:
-				super.registerTheme(new Theme(configElement));
-				break;
-			case THEME_ASSOCIATION_ELT:
-				super.registerThemeAssociation(new ThemeAssociation(configElement));
-				break;
+				case THEME_ELT:
+					super.registerTheme(new Theme(configElement));
+					break;
+				case THEME_ASSOCIATION_ELT:
+					super.registerThemeAssociation(new ThemeAssociation(configElement));
+					break;
 			}
 		}
 	}
@@ -102,7 +102,8 @@ public final class ThemeManager extends AbstractThemeManager {
 		if (json != null) {
 			for (final var element : new Gson().fromJson(json, JsonObject[].class)) {
 				final String name = element.get("id").getAsString();
-				super.registerTheme(new Theme(name, element.get("path").getAsString(), name, element.get("dark").getAsBoolean(), false));
+				super.registerTheme(new Theme(name, element.get("path").getAsString(), name,
+						element.get("dark").getAsBoolean(), false));
 			}
 		}
 
@@ -128,7 +129,9 @@ public final class ThemeManager extends AbstractThemeManager {
 					json.addProperty("path", theme.getPath());
 					json.addProperty("dark", theme.isDark());
 					return json;
-			}).collect(JsonArray::new, (final JsonArray array, final JsonObject object) -> array.add(object), (r,r1) -> {})
+				}).collect(JsonArray::new, (final JsonArray array, final JsonObject object) -> array.add(object),
+						(r, r1) -> {
+						})
 				.toString());
 
 		// Save Theme associations in the

@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *  Mickael Istria (Red Hat Inc.) - initial API and implementation
+ * Mickael Istria (Red Hat Inc.) - initial API and implementation
  */
 package org.eclipse.tm4e.languageconfiguration.tests;
 
@@ -44,7 +44,7 @@ public class TestAutoClosing {
 		final IFile file = p.getFile("test.lc-test");
 		file.create(new ByteArrayInputStream(new byte[0]), true, null);
 		final ITextEditor editor = (ITextEditor) IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file);
-		final StyledText text = (StyledText)editor.getAdapter(Control.class);
+		final StyledText text = (StyledText) editor.getAdapter(Control.class);
 		// insert closing
 		text.setText("");
 		text.replaceTextRange(0, 0, "(");

@@ -36,19 +36,17 @@ public final class GrammarBenchmark implements Runnable {
 		/*
 		 * load the grammar
 		 */
-		grammar = new Registry().addGrammar(
-			IGrammarSource.fromResource(GrammarBenchmark.class, "GrammarBenchmark.Java.tmLanguage.json"));
+		grammar = new Registry().addGrammar(IGrammarSource.fromResource(GrammarBenchmark.class, "GrammarBenchmark.Java.tmLanguage.json"));
 
 		/*
 		 * load the file to be parsed
 		 */
 		try (var sourceFileIS = GrammarBenchmark.class.getResourceAsStream("GrammarBenchmark.JavaFile.txt")) {
 			sourceCode = new BufferedReader(new InputStreamReader(sourceFileIS, StandardCharsets.UTF_8))
-				.lines()
-				.toArray(String[]::new);
+					.lines()
+					.toArray(String[]::new);
 		}
-		System.out.println(
-			String.format("Source Code chars: %,d", Arrays.stream(sourceCode).mapToInt(String::length).sum()));
+		System.out.println(String.format("Source Code chars: %,d", Arrays.stream(sourceCode).mapToInt(String::length).sum()));
 		System.out.println(String.format("Source Code lines: %,d", sourceCode.length));
 	}
 

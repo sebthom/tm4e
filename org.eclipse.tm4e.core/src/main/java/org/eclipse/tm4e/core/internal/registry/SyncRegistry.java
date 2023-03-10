@@ -99,25 +99,25 @@ public final class SyncRegistry implements IGrammarRepository, IThemeProvider {
 	 */
 	@Nullable
 	public IGrammar grammarForScopeName(
-		final String scopeName,
-		final int initialLanguage,
-		@Nullable final Map<String, Integer> embeddedLanguages,
-		@Nullable final Map<String, Integer> tokenTypes,
-		@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
+			final String scopeName,
+			final int initialLanguage,
+			@Nullable final Map<String, Integer> embeddedLanguages,
+			@Nullable final Map<String, Integer> tokenTypes,
+			@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
 		if (!this._grammars.containsKey(scopeName)) {
 			final var rawGrammar = lookup(scopeName);
 			if (rawGrammar == null) {
 				return null;
 			}
 			this._grammars.put(scopeName, new Grammar(
-				scopeName,
-				rawGrammar,
-				initialLanguage,
-				embeddedLanguages,
-				tokenTypes,
-				balancedBracketSelectors,
-				this,
-				this));
+					scopeName,
+					rawGrammar,
+					initialLanguage,
+					embeddedLanguages,
+					tokenTypes,
+					balancedBracketSelectors,
+					this,
+					this));
 		}
 		return this._grammars.get(scopeName);
 	}

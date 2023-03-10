@@ -511,8 +511,7 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 	 * pattern on the preference page. Clients may override to provide a custom
 	 * source viewer featuring e.g. syntax coloring.
 	 *
-	 * @param parent
-	 *        the parent control
+	 * @param parent the parent control
 	 *
 	 * @return a configured source viewer
 	 */

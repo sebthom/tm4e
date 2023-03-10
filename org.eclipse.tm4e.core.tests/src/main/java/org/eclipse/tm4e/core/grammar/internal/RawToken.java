@@ -37,9 +37,9 @@ public class RawToken {
 
 	@Override
 	public boolean equals(final Object obj) {
-		return obj instanceof final RawToken other ?
-			Objects.equals(this.value, other.value) && Objects.equals(this.scopes, other.scopes) :
-			false;
+		return obj instanceof final RawToken other //
+				? Objects.equals(this.value, other.value) && Objects.equals(this.scopes, other.scopes)
+				: false;
 	}
 
 	@Override

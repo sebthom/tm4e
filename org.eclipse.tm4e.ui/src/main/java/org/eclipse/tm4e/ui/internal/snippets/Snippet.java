@@ -54,7 +54,7 @@ final class Snippet extends TMResource implements ISnippet {
 	@Override
 	public String getContent() {
 		final var content = getResourceContent();
-		return content == null ? "":content;
+		return content == null ? "" : content;
 	}
 
 	@Override

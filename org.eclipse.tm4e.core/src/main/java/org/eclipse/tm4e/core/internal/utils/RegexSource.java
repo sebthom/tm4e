@@ -29,8 +29,7 @@ import org.eclipse.tm4e.core.internal.oniguruma.OnigCaptureIndex;
  */
 public final class RegexSource {
 
-	private static final Pattern CAPTURING_REGEX_SOURCE = Pattern
-		.compile("\\$(\\d+)|\\$\\{(\\d+):\\/(downcase|upcase)}");
+	private static final Pattern CAPTURING_REGEX_SOURCE = Pattern.compile("\\$(\\d+)|\\$\\{(\\d+):\\/(downcase|upcase)}");
 
 	/**
 	 * Escapes/prefixes RegEx meta characters with a backslash in the given string.
@@ -53,12 +52,12 @@ public final class RegexSource {
 		for (int i = 0; i < valueLen; i++) {
 			final char ch = value.charAt(i);
 			switch (ch) {
-			case '-', '\\', '{', '}', '*', '+', '?', '|', '^', '$', '.', ',', '[', ']', '(', ')', '#':
-				/* escaping white space chars is actually not necessary:
-				' ', '\t', '\n', '\f', '\r',
-				0x0B: // vertical tab \v
-				*/
-				sb.append('\\');
+				case '-', '\\', '{', '}', '*', '+', '?', '|', '^', '$', '.', ',', '[', ']', '(', ')', '#':
+					/* escaping white space chars is actually not necessary:
+					' ', '\t', '\n', '\f', '\r',
+					0x0B: // vertical tab \v
+					*/
+					sb.append('\\');
 			}
 			sb.append(ch);
 		}
@@ -73,7 +72,7 @@ public final class RegexSource {
 	}
 
 	public static String replaceCaptures(final CharSequence regexSource, final CharSequence captureSource,
-		final OnigCaptureIndex[] captureIndices) {
+			final OnigCaptureIndex[] captureIndices) {
 		final Matcher m = CAPTURING_REGEX_SOURCE.matcher(regexSource);
 		final var result = new StringBuilder();
 		while (m.find()) {
@@ -85,8 +84,7 @@ public final class RegexSource {
 		return result.toString();
 	}
 
-	private static String getReplacement(final String match, final CharSequence captureSource,
-		final OnigCaptureIndex[] captureIndices) {
+	private static String getReplacement(final String match, final CharSequence captureSource, final OnigCaptureIndex[] captureIndices) {
 		final int index;
 		final String command;
 		final int doublePointIndex = match.indexOf(':');

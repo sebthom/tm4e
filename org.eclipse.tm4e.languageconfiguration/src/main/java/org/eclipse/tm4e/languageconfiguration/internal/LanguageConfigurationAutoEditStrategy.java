@@ -190,47 +190,45 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 				if (enterAction != null) {
 					final String delim = command.text;
 					switch (enterAction.indentAction) {
-					case None: {
-						// Nothing special
-						final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText);
-						final String typeText = delim + increasedIndent;
+						case None: {
+							// Nothing special
+							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText);
+							final String typeText = delim + increasedIndent;
 
-						command.text = typeText;
-						command.shiftsCaret = false;
-						command.caretOffset = command.offset + (delim + increasedIndent).length();
-						break;
-					}
-					case Indent: {
-						// Indent once
-						final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText);
-						final String typeText = delim + increasedIndent;
+							command.text = typeText;
+							command.shiftsCaret = false;
+							command.caretOffset = command.offset + (delim + increasedIndent).length();
+							break;
+						}
+						case Indent: {
+							// Indent once
+							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText);
+							final String typeText = delim + increasedIndent;
 
-						command.text = typeText;
-						command.shiftsCaret = false;
-						command.caretOffset = command.offset + (delim + increasedIndent).length();
-						break;
-					}
-					case IndentOutdent: {
-						// Ultra special
-						final String normalIndent = normalizeIndentation(enterAction.indentation);
-						final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText);
-						final String typeText = delim + increasedIndent + delim + normalIndent;
+							command.text = typeText;
+							command.shiftsCaret = false;
+							command.caretOffset = command.offset + (delim + increasedIndent).length();
+							break;
+						}
+						case IndentOutdent: {
+							// Ultra special
+							final String normalIndent = normalizeIndentation(enterAction.indentation);
+							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText);
+							final String typeText = delim + increasedIndent + delim + normalIndent;
 
-						command.text = typeText;
-						command.shiftsCaret = false;
-						command.caretOffset = command.offset + (delim + increasedIndent).length();
-						break;
-					}
-					case Outdent:
-						final String indentation = TextUtils.getIndentationFromWhitespace(enterAction.indentation,
-								getTabSpaces());
-						final String outdentedText = outdentString(
-								normalizeIndentation(indentation + enterAction.appendText));
+							command.text = typeText;
+							command.shiftsCaret = false;
+							command.caretOffset = command.offset + (delim + increasedIndent).length();
+							break;
+						}
+						case Outdent:
+							final String indentation = TextUtils.getIndentationFromWhitespace(enterAction.indentation, getTabSpaces());
+							final String outdentedText = outdentString(normalizeIndentation(indentation + enterAction.appendText));
 
-						command.text = delim + outdentedText;
-						command.shiftsCaret = false;
-						command.caretOffset = command.offset + (delim + outdentedText).length();
-						break;
+							command.text = delim + outdentedText;
+							command.shiftsCaret = false;
+							command.caretOffset = command.offset + (delim + outdentedText).length();
+							break;
 					}
 					return;
 				}

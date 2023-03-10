@@ -61,12 +61,12 @@ public abstract class AbstractThemeTest extends Assertions {
 
 	protected static Theme createTheme(final String themeAsJsonString) throws Exception {
 		return Theme.createFromRawTheme(ThemeReader.readTheme(
-			IThemeSource.fromString(IThemeSource.ContentType.JSON, themeAsJsonString)),
-			null);
+				IThemeSource.fromString(IThemeSource.ContentType.JSON, themeAsJsonString)),
+				null);
 	}
 
 	protected static List<ParsedThemeRule> parseTheme(final String themeAsJsonString) throws Exception {
 		return Theme.parseTheme(ThemeReader.readTheme(
-			IThemeSource.fromString(IThemeSource.ContentType.JSON, themeAsJsonString)));
+				IThemeSource.fromString(IThemeSource.ContentType.JSON, themeAsJsonString)));
 	}
 }

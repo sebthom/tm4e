@@ -32,12 +32,12 @@ public final class TMPresentationReconcilerTestGenerator
 	private final StringBuilder code = new StringBuilder();
 
 	/*private List<Command> commands = new ArrayList<>();
-
+	
 	private static final class Command {
 		final String command;
 		StyleRange[] ranges;
 		Throwable error;
-
+	
 		Command(String command) {
 			this.command = command;
 		}
@@ -97,17 +97,17 @@ public final class TMPresentationReconcilerTestGenerator
 		for (int i = 0; i < text.length(); i++) {
 			final char c = text.charAt(i);
 			switch (c) {
-			case '\n':
-				newText.append("\\n");
-				break;
-			case '\r':
-				newText.append("\\r");
-				break;
-			case '"':
-				newText.append("\\\"");
-				break;
-			default:
-				newText.append(c);
+				case '\n':
+					newText.append("\\n");
+					break;
+				case '\r':
+					newText.append("\\r");
+					break;
+				case '"':
+					newText.append("\\\"");
+					break;
+				default:
+					newText.append(c);
 			}
 		}
 		return newText.toString();

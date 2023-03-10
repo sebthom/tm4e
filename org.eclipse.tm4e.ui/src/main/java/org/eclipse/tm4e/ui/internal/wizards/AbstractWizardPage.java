@@ -82,25 +82,25 @@ abstract class AbstractWizardPage extends WizardPage implements Listener {
 	private static void applyToStatusLine(final DialogPage page, final IStatus status) {
 		String message = Status.OK_STATUS.equals(status) ? null : status.getMessage();
 		switch (status.getSeverity()) {
-		case IStatus.OK:
-			page.setMessage(message, IMessageProvider.NONE);
-			page.setErrorMessage(null);
-			break;
-		case IStatus.WARNING:
-			page.setMessage(message, IMessageProvider.WARNING);
-			page.setErrorMessage(null);
-			break;
-		case IStatus.INFO:
-			page.setMessage(message, IMessageProvider.INFORMATION);
-			page.setErrorMessage(null);
-			break;
-		default:
-			if (message != null && message.isEmpty()) {
-				message = null;
-			}
-			page.setMessage(null);
-			page.setErrorMessage(message);
-			break;
+			case IStatus.OK:
+				page.setMessage(message, IMessageProvider.NONE);
+				page.setErrorMessage(null);
+				break;
+			case IStatus.WARNING:
+				page.setMessage(message, IMessageProvider.WARNING);
+				page.setErrorMessage(null);
+				break;
+			case IStatus.INFO:
+				page.setMessage(message, IMessageProvider.INFORMATION);
+				page.setErrorMessage(null);
+				break;
+			default:
+				if (message != null && message.isEmpty()) {
+					message = null;
+				}
+				page.setMessage(null);
+				page.setErrorMessage(message);
+				break;
 		}
 	}
 

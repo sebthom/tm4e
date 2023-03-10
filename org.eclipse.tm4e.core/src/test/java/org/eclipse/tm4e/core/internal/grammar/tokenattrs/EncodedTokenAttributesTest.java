@@ -33,9 +33,7 @@ class EncodedTokenAttributesTest {
 	@Order(1)
 	@DisplayName("StackElementMetadata works")
 	void testWorks() {
-		final int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold,
-			101,
-			102);
+		final int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 		assertEquals(value, 1, StandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 	}
 
@@ -43,8 +41,7 @@ class EncodedTokenAttributesTest {
 	@Order(2)
 	@DisplayName("StackElementMetadata can overwrite languageId")
 	void testCanOverwriteLanguageId() {
-		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101,
-			102);
+		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 		assertEquals(value, 1, StandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 
 		value = EncodedTokenAttributes.set(value, 2, OptionalStandardTokenType.NotSet, false, NotSet, 0, 0);
@@ -55,8 +52,7 @@ class EncodedTokenAttributesTest {
 	@Order(3)
 	@DisplayName("StackElementMetadata can overwrite tokenType")
 	void testCanOverwriteTokenType() {
-		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101,
-			102);
+		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 		assertEquals(value, 1, StandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 
 		value = EncodedTokenAttributes.set(value, 0, OptionalStandardTokenType.Comment, false, NotSet, 0, 0);
@@ -67,8 +63,7 @@ class EncodedTokenAttributesTest {
 	@Order(4)
 	@DisplayName("StackElementMetadata can overwrite font style")
 	void testCanOverwriteFontStyle() {
-		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101,
-			102);
+		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 		assertEquals(value, 1, StandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 
 		value = EncodedTokenAttributes.set(value, 0, OptionalStandardTokenType.NotSet, false, None, 0, 0);
@@ -90,8 +85,7 @@ class EncodedTokenAttributesTest {
 	@Order(6)
 	@DisplayName("StackElementMetadata can overwrite foreground")
 	void testCanOverwriteForeground() {
-		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101,
-			102);
+		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 		assertEquals(value, 1, StandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 
 		value = EncodedTokenAttributes.set(value, 0, OptionalStandardTokenType.NotSet, false, NotSet, 5, 0);
@@ -102,8 +96,7 @@ class EncodedTokenAttributesTest {
 	@Order(7)
 	@DisplayName("StackElementMetadata can overwrite background")
 	void testCanOverwriteBackground() {
-		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101,
-			102);
+		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 		assertEquals(value, 1, StandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 
 		value = EncodedTokenAttributes.set(value, 0, OptionalStandardTokenType.NotSet, false, NotSet, 0, 7);
@@ -114,8 +107,7 @@ class EncodedTokenAttributesTest {
 	@Order(8)
 	@DisplayName("StackElementMetadata can overwrite balanced bracket bit")
 	void testCanOverwriteBalancedBracketBit() {
-		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101,
-			102);
+		int value = EncodedTokenAttributes.set(0, 1, OptionalStandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 		assertEquals(value, 1, StandardTokenType.RegEx, false, Underline | Bold, 101, 102);
 
 		value = EncodedTokenAttributes.set(value, 0, OptionalStandardTokenType.NotSet, true, NotSet, 0, 0);
@@ -130,38 +122,36 @@ class EncodedTokenAttributesTest {
 	@DisplayName("StackElementMetadata can work at max values")
 	void testCanWorkAtMaxValues() {
 		final int maxLangId = 255;
-		final int maxTokenType = StandardTokenType.Comment | StandardTokenType.Other | StandardTokenType.RegEx
-			| StandardTokenType.String;
+		final int maxTokenType = StandardTokenType.Comment | StandardTokenType.Other | StandardTokenType.RegEx | StandardTokenType.String;
 		final int maxFontStyle = Bold | Italic | Underline;
 		final int maxForeground = 511;
 		final int maxBackground = 254;
 
-		final int value = EncodedTokenAttributes.set(0, maxLangId, maxTokenType, true, maxFontStyle, maxForeground,
-			maxBackground);
+		final int value = EncodedTokenAttributes.set(0, maxLangId, maxTokenType, true, maxFontStyle, maxForeground, maxBackground);
 		assertEquals(value, maxLangId, maxTokenType, true, maxFontStyle, maxForeground, maxBackground);
 	}
 
 	private static void assertEquals(final int metadata, final int languageId,
-		final int /*StandardTokenType*/ tokenType,
-		final boolean containsBalancedBrackets, final int /*FontStyle*/ fontStyle, final int foreground,
-		final int background) {
+			final int /*StandardTokenType*/ tokenType,
+			final boolean containsBalancedBrackets, final int /*FontStyle*/ fontStyle, final int foreground,
+			final int background) {
 		final var actual = "{\n" +
-			"languageId: " + EncodedTokenAttributes.getLanguageId(metadata) + ",\n" +
-			"tokenType: " + EncodedTokenAttributes.getTokenType(metadata) + ",\n" +
-			"containsBalancedBrackets: " + EncodedTokenAttributes.containsBalancedBrackets(metadata) + ",\n" +
-			"fontStyle: " + EncodedTokenAttributes.getFontStyle(metadata) + ",\n" +
-			"foreground: " + EncodedTokenAttributes.getForeground(metadata) + ",\n" +
-			"background: " + EncodedTokenAttributes.getBackground(metadata) + ",\n" +
-			"}";
+				"languageId: " + EncodedTokenAttributes.getLanguageId(metadata) + ",\n" +
+				"tokenType: " + EncodedTokenAttributes.getTokenType(metadata) + ",\n" +
+				"containsBalancedBrackets: " + EncodedTokenAttributes.containsBalancedBrackets(metadata) + ",\n" +
+				"fontStyle: " + EncodedTokenAttributes.getFontStyle(metadata) + ",\n" +
+				"foreground: " + EncodedTokenAttributes.getForeground(metadata) + ",\n" +
+				"background: " + EncodedTokenAttributes.getBackground(metadata) + ",\n" +
+				"}";
 
 		final var expected = "{\n" +
-			"languageId: " + languageId + ",\n" +
-			"tokenType: " + tokenType + ",\n" +
-			"containsBalancedBrackets: " + containsBalancedBrackets + ",\n" +
-			"fontStyle: " + fontStyle + ",\n" +
-			"foreground: " + foreground + ",\n" +
-			"background: " + background + ",\n" +
-			"}";
+				"languageId: " + languageId + ",\n" +
+				"tokenType: " + tokenType + ",\n" +
+				"containsBalancedBrackets: " + containsBalancedBrackets + ",\n" +
+				"fontStyle: " + fontStyle + ",\n" +
+				"foreground: " + foreground + ",\n" +
+				"background: " + background + ",\n" +
+				"}";
 
 		Assertions.assertEquals(expected, actual, "equals for " + EncodedTokenAttributes.toBinaryStr(metadata));
 	}

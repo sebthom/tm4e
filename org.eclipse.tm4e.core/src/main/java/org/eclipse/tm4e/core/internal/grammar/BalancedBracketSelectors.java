@@ -34,21 +34,21 @@ public class BalancedBracketSelectors {
 	private boolean allowAny = false;
 
 	public BalancedBracketSelectors(
-		final List<String> balancedBracketScopes,
-		final List<String> unbalancedBracketScopes) {
+			final List<String> balancedBracketScopes,
+			final List<String> unbalancedBracketScopes) {
 		this.balancedBracketScopes = balancedBracketScopes.stream()
-			.flatMap(selector -> {
-				if ("*".equals(selector)) {
-					this.allowAny = true;
-					return Stream.empty();
-				}
-				return Matcher.createMatchers(selector).stream().map(m -> m.matcher);
-			})
-			.toArray(Matcher[]::new);
+				.flatMap(selector -> {
+					if ("*".equals(selector)) {
+						this.allowAny = true;
+						return Stream.empty();
+					}
+					return Matcher.createMatchers(selector).stream().map(m -> m.matcher);
+				})
+				.toArray(Matcher[]::new);
 
 		this.unbalancedBracketScopes = unbalancedBracketScopes.stream()
-			.flatMap(selector -> Matcher.createMatchers(selector).stream().map(m -> m.matcher))
-			.toArray(Matcher[]::new);
+				.flatMap(selector -> Matcher.createMatchers(selector).stream().map(m -> m.matcher))
+				.toArray(Matcher[]::new);
 	}
 
 	boolean matchesAlways() {

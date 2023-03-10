@@ -172,9 +172,9 @@ public abstract class AbstractModelLines {
 				if (!list.isEmpty()) {
 					for (int i = 0; i < list.size(); i++) {
 						sb.append(i)
-							.append(": isInvalid=")
-							.append(list.get(i).isInvalid)
-							.append(", ");
+								.append(": isInvalid=")
+								.append(list.get(i).isInvalid)
+								.append(", ");
 					}
 					sb.setLength(sb.length() - 2);
 				}

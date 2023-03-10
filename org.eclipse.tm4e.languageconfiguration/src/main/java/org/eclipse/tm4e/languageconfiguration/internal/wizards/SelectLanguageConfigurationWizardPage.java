@@ -110,22 +110,22 @@ final class SelectLanguageConfigurationWizardPage extends WizardPage implements 
 	private static void applyToStatusLine(final DialogPage page, final IStatus status) {
 		final var message = Status.OK_STATUS.equals(status) ? null : status.getMessage();
 		switch (status.getSeverity()) {
-		case IStatus.OK:
-			page.setMessage(message, IMessageProvider.NONE);
-			page.setErrorMessage(null);
-			break;
-		case IStatus.WARNING:
-			page.setMessage(message, IMessageProvider.WARNING);
-			page.setErrorMessage(null);
-			break;
-		case IStatus.INFO:
-			page.setMessage(message, IMessageProvider.INFORMATION);
-			page.setErrorMessage(null);
-			break;
-		default:
-			page.setMessage(null);
-			page.setErrorMessage(message != null && message.isEmpty() ? null : message);
-			break;
+			case IStatus.OK:
+				page.setMessage(message, IMessageProvider.NONE);
+				page.setErrorMessage(null);
+				break;
+			case IStatus.WARNING:
+				page.setMessage(message, IMessageProvider.WARNING);
+				page.setErrorMessage(null);
+				break;
+			case IStatus.INFO:
+				page.setMessage(message, IMessageProvider.INFORMATION);
+				page.setErrorMessage(null);
+				break;
+			default:
+				page.setMessage(null);
+				page.setErrorMessage(message != null && message.isEmpty() ? null : message);
+				break;
 		}
 	}
 

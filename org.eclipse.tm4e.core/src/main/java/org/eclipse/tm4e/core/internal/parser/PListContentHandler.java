@@ -123,36 +123,35 @@ final class PListContentHandler<T> extends DefaultHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void startElement(@Nullable final String uri, @Nullable final String localName, @Nullable final String qName,
-		@Nullable final Attributes attributes) throws SAXException {
+			@Nullable final Attributes attributes) throws SAXException {
 		assert localName != null;
 
 		path.depth++;
 
 		switch (localName) {
-		case "dict":
-			if (result == null) {
-				result = (T) objectFactory.create(path);
-				currObject = new PListObject(currObject, result);
-			} else {
-				currObject = new PListObject(currObject, objectFactory.create(path));
-			}
-			break;
-		case "array":
-			if (result == null) {
-				result = (T) new ArrayList<>();
-				currObject = new PListObject(currObject, result);
-			} else {
-				currObject = new PListObject(currObject, new ArrayList<>());
-			}
-			break;
+			case "dict":
+				if (result == null) {
+					result = (T) objectFactory.create(path);
+					currObject = new PListObject(currObject, result);
+				} else {
+					currObject = new PListObject(currObject, objectFactory.create(path));
+				}
+				break;
+			case "array":
+				if (result == null) {
+					result = (T) new ArrayList<>();
+					currObject = new PListObject(currObject, result);
+				} else {
+					currObject = new PListObject(currObject, new ArrayList<>());
+				}
+				break;
 		}
 
 		text.setLength(0);
 	}
 
 	@Override
-	public void endElement(@Nullable final String uri, @Nullable final String localName, @Nullable final String qName)
-		throws SAXException {
+	public void endElement(@Nullable final String uri, @Nullable final String localName, @Nullable final String qName) throws SAXException {
 		assert localName != null;
 
 		final var currObject = this.currObject;
@@ -164,54 +163,54 @@ final class PListContentHandler<T> extends DefaultHandler {
 		path.depth--;
 
 		switch (localName) {
-		case "key":
-			if (!(currObject.values instanceof PropertySettable)) {
-				LOGGER.log(WARNING, "<key> tag can only be used inside an open <dict> element");
+			case "key":
+				if (!(currObject.values instanceof PropertySettable)) {
+					LOGGER.log(WARNING, "<key> tag can only be used inside an open <dict> element");
+					break;
+				}
+				path.add(text.toString());
 				break;
-			}
-			path.add(text.toString());
-			break;
-		case "array", "dict":
-			final var parent = currObject.parent;
-			if (parent != null) {
-				parent.addValue(currObject.values);
-				this.currObject = parent;
-			}
-			break;
-		case "data", "string":
-			currObject.addValue(text.toString());
-			break;
-		case "date": // e.g. <date>2007-10-25T12:36:35Z</date>
-			try {
-				currObject.addValue(ZonedDateTime.parse(text.toString()));
-			} catch (final DateTimeParseException ex) {
-				LOGGER.log(WARNING, "Failed to parse date '" + text + "'. " + ex);
-			}
-			break;
-		case "integer":
-			try {
-				currObject.addValue(Integer.parseInt(text.toString()));
-			} catch (final NumberFormatException ex) {
-				LOGGER.log(WARNING, "Failed to parse integer '" + text + "'. " + ex);
-			}
-			break;
-		case "real":
-			try {
-				currObject.addValue(Float.parseFloat(text.toString()));
-			} catch (final NumberFormatException ex) {
-				LOGGER.log(WARNING, "Failed to parse real as float '" + text + "'. " + ex);
-			}
-			break;
-		case "true":
-			currObject.addValue(Boolean.TRUE);
-			break;
-		case "false":
-			currObject.addValue(Boolean.FALSE);
-			break;
-		case "plist":
-			break;
-		default:
-			LOGGER.log(WARNING, "Invalid tag name: " + localName);
+			case "array", "dict":
+				final var parent = currObject.parent;
+				if (parent != null) {
+					parent.addValue(currObject.values);
+					this.currObject = parent;
+				}
+				break;
+			case "data", "string":
+				currObject.addValue(text.toString());
+				break;
+			case "date": // e.g. <date>2007-10-25T12:36:35Z</date>
+				try {
+					currObject.addValue(ZonedDateTime.parse(text.toString()));
+				} catch (final DateTimeParseException ex) {
+					LOGGER.log(WARNING, "Failed to parse date '" + text + "'. " + ex);
+				}
+				break;
+			case "integer":
+				try {
+					currObject.addValue(Integer.parseInt(text.toString()));
+				} catch (final NumberFormatException ex) {
+					LOGGER.log(WARNING, "Failed to parse integer '" + text + "'. " + ex);
+				}
+				break;
+			case "real":
+				try {
+					currObject.addValue(Float.parseFloat(text.toString()));
+				} catch (final NumberFormatException ex) {
+					LOGGER.log(WARNING, "Failed to parse real as float '" + text + "'. " + ex);
+				}
+				break;
+			case "true":
+				currObject.addValue(Boolean.TRUE);
+				break;
+			case "false":
+				currObject.addValue(Boolean.FALSE);
+				break;
+			case "plist":
+				break;
+			default:
+				LOGGER.log(WARNING, "Invalid tag name: " + localName);
 		}
 	}
 

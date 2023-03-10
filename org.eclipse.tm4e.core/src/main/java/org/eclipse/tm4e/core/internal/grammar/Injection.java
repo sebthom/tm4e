@@ -35,8 +35,8 @@ final class Injection {
 	final RuleId ruleId;
 	final IRawGrammar grammar;
 
-	Injection(final String debugSelector, final Matcher<List<String>> matcher, final RuleId ruleId,
-		final IRawGrammar grammar, final int priority) {
+	Injection(final String debugSelector, final Matcher<List<String>> matcher, final RuleId ruleId, final IRawGrammar grammar,
+			final int priority) {
 		this.debugSelector = debugSelector;
 		this.matcher = matcher;
 		this.ruleId = ruleId;

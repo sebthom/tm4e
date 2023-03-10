@@ -22,8 +22,7 @@ import org.eclipse.tm4e.core.internal.types.IRawCaptures;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
 
-public class RawRule extends HashMap<String, @Nullable Object>
-	implements IRawRule, PropertySettable<Object> {
+public class RawRule extends HashMap<String, @Nullable Object> implements IRawRule, PropertySettable<Object> {
 
 	private static final String APPLY_END_PATTERN_LAST = "applyEndPatternLast";
 	private static final String BEGIN = "begin";

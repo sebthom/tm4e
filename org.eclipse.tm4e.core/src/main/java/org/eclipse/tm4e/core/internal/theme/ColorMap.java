@@ -86,7 +86,7 @@ public final class ColorMap {
 		}
 		final ColorMap other = (ColorMap) obj;
 		return _lastColorId == other._lastColorId
-			&& _color2id.equals(other._color2id);
+				&& _color2id.equals(other._color2id);
 	}
 
 	@Override

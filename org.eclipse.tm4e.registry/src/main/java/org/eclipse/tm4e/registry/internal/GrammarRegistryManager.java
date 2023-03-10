@@ -68,27 +68,27 @@ public final class GrammarRegistryManager extends AbstractGrammarRegistryManager
 		for (final IConfigurationElement ce : cf) {
 			final String extensionName = ce.getName();
 			switch (extensionName) {
-			case XMLConstants.GRAMMAR_ELT:
-				super.registerGrammarDefinition(new GrammarDefinition(ce));
-				break;
-			case XMLConstants.INJECTION_ELT: {
-				final String scopeName = ce.getAttribute(XMLConstants.SCOPE_NAME_ATTR);
-				final String injectTo = ce.getAttribute(XMLConstants.INJECT_TO_ATTR);
-				super.registerInjection(scopeName, injectTo);
-				break;
-			}
-			case XMLConstants.SCOPE_NAME_CONTENT_TYPE_BINDING_ELT: {
-				final String contentTypeId = ce.getAttribute(XMLConstants.CONTENT_TYPE_ID_ATTR);
-				final IContentType contentType = Platform.getContentTypeManager().getContentType(contentTypeId);
-				if (contentType == null) {
-					Platform.getLog(getClass())
-							.warn("No content-type found with id='" + contentTypeId + "', ignoring TM4E association.");
-				} else {
+				case XMLConstants.GRAMMAR_ELT:
+					super.registerGrammarDefinition(new GrammarDefinition(ce));
+					break;
+				case XMLConstants.INJECTION_ELT: {
 					final String scopeName = ce.getAttribute(XMLConstants.SCOPE_NAME_ATTR);
-					super.registerContentTypeBinding(contentType, scopeName);
+					final String injectTo = ce.getAttribute(XMLConstants.INJECT_TO_ATTR);
+					super.registerInjection(scopeName, injectTo);
+					break;
 				}
-				break;
-			}
+				case XMLConstants.SCOPE_NAME_CONTENT_TYPE_BINDING_ELT: {
+					final String contentTypeId = ce.getAttribute(XMLConstants.CONTENT_TYPE_ID_ATTR);
+					final IContentType contentType = Platform.getContentTypeManager().getContentType(contentTypeId);
+					if (contentType == null) {
+						Platform.getLog(getClass())
+								.warn("No content-type found with id='" + contentTypeId + "', ignoring TM4E association.");
+					} else {
+						final String scopeName = ce.getAttribute(XMLConstants.SCOPE_NAME_ATTR);
+						super.registerContentTypeBinding(contentType, scopeName);
+					}
+					break;
+				}
 			}
 		}
 	}

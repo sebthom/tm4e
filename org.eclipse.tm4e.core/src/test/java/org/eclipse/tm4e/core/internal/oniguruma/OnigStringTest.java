@@ -36,8 +36,7 @@ class OnigStringTest {
 		// does not throws exception, because of internal workaround
 		assertEquals(string.length(), onigString.getCharIndexOfByte(onigString.bytesCount));
 
-		assertThrows(ArrayIndexOutOfBoundsException.class,
-			() -> onigString.getCharIndexOfByte(onigString.bytesCount + 1));
+		assertThrows(ArrayIndexOutOfBoundsException.class, () -> onigString.getCharIndexOfByte(onigString.bytesCount + 1));
 
 		return onigString;
 	}

@@ -166,10 +166,9 @@ public abstract class OnigString {
 		bytesCount = bytesUTF8.length;
 	}
 
-	protected final String throwOutOfBoundsException(final String indexName, final int index, final int minIndex,
-		final int maxIndex) {
+	protected final String throwOutOfBoundsException(final String indexName, final int index, final int minIndex, final int maxIndex) {
 		throw new ArrayIndexOutOfBoundsException(
-			indexName + " index " + index + " is out of range " + minIndex + ".." + maxIndex + " of " + this);
+				indexName + " index " + index + " is out of range " + minIndex + ".." + maxIndex + " of " + this);
 	}
 
 	abstract int getByteIndexOfChar(int charIndex);

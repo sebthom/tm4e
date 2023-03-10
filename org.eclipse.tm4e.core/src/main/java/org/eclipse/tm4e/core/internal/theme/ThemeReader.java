@@ -38,13 +38,13 @@ public final class ThemeReader {
 	public static IRawTheme readTheme(final IThemeSource source) throws Exception {
 		try (var reader = source.getReader()) {
 			switch (source.getContentType()) {
-			case JSON:
-				return JSON_PARSER.parse(reader);
-			case YAML:
-				return YAML_PARSER.parse(reader);
-			case XML:
-			default:
-				return XML_PARSER.parse(reader);
+				case JSON:
+					return JSON_PARSER.parse(reader);
+				case YAML:
+					return YAML_PARSER.parse(reader);
+				case XML:
+				default:
+					return XML_PARSER.parse(reader);
 			}
 		}
 	}

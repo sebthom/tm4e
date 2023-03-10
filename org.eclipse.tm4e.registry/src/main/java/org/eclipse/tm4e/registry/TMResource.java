@@ -37,7 +37,7 @@ public class TMResource implements ITMResource {
 	 * Constructor for user preferences (loaded from Json with Gson).
 	 */
 	public TMResource() {
-		 path = "<set-by-gson>";
+		path = "<set-by-gson>";
 	}
 
 	/**
@@ -73,9 +73,9 @@ public class TMResource implements ITMResource {
 	@Override
 	@SuppressWarnings("resource")
 	public InputStream getInputStream() throws IOException {
-		return pluginId != null ?
-			new URL(PLATFORM_PLUGIN + pluginId + "/" + path).openStream() : //
-			new FileInputStream(new File(path));
+		return pluginId != null
+				? new URL(PLATFORM_PLUGIN + pluginId + "/" + path).openStream()
+				: new FileInputStream(new File(path));
 	}
 
 	@Nullable

@@ -8,7 +8,6 @@
  */
 package org.eclipse.tm4e.languageconfiguration.tests;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
@@ -40,8 +39,9 @@ public class TestIndent {
 		p.open(null);
 		final IFile file = p.getFile("whatever.txt");
 		file.create(new ByteArrayInputStream(new byte[0]), true, null);
-		final ITextEditor editor = (ITextEditor) IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
-		final StyledText text = (StyledText)editor.getAdapter(Control.class);
+		final ITextEditor editor = (ITextEditor) IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final StyledText text = (StyledText) editor.getAdapter(Control.class);
 		// Tab only
 		text.setText("\t");
 		text.setSelection(text.getText().length());

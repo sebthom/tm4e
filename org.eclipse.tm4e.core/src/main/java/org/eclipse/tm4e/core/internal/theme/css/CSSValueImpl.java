@@ -6,8 +6,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
- *     IBM Corporation - ongoing development
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * IBM Corporation - ongoing development
  *******************************************************************************/
 package org.eclipse.tm4e.core.internal.theme.css;
 

@@ -72,10 +72,8 @@ public class TMEditor {
 	/**
 	 * Invalidates the given range of the text presentation.
 	 *
-	 * @param offset
-	 *            the offset of the range to be invalidated
-	 * @param length
-	 *            the length of the range to be invalidated
+	 * @param offset the offset of the range to be invalidated
+	 * @param length the length of the range to be invalidated
 	 *
 	 */
 	public void invalidateTextPresentation(final int offset, final int length) {

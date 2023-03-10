@@ -125,12 +125,12 @@ final class OnEnterRuleTableWidget extends TableViewer {
 			final EnterAction action = rule.action;
 
 			return switch (columnIndex) {
-			case 0 -> rule.beforeText.pattern();
-			case 1 -> rule.afterText != null ? rule.afterText.pattern() : "";
-			case 2 -> action.indentAction.toString();
-			case 3 -> action.appendText != null ? action.appendText : "";
-			case 4 -> action.removeText != null ? action.removeText.toString() : "";
-			default -> ""; //$NON-NLS-1$
+				case 0 -> rule.beforeText.pattern();
+				case 1 -> rule.afterText != null ? rule.afterText.pattern() : "";
+				case 2 -> action.indentAction.toString();
+				case 3 -> action.appendText != null ? action.appendText : "";
+				case 4 -> action.removeText != null ? action.removeText.toString() : "";
+				default -> ""; //$NON-NLS-1$
 			};
 		}
 	}

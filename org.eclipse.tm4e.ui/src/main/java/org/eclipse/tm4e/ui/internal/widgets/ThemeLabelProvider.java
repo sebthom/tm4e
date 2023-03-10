@@ -44,10 +44,10 @@ public final class ThemeLabelProvider extends LabelProvider implements ITableLab
 			return "";
 		final ITheme theme = (ITheme) element;
 		return switch (columnIndex) {
-		case 0 -> theme.getName();
-		case 1 -> theme.getPath();
-		case 2 -> theme.getPluginId();
-		default -> ""; //$NON-NLS-1$
+			case 0 -> theme.getName();
+			case 1 -> theme.getPath();
+			case 2 -> theme.getPluginId();
+			default -> ""; //$NON-NLS-1$
 		};
 	}
 }

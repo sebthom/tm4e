@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2017 Angelo ZERR.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,8 +11,8 @@
  * Initial license: MIT
  *
  * Contributors:
- *  - Christopher Jeffrey and others: Initial code, written in JavaScript, licensed under MIT license
- *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ * - Christopher Jeffrey and others: Initial code, written in JavaScript, licensed under MIT license
+ * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
  */
 package org.eclipse.tm4e.markdown.marked;
 
@@ -43,8 +43,9 @@ public class InlineRules {
 	public final RegExp del;
 	public final RegExp text;
 
-	public InlineRules(final RegExp escape, final RegExp autolink, final RegExp url, final RegExp tag, final RegExp link, final RegExp reflink,
-			final RegExp nolink, final RegExp strong, final RegExp em, final RegExp code, final RegExp br, final RegExp del, final RegExp text) {
+	public InlineRules(final RegExp escape, final RegExp autolink, final RegExp url, final RegExp tag, final RegExp link,
+			final RegExp reflink, final RegExp nolink, final RegExp strong, final RegExp em, final RegExp code, final RegExp br,
+			final RegExp del, final RegExp text) {
 		this.escape = escape;
 		this.autolink = autolink;
 		this.url = url;

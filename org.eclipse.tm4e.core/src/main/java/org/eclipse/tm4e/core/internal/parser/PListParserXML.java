@@ -48,7 +48,7 @@ public final class PListParserXML<T> implements PListParser<T> {
 
 		final XMLReader xmlReader = saxParser.getXMLReader();
 		xmlReader.setEntityResolver((publicId, systemId) -> new InputSource(
-			new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes())));
+				new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes())));
 		final var result = new PListContentHandler<T>(objectFactory);
 		xmlReader.setContentHandler(result);
 		xmlReader.parse(new InputSource(contents));

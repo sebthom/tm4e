@@ -106,10 +106,10 @@ public class ScopeDependencyProcessor {
 	}
 
 	void collectReferencesOfReference(
-		final AbsoluteRuleReference reference,
-		final String baseGrammarScopeName,
-		final IGrammarRepository repo,
-		final ExternalReferenceCollector result) {
+			final AbsoluteRuleReference reference,
+			final String baseGrammarScopeName,
+			final IGrammarRepository repo,
+			final ExternalReferenceCollector result) {
 
 		final var selfGrammar = repo.lookup(reference.scopeName);
 		if (selfGrammar == null) {
@@ -125,9 +125,9 @@ public class ScopeDependencyProcessor {
 			collectExternalReferencesInTopLevelRule(new Context(baseGrammar, selfGrammar), result);
 		} else if (reference instanceof final TopLevelRepositoryRuleReference ref) {
 			collectExternalReferencesInTopLevelRepositoryRule(
-				ref.ruleName,
-				new ContextWithRepository(baseGrammar, selfGrammar, selfGrammar.getRepository()),
-				result);
+					ref.ruleName,
+					new ContextWithRepository(baseGrammar, selfGrammar, selfGrammar.getRepository()),
+					result);
 		}
 
 		final var injections = repo.injections(reference.scopeName);
@@ -157,16 +157,14 @@ public class ScopeDependencyProcessor {
 			this.repository = repository;
 		}
 
-		ContextWithRepository(final IRawGrammar baseGrammar, final IRawGrammar selfGrammar,
-			@Nullable final IRawRepository repository) {
+		ContextWithRepository(final IRawGrammar baseGrammar, final IRawGrammar selfGrammar, @Nullable final IRawRepository repository) {
 			super(baseGrammar, selfGrammar);
 			this.repository = repository;
 		}
 	}
 
-	void collectExternalReferencesInTopLevelRepositoryRule(final String ruleName,
-		final ContextWithRepository context,
-		final ExternalReferenceCollector result) {
+	void collectExternalReferencesInTopLevelRepositoryRule(final String ruleName, final ContextWithRepository context,
+			final ExternalReferenceCollector result) {
 
 		if (context.repository != null) {
 			final var rule = context.repository.getRule(ruleName);
@@ -179,24 +177,21 @@ public class ScopeDependencyProcessor {
 	void collectExternalReferencesInTopLevelRule(final Context context, final ExternalReferenceCollector result) {
 		final var patterns = context.selfGrammar.getPatterns();
 		if (patterns != null) {
-			collectExternalReferencesInRules(
-				patterns,
-				new ContextWithRepository(context, context.selfGrammar.getRepository()),
-				result);
+			collectExternalReferencesInRules(patterns, new ContextWithRepository(context, context.selfGrammar.getRepository()), result);
 		}
 		final var injections = context.selfGrammar.getInjections();
 		if (injections != null) {
 			collectExternalReferencesInRules(
-				injections.values(),
-				new ContextWithRepository(context, context.selfGrammar.getRepository()),
-				result);
+					injections.values(),
+					new ContextWithRepository(context, context.selfGrammar.getRepository()),
+					result);
 		}
 	}
 
 	void collectExternalReferencesInRules(
-		final Collection<IRawRule> rules,
-		final ContextWithRepository context,
-		final ExternalReferenceCollector result) {
+			final Collection<IRawRule> rules,
+			final ContextWithRepository context,
+			final ExternalReferenceCollector result) {
 
 		for (final var rule : rules) {
 			if (result.visitedRule.contains(rule)) {
@@ -205,13 +200,12 @@ public class ScopeDependencyProcessor {
 			result.visitedRule.add(rule);
 
 			final var patternRepository = rule.getRepository() == null
-				? context.repository
-				: IRawRepository.merge(context.repository, rule.getRepository());
+					? context.repository
+					: IRawRepository.merge(context.repository, rule.getRepository());
 
 			final var patternPatterns = rule.getPatterns();
 			if (patternPatterns != null) {
-				collectExternalReferencesInRules(patternPatterns, new ContextWithRepository(context, patternRepository),
-					result);
+				collectExternalReferencesInRules(patternPatterns, new ContextWithRepository(context, patternRepository), result);
 			}
 
 			final var include = rule.getInclude();
@@ -222,42 +216,40 @@ public class ScopeDependencyProcessor {
 			final var reference = IncludeReference.parseInclude(include);
 
 			switch (reference.kind) {
-			case Base:
-				collectExternalReferencesInTopLevelRule(new Context(context.baseGrammar, context.baseGrammar), result);
-				break;
-			case Self:
-				collectExternalReferencesInTopLevelRule(context, result);
-				break;
-			case RelativeReference:
-				collectExternalReferencesInTopLevelRepositoryRule(reference.ruleName,
-					new ContextWithRepository(context, patternRepository),
-					result);
-				break;
-			case TopLevelReference:
-			case TopLevelRepositoryReference:
-				@Nullable
-				final IRawGrammar selfGrammar = reference.scopeName.equals(context.selfGrammar.getScopeName())
-					? context.selfGrammar
-					: reference.scopeName.equals(context.baseGrammar.getScopeName())
-						? context.baseGrammar
-						: null;
+				case Base:
+					collectExternalReferencesInTopLevelRule(new Context(context.baseGrammar, context.baseGrammar), result);
+					break;
+				case Self:
+					collectExternalReferencesInTopLevelRule(context, result);
+					break;
+				case RelativeReference:
+					collectExternalReferencesInTopLevelRepositoryRule(reference.ruleName,
+							new ContextWithRepository(context, patternRepository), result);
+					break;
+				case TopLevelReference:
+				case TopLevelRepositoryReference:
+					@Nullable
+					final IRawGrammar selfGrammar = reference.scopeName.equals(context.selfGrammar.getScopeName())
+							? context.selfGrammar
+							: reference.scopeName.equals(context.baseGrammar.getScopeName())
+									? context.baseGrammar
+									: null;
 
-				if (selfGrammar != null) {
-					final var newContext = new ContextWithRepository(context.baseGrammar, selfGrammar,
-						patternRepository);
-					if (reference.kind == IncludeReference.Kind.TopLevelRepositoryReference) {
-						collectExternalReferencesInTopLevelRepositoryRule(reference.ruleName, newContext, result);
+					if (selfGrammar != null) {
+						final var newContext = new ContextWithRepository(context.baseGrammar, selfGrammar, patternRepository);
+						if (reference.kind == IncludeReference.Kind.TopLevelRepositoryReference) {
+							collectExternalReferencesInTopLevelRepositoryRule(reference.ruleName, newContext, result);
+						} else {
+							collectExternalReferencesInTopLevelRule(newContext, result);
+						}
 					} else {
-						collectExternalReferencesInTopLevelRule(newContext, result);
+						if (reference.kind == IncludeReference.Kind.TopLevelRepositoryReference) {
+							result.add(new TopLevelRepositoryRuleReference(reference.scopeName, reference.ruleName));
+						} else {
+							result.add(new TopLevelRuleReference(reference.scopeName));
+						}
 					}
-				} else {
-					if (reference.kind == IncludeReference.Kind.TopLevelRepositoryReference) {
-						result.add(new TopLevelRepositoryRuleReference(reference.scopeName, reference.ruleName));
-					} else {
-						result.add(new TopLevelRuleReference(reference.scopeName));
-					}
-				}
-				break;
+					break;
 			}
 		}
 	}

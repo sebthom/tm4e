@@ -1,13 +1,13 @@
 /**
- *  Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2017 Angelo ZERR.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Contributors:
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.tm4e.ui.internal.widgets;
 
@@ -39,21 +39,21 @@ public final class ContentTypeLabelProvider extends LabelProvider implements ITa
 	@Override
 	public String getColumnText(@Nullable final Object element, final int columnIndex) {
 		return switch (columnIndex) {
-		case 0 -> {
-			IContentType contentType = null;
-			if(element instanceof final IContentType contentTypeElement) {
-				contentType = contentTypeElement;
-			} else if(element instanceof final String contentTypeId) {
-				contentType = Platform.getContentTypeManager().getContentType(contentTypeId);
-				if (contentType == null) {
-					yield contentTypeId;
+			case 0 -> {
+				IContentType contentType = null;
+				if (element instanceof final IContentType contentTypeElement) {
+					contentType = contentTypeElement;
+				} else if (element instanceof final String contentTypeId) {
+					contentType = Platform.getContentTypeManager().getContentType(contentTypeId);
+					if (contentType == null) {
+						yield contentTypeId;
+					}
+				} else {
+					yield ""; //$NON-NLS-1$
 				}
-			} else {
-				yield ""; //$NON-NLS-1$
+				yield contentType.getName() + " (" + contentType.getId() + ")";
 			}
-			yield contentType.getName() + " (" + contentType.getId() + ")";
-		}
-		default -> ""; //$NON-NLS-1$
+			default -> ""; //$NON-NLS-1$
 		};
 	}
 }

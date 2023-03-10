@@ -45,11 +45,11 @@ public class Angular2ViewerConfiguration extends SourceViewerConfiguration {
 			@Override
 			public IGrammarSource getGrammarSource(String scopeName) {
 				String resourceName = switch (scopeName) {
-				// case "source.ng.css" -> "source.ng.css.json";
-				// case "source.ng.ts" -> "source.ng.ts.json";
-				// case "template.ng" -> "template.ng.json";
-				// case "styles.ng" -> "styles.ng.json";
-				default -> scopeName + ".json";
+					// case "source.ng.css" -> "source.ng.css.json";
+					// case "source.ng.ts" -> "source.ng.ts.json";
+					// case "template.ng" -> "template.ng.json";
+					// case "styles.ng" -> "styles.ng.json";
+					default -> scopeName + ".json";
 				};
 				return IGrammarSource.fromResource(Angular2ViewerConfiguration.class, resourceName);
 			}

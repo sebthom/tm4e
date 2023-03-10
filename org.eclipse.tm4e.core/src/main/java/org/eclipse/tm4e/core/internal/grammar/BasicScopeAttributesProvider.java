@@ -77,16 +77,15 @@ final class BasicScopeAttributesProvider {
 		}
 		final String group = m.group(1);
 		return switch (group) {
-		case "comment" -> OptionalStandardTokenType.Comment;
-		case "string" -> OptionalStandardTokenType.String;
-		case "regex" -> OptionalStandardTokenType.RegEx;
-		case "meta.embedded" -> OptionalStandardTokenType.Other;
-		default -> throw new TMException("Unexpected match for standard token type: " + group);
+			case "comment" -> OptionalStandardTokenType.Comment;
+			case "string" -> OptionalStandardTokenType.String;
+			case "regex" -> OptionalStandardTokenType.RegEx;
+			case "meta.embedded" -> OptionalStandardTokenType.Other;
+			default -> throw new TMException("Unexpected match for standard token type: " + group);
 		};
 	}
 
-	private static final Pattern STANDARD_TOKEN_TYPE_REGEXP = Pattern
-		.compile("\\b(comment|string|regex|meta\\.embedded)\\b");
+	private static final Pattern STANDARD_TOKEN_TYPE_REGEXP = Pattern.compile("\\b(comment|string|regex|meta\\.embedded)\\b");
 
 	private static final class ScopeMatcher<TValue> {
 
@@ -103,9 +102,9 @@ final class BasicScopeAttributesProvider {
 
 				// create the regex
 				final var escapedScopes = values.keySet().stream()
-					.map(RegexSource::escapeRegExpCharacters)
-					.sorted(Collections.reverseOrder()) // Longest scope first
-					.toArray(String[]::new);
+						.map(RegexSource::escapeRegExpCharacters)
+						.sorted(Collections.reverseOrder()) // Longest scope first
+						.toArray(String[]::new);
 
 				scopesRegExp = Pattern.compile("^((" + String.join(")|(", escapedScopes) + "))($|\\.)");
 			}

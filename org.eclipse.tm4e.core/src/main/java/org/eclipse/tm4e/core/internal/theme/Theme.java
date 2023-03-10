@@ -39,15 +39,11 @@ public final class Theme {
 	private static final Splitter BY_COMMA_SPLITTER = Splitter.on(',');
 	private static final Splitter BY_SPACE_SPLITTER = Splitter.on(' ');
 
-	public static Theme createFromRawTheme(
-		@Nullable final IRawTheme source,
-		@Nullable final List<String> colorMap) {
+	public static Theme createFromRawTheme(@Nullable final IRawTheme source, @Nullable final List<String> colorMap) {
 		return createFromParsedTheme(parseTheme(source), colorMap);
 	}
 
-	public static Theme createFromParsedTheme(
-		final List<ParsedThemeRule> source,
-		@Nullable final List<String> colorMap) {
+	public static Theme createFromParsedTheme(final List<ParsedThemeRule> source, @Nullable final List<String> colorMap) {
 		return resolveParsedThemeRules(source, colorMap);
 	}
 
@@ -81,19 +77,18 @@ public final class Theme {
 		final var matchingTrieElements = this._cachedMatchRoot.computeIfAbsent(scopeName, _root::match);
 
 		final var effectiveRule = findFirstMatching(matchingTrieElements,
-			v -> _scopePathMatchesParentScopes(scopePath.parent, v.parentScopes));
+				v -> _scopePathMatchesParentScopes(scopePath.parent, v.parentScopes));
 		if (effectiveRule == null) {
 			return null;
 		}
 
 		return new StyleAttributes(
-			effectiveRule.fontStyle,
-			effectiveRule.foreground,
-			effectiveRule.background);
+				effectiveRule.fontStyle,
+				effectiveRule.foreground,
+				effectiveRule.background);
 	}
 
-	private boolean _scopePathMatchesParentScopes(@Nullable ScopeStack scopePath,
-		@Nullable final List<String> parentScopeNames) {
+	private boolean _scopePathMatchesParentScopes(@Nullable ScopeStack scopePath, @Nullable final List<String> parentScopeNames) {
 		if (parentScopeNames == null) {
 			return true;
 		}
@@ -117,7 +112,7 @@ public final class Theme {
 
 	private boolean _matchesScope(final String scopeName, final String scopeNamePattern) {
 		return scopeNamePattern.equals(scopeName)
-			|| scopeName.startsWith(scopeNamePattern) && scopeName.charAt(scopeNamePattern.length()) == '.';
+				|| scopeName.startsWith(scopeNamePattern) && scopeName.charAt(scopeNamePattern.length()) == '.';
 	}
 
 	/**
@@ -169,18 +164,18 @@ public final class Theme {
 				final var segments = BY_SPACE_SPLITTER.split(style);
 				for (final var segment : segments) {
 					switch (segment) {
-					case "italic":
-						fontStyle = fontStyle | FontStyle.Italic;
-						break;
-					case "bold":
-						fontStyle = fontStyle | FontStyle.Bold;
-						break;
-					case "underline":
-						fontStyle = fontStyle | FontStyle.Underline;
-						break;
-					case "strikethrough":
-						fontStyle = fontStyle | FontStyle.Strikethrough;
-						break;
+						case "italic":
+							fontStyle = fontStyle | FontStyle.Italic;
+							break;
+						case "bold":
+							fontStyle = fontStyle | FontStyle.Bold;
+							break;
+						case "underline":
+							fontStyle = fontStyle | FontStyle.Underline;
+							break;
+						case "strikethrough":
+							fontStyle = fontStyle | FontStyle.Strikethrough;
+							break;
 					}
 				}
 			}
@@ -188,14 +183,14 @@ public final class Theme {
 			String foreground = null;
 			final Object settingsForeground = entrySetting.getForeground();
 			if (settingsForeground instanceof final String stringSettingsForeground
-				&& isValidHexColor(stringSettingsForeground)) {
+					&& isValidHexColor(stringSettingsForeground)) {
 				foreground = stringSettingsForeground;
 			}
 
 			String background = null;
 			final Object settingsBackground = entrySetting.getBackground();
 			if (settingsBackground instanceof final String stringSettingsBackground
-				&& isValidHexColor(stringSettingsBackground)) {
+					&& isValidHexColor(stringSettingsBackground)) {
 				background = stringSettingsBackground;
 			}
 
@@ -212,12 +207,12 @@ public final class Theme {
 				}
 
 				result.add(new ParsedThemeRule(
-					scope,
-					parentScopes,
-					i,
-					fontStyle,
-					foreground,
-					background));
+						scope,
+						parentScopes,
+						i,
+						fontStyle,
+						foreground,
+						background));
 			}
 		}
 
@@ -227,8 +222,7 @@ public final class Theme {
 	/**
 	 * Resolve rules (i.e. inheritance).
 	 */
-	public static Theme resolveParsedThemeRules(final List<ParsedThemeRule> _parsedThemeRules,
-		@Nullable final List<String> _colorMap) {
+	public static Theme resolveParsedThemeRules(final List<ParsedThemeRule> _parsedThemeRules, @Nullable final List<String> _colorMap) {
 
 		// copy the list since we cannot be sure the given list is mutable
 		final var parsedThemeRules = new ArrayList<>(_parsedThemeRules);
@@ -263,15 +257,12 @@ public final class Theme {
 			}
 		}
 		final var colorMap = new ColorMap(_colorMap);
-		final var defaults = new StyleAttributes(defaultFontStyle, colorMap.getId(defaultForeground),
-			colorMap.getId(defaultBackground));
+		final var defaults = new StyleAttributes(defaultFontStyle, colorMap.getId(defaultForeground), colorMap.getId(defaultBackground));
 
-		final var root = new ThemeTrieElement(new ThemeTrieElementRule(0, null, FontStyle.NotSet, 0, 0),
-			Collections.emptyList());
+		final var root = new ThemeTrieElement(new ThemeTrieElementRule(0, null, FontStyle.NotSet, 0, 0), Collections.emptyList());
 		for (int i = 0, len = parsedThemeRules.size(); i < len; i++) {
 			final var rule = parsedThemeRules.get(i);
-			root.insert(0, rule.scope, rule.parentScopes, rule.fontStyle, colorMap.getId(rule.foreground),
-				colorMap.getId(rule.background));
+			root.insert(0, rule.scope, rule.parentScopes, rule.fontStyle, colorMap.getId(rule.foreground), colorMap.getId(rule.background));
 		}
 
 		return new Theme(colorMap, defaults, root);
@@ -297,7 +288,7 @@ public final class Theme {
 		}
 		final Theme other = (Theme) obj;
 		return Objects.equals(_colorMap, other._colorMap)
-			&& Objects.equals(_defaults, other._defaults)
-			&& Objects.equals(_root, other._root);
+				&& Objects.equals(_defaults, other._defaults)
+				&& Objects.equals(_root, other._root);
 	}
 }

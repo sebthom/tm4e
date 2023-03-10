@@ -68,9 +68,9 @@ final class LineTokens {
 	private final BalancedBracketSelectors balancedBracketSelectors;
 
 	LineTokens(final boolean emitBinaryTokens,
-		final String lineText,
-		final List<TokenTypeMatcher> tokenTypeOverrides,
-		@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
+			final String lineText,
+			final List<TokenTypeMatcher> tokenTypeOverrides,
+			@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
 
 		this._emitBinaryTokens = emitBinaryTokens;
 		this._tokenTypeOverrides = tokenTypeOverrides;
@@ -103,20 +103,20 @@ final class LineTokens {
 			}
 
 			if (!_tokenTypeOverrides.isEmpty()
-				|| balancedBracketSelectors != null
-					&& !balancedBracketSelectors.matchesAlways() && !balancedBracketSelectors.matchesNever()) {
+					|| balancedBracketSelectors != null
+							&& !balancedBracketSelectors.matchesAlways() && !balancedBracketSelectors.matchesNever()) {
 				// Only generate scope array when required to improve performance
 				final List<String> scopes = scopesList != null ? scopesList.getScopeNames() : Collections.emptyList();
 				for (final var tokenType : _tokenTypeOverrides) {
 					if (tokenType.matcher.matches(scopes)) {
 						metadata = EncodedTokenAttributes.set(
-							metadata,
-							0,
-							tokenType.type, // toOptionalTokenType(tokenType.type),
-							null,
-							FontStyle.NotSet,
-							0,
-							0);
+								metadata,
+								0,
+								tokenType.type, // toOptionalTokenType(tokenType.type),
+								null,
+								FontStyle.NotSet,
+								0,
+								0);
 					}
 				}
 				if (balancedBracketSelectors != null) {
@@ -126,13 +126,13 @@ final class LineTokens {
 
 			if (containsBalancedBrackets) {
 				metadata = EncodedTokenAttributes.set(
-					metadata,
-					0,
-					OptionalStandardTokenType.NotSet,
-					containsBalancedBrackets,
-					FontStyle.NotSet,
-					0,
-					0);
+						metadata,
+						0,
+						OptionalStandardTokenType.NotSet,
+						containsBalancedBrackets,
+						FontStyle.NotSet,
+						0,
+						0);
 			}
 
 			if (!this._binaryTokens.isEmpty() && getLastElement(this._binaryTokens) == metadata) {
@@ -144,9 +144,9 @@ final class LineTokens {
 			if (LOGGER.isLoggable(TRACE)) {
 				final List<String> scopes = scopesList != null ? scopesList.getScopeNames() : Collections.emptyList();
 				LOGGER.log(TRACE, "  token: |" + this._lineText
-					.substring(this._lastTokenEndIndex >= 0 ? this._lastTokenEndIndex : 0, endIndex)
-					.replace("\n", "\\n")
-					+ '|');
+						.substring(this._lastTokenEndIndex >= 0 ? this._lastTokenEndIndex : 0, endIndex)
+						.replace("\n", "\\n")
+						+ '|');
 				for (final String scope : scopes) {
 					LOGGER.log(TRACE, "      * " + scope);
 				}
@@ -163,7 +163,7 @@ final class LineTokens {
 
 		if (LOGGER.isLoggable(TRACE)) {
 			LOGGER.log(TRACE, "  token: |" +
-				this._lineText.substring(this._lastTokenEndIndex, endIndex).replace("\n", "\\n") + '|');
+					this._lineText.substring(this._lastTokenEndIndex, endIndex).replace("\n", "\\n") + '|');
 			for (final String scope : scopes) {
 				LOGGER.log(TRACE, "      * " + scope);
 			}
@@ -195,10 +195,10 @@ final class LineTokens {
 			@Override
 			public String toString() {
 				return "{" +
-					"startIndex: " + startIndex +
-					", endIndex: " + endIndex +
-					", scopes: " + scopes +
-					"}";
+						"startIndex: " + startIndex +
+						", endIndex: " + endIndex +
+						", scopes: " + scopes +
+						"}";
 			}
 		});
 

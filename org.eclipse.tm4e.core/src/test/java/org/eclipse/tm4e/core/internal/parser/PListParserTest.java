@@ -39,9 +39,8 @@ class PListParserTest {
 			assertEquals("C#", grammar.getName());
 			assertEquals("source.cs", grammar.getScopeName());
 			assertEquals(List.of("cs"), grammar.getFileTypes());
-			assertEquals(Set.of(
-				"fileTypes", "foldingStartMarker", "foldingStopMarker", "name", "patterns", "repository", "scopeName"),
-				grammar.keySet());
+			assertEquals(Set.of("fileTypes", "foldingStartMarker", "foldingStopMarker", "name", "patterns", "repository", "scopeName"),
+					grammar.keySet());
 		}
 	}
 
@@ -56,9 +55,7 @@ class PListParserTest {
 			assertEquals(List.of("js", "jsx"), grammar.getFileTypes());
 			assertEquals("JavaScript (with React support)", grammar.getName());
 			assertEquals("source.js", grammar.getScopeName());
-			assertEquals(Set.of(
-				"fileTypes", "name", "patterns", "repository", "scopeName", "uuid"),
-				grammar.keySet());
+			assertEquals(Set.of("fileTypes", "name", "patterns", "repository", "scopeName", "uuid"), grammar.keySet());
 		}
 	}
 
@@ -73,9 +70,7 @@ class PListParserTest {
 			assertEquals(List.of("js", "jsx"), grammar.getFileTypes());
 			assertEquals("JavaScript (with React support)", grammar.getName());
 			assertEquals("source.js", grammar.getScopeName());
-			assertEquals(Set.of(
-				"fileTypes", "name", "patterns", "repository", "scopeName", "uuid"),
-				grammar.keySet());
+			assertEquals(Set.of("fileTypes", "name", "patterns", "repository", "scopeName", "uuid"), grammar.keySet());
 		}
 	}
 }

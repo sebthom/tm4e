@@ -46,7 +46,9 @@ public final class ContentTypeHelper {
 	 * Find the content types from the given {@link IDocument} and null otherwise.
 	 *
 	 * @param document
+	 * 
 	 * @return the content types from the given {@link IDocument} and null otherwise.
+	 * 
 	 * @throws CoreException
 	 */
 	@Nullable
@@ -64,6 +66,7 @@ public final class ContentTypeHelper {
 	 * Find the content type with the given contentTypeId
 	 *
 	 * @param contentTypeId
+	 * 
 	 * @return matching content type or null
 	 */
 	@Nullable
@@ -79,8 +82,10 @@ public final class ContentTypeHelper {
 	 * {@link ITextFileBufferManager} and null otherwise.
 	 *
 	 * @param document
+	 * 
 	 * @return the content types from the given {@link IDocument} by using
 	 *         {@link ITextFileBufferManager} and null otherwise.
+	 * 
 	 * @throws CoreException
 	 */
 	@Nullable
@@ -97,7 +102,9 @@ public final class ContentTypeHelper {
 	 * Returns the content types from the given {@link ITextFileBuffer}.
 	 *
 	 * @param buffer
+	 * 
 	 * @return the content types from the given {@link ITextFileBuffer}.
+	 * 
 	 * @throws CoreException
 	 */
 	@Nullable
@@ -113,7 +120,8 @@ public final class ContentTypeHelper {
 				// Buffer is dirty (content of the filesystem is not synch with
 				// the editor content), use IDocument content.
 				try (var input = new DocumentInputStream(buffer.getDocument())) {
-					final IContentType[] contentTypesForInput = Platform.getContentTypeManager().findContentTypesFor(input, fileName);
+					final IContentType[] contentTypesForInput = Platform.getContentTypeManager()
+							.findContentTypesFor(input, fileName);
 					if (contentTypesForInput != null) {
 						contentTypes.addAll(Arrays.asList(contentTypesForInput));
 						return new ContentTypeInfo(fileName, contentTypes.toArray(IContentType[]::new));
@@ -123,7 +131,8 @@ public final class ContentTypeHelper {
 
 			// Buffer is synchronized with filesystem content
 			try (InputStream contents = getContents(buffer)) {
-				contentTypes.addAll(Arrays.asList(Platform.getContentTypeManager().findContentTypesFor(contents, fileName)));
+				contentTypes.addAll(
+						Arrays.asList(Platform.getContentTypeManager().findContentTypesFor(contents, fileName)));
 				return new ContentTypeInfo(fileName, contentTypes.toArray(IContentType[]::new));
 			} catch (final Exception e) {
 				return null;
@@ -138,7 +147,9 @@ public final class ContentTypeHelper {
 	 * Returns the content of the given buffer.
 	 *
 	 * @param buffer
+	 * 
 	 * @return the content of the given buffer.
+	 * 
 	 * @throws CoreException
 	 */
 	private static InputStream getContents(final ITextFileBuffer buffer) throws CoreException {
@@ -160,6 +171,7 @@ public final class ContentTypeHelper {
 	 * {@link IEditorInput} and null otherwise.
 	 *
 	 * @param document
+	 * 
 	 * @return the content types from the given {@link IDocument} by using
 	 *         {@link IEditorInput} and null otherwise.
 	 */
@@ -180,7 +192,7 @@ public final class ContentTypeHelper {
 				}
 			} /*else {
 				// TODO: manage other type of IEditorInput
-			}*/
+				}*/
 		}
 		return null;
 	}
@@ -189,6 +201,7 @@ public final class ContentTypeHelper {
 	 * Returns the {@link IEditorInput} from the given document and null otherwise.
 	 *
 	 * @param document
+	 * 
 	 * @return the {@link IEditorInput} from the given document and null otherwise.
 	 */
 	@Nullable

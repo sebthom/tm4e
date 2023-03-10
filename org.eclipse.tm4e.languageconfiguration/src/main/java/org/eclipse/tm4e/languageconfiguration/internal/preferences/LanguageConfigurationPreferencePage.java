@@ -149,11 +149,11 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 		for (int i = 0; i < 4; i++) {
 			final var column = new TableColumn(table, SWT.NONE);
 			final String label = switch (i) {
-			case 0 -> LanguageConfigurationPreferencePage_contentTypeName;
-			case 1 -> LanguageConfigurationPreferencePage_contentTypeId;
-			case 2 -> LanguageConfigurationPreferencePage_pluginId;
-			case 3 -> LanguageConfigurationPreferencePage_path;
-			default -> throw new IllegalArgumentException("Unexpected value: " + i);
+				case 0 -> LanguageConfigurationPreferencePage_contentTypeName;
+				case 1 -> LanguageConfigurationPreferencePage_contentTypeId;
+				case 2 -> LanguageConfigurationPreferencePage_pluginId;
+				case 3 -> LanguageConfigurationPreferencePage_path;
+				default -> throw new IllegalArgumentException("Unexpected value: " + i);
 			};
 
 			column.setText(label);

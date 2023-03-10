@@ -20,7 +20,7 @@ public class TestGrammar {
 	public static void main(final String[] args) throws Exception {
 		final var registry = new Registry();
 		final IGrammar grammar = registry.addGrammar(
-			IGrammarSource.fromResource(TestGrammar.class, "Angular2TypeScript.tmLanguage"));
+				IGrammarSource.fromResource(TestGrammar.class, "Angular2TypeScript.tmLanguage"));
 
 		final var result = grammar.tokenizeLine("/** **/");
 		for (int i = 0; i < result.getTokens().length; i++) {

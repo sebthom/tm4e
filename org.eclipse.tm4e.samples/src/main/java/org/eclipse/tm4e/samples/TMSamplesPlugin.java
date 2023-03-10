@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.tm4e.samples;
 
@@ -57,8 +57,8 @@ public class TMSamplesPlugin extends AbstractUIPlugin {
 	 * Returns an image descriptor for the image file at the given plug-in
 	 * relative path
 	 *
-	 * @param path
-	 *            the path
+	 * @param path the path
+	 *
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {

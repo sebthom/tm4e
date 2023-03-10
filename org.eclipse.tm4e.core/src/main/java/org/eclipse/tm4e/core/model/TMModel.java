@@ -123,20 +123,20 @@ public class TMModel implements ITMModel {
 				final long startTime = System.currentTimeMillis();
 				while (lineIndex < modelLines.getNumberOfLines()) {
 					switch (updateTokensOfLine(eventBuilder, lineIndex, MAX_TIME_PER_LINE)) {
-					case DONE:
-						return;
-					case UPDATE_FAILED:
-						// mark the current line as invalid and add it to the end of the queue
-						invalidateLine(lineIndex);
-						return;
-					case NEXT_LINE_IS_OUTDATED:
-						if (System.currentTimeMillis() - startTime >= MAX_LOOP_TIME) {
-							// mark the next line as invalid and add it to the end of the queue
-							invalidateLine(lineIndex + 1);
+						case DONE:
 							return;
-						}
-						lineIndex++;
-						break;
+						case UPDATE_FAILED:
+							// mark the current line as invalid and add it to the end of the queue
+							invalidateLine(lineIndex);
+							return;
+						case NEXT_LINE_IS_OUTDATED:
+							if (System.currentTimeMillis() - startTime >= MAX_LOOP_TIME) {
+								// mark the next line as invalid and add it to the end of the queue
+								invalidateLine(lineIndex + 1);
+								return;
+							}
+							lineIndex++;
+							break;
 					}
 				}
 			});
@@ -151,8 +151,8 @@ public class TMModel implements ITMModel {
 		/**
 		 * @param lineIndex 0-based
 		 */
-		private UpdateTokensOfLineResult updateTokensOfLine(final ModelTokensChangedEventBuilder eventBuilder,
-			final int lineIndex, final Duration timeLimit) {
+		private UpdateTokensOfLineResult updateTokensOfLine(final ModelTokensChangedEventBuilder eventBuilder, final int lineIndex,
+				final Duration timeLimit) {
 
 			final var modelLine = modelLines.getOrNull(lineIndex);
 			if (modelLine == null) {
@@ -335,6 +335,6 @@ public class TMModel implements ITMModel {
 	@Override
 	public String toString() {
 		return StringUtils.toString(this, sb -> sb
-			.append("grammar=").append(grammar));
+				.append("grammar=").append(grammar));
 	}
 }

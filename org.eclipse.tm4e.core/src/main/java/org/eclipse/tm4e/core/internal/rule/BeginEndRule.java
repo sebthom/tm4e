@@ -45,9 +45,9 @@ public final class BeginEndRule extends Rule {
 	private RegExpSourceList cachedCompiledPatterns;
 
 	BeginEndRule(final RuleId id, @Nullable final String name, @Nullable final String contentName, final String begin,
-		final List<@Nullable CaptureRule> beginCaptures, @Nullable final String end,
-		final List<@Nullable CaptureRule> endCaptures, final boolean applyEndPatternLast,
-		final CompilePatternsResult patterns) {
+			final List<@Nullable CaptureRule> beginCaptures, @Nullable final String end,
+			final List<@Nullable CaptureRule> endCaptures, final boolean applyEndPatternLast,
+			final CompilePatternsResult patterns) {
 		super(id, name, contentName);
 		this.begin = new RegExpSource(begin, this.id);
 		this.beginCaptures = beginCaptures;
@@ -67,8 +67,7 @@ public final class BeginEndRule extends Rule {
 		return this.end.getSource();
 	}
 
-	public String getEndWithResolvedBackReferences(final CharSequence lineText,
-		final OnigCaptureIndex[] captureIndices) {
+	public String getEndWithResolvedBackReferences(final CharSequence lineText, final OnigCaptureIndex[] captureIndices) {
 		return this.end.resolveBackReferences(lineText, captureIndices);
 	}
 
@@ -83,13 +82,12 @@ public final class BeginEndRule extends Rule {
 	}
 
 	@Override
-	public CompiledRule compileAG(final IRuleRegistry grammar, @Nullable final String endRegexSource,
-		final boolean allowA, final boolean allowG) {
+	public CompiledRule compileAG(final IRuleRegistry grammar, @Nullable final String endRegexSource, final boolean allowA,
+			final boolean allowG) {
 		return getCachedCompiledPatterns(grammar, endRegexSource).compileAG(allowA, allowG);
 	}
 
-	private RegExpSourceList getCachedCompiledPatterns(final IRuleRegistry grammar,
-		@Nullable final String endRegexSource) {
+	private RegExpSourceList getCachedCompiledPatterns(final IRuleRegistry grammar, @Nullable final String endRegexSource) {
 		var cachedCompiledPatterns = this.cachedCompiledPatterns;
 		if (cachedCompiledPatterns == null) {
 			cachedCompiledPatterns = new RegExpSourceList();

@@ -65,8 +65,8 @@ public final class SnippetManager implements ISnippetManager {
 	 * Load snippets from extension point.
 	 */
 	private void loadGrammarsFromExtensionPoints() {
-		final IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMUIPlugin.PLUGIN_ID,
-				EXTENSION_SNIPPETS);
+		final IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(
+				TMUIPlugin.PLUGIN_ID, EXTENSION_SNIPPETS);
 		for (final IConfigurationElement ce : cf) {
 			final String extensionName = ce.getName();
 			if (SNIPPET_ELT.equals(extensionName)) {

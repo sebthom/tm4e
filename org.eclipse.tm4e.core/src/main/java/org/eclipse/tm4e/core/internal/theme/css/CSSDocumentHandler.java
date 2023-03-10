@@ -68,7 +68,7 @@ public final class CSSDocumentHandler implements DocumentHandler {
 
 	@Override
 	public void importStyle(@Nullable final String arg0, @Nullable final SACMediaList arg1, @Nullable final String arg2)
-		throws CSSException {
+			throws CSSException {
 		// TODO Auto-generated method stub
 	}
 
@@ -79,31 +79,31 @@ public final class CSSDocumentHandler implements DocumentHandler {
 
 	@Override
 	public void property(@Nullable final String name, @Nullable final LexicalUnit value, final boolean arg2)
-		throws CSSException {
+			throws CSSException {
 		final var currentStyle = this.currentStyle;
 		if (currentStyle != null && name != null && value != null) {
 			switch (name) {
-			case "color":
-				currentStyle.setColor(createRGB(value));
-				break;
-			case "background-color":
-				currentStyle.setBackgroundColor(createRGB(value));
-				break;
-			case "font-weight":
-				currentStyle.setBold(value.getStringValue().toUpperCase().contains("BOLD"));
-				break;
-			case "font-style":
-				currentStyle.setItalic(value.getStringValue().toUpperCase().contains("ITALIC"));
-				break;
-			case "text-decoration":
-				final String decoration = value.getStringValue().toUpperCase();
-				if (decoration.contains("UNDERLINE")) {
-					currentStyle.setUnderline(true);
-				}
-				if (decoration.contains("LINE-THROUGH")) {
-					currentStyle.setStrikeThrough(true);
-				}
-				break;
+				case "color":
+					currentStyle.setColor(createRGB(value));
+					break;
+				case "background-color":
+					currentStyle.setBackgroundColor(createRGB(value));
+					break;
+				case "font-weight":
+					currentStyle.setBold(value.getStringValue().toUpperCase().contains("BOLD"));
+					break;
+				case "font-style":
+					currentStyle.setItalic(value.getStringValue().toUpperCase().contains("ITALIC"));
+					break;
+				case "text-decoration":
+					final String decoration = value.getStringValue().toUpperCase();
+					if (decoration.contains("UNDERLINE")) {
+						currentStyle.setUnderline(true);
+					}
+					if (decoration.contains("LINE-THROUGH")) {
+						currentStyle.setStrikeThrough(true);
+					}
+					break;
 			}
 		}
 	}
