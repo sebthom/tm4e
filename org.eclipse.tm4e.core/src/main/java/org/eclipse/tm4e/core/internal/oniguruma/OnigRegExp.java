@@ -55,7 +55,7 @@ final class OnigRegExp {
 		final byte[] pattern = source.getBytes(StandardCharsets.UTF_8);
 		try {
 			regex = new Regex(pattern, 0, pattern.length, Option.CAPTURE_GROUP, UTF8Encoding.INSTANCE, Syntax.DEFAULT,
-				WarnCallback.DEFAULT);
+					WarnCallback.DEFAULT);
 		} catch (final SyntaxException ex) {
 			throw new TMException("Parsing regex pattern \"" + source + "\" failed with " + ex, ex);
 		}
@@ -71,8 +71,8 @@ final class OnigRegExp {
 
 		final var lastSearchResult0 = this.lastSearchResult;
 		if (lastSearchString == str
-			&& lastSearchPosition <= startPosition
-			&& (lastSearchResult0 == null || lastSearchResult0.locationAt(0) >= startPosition)) {
+				&& lastSearchPosition <= startPosition
+				&& (lastSearchResult0 == null || lastSearchResult0.locationAt(0) >= startPosition)) {
 			return lastSearchResult0;
 		}
 

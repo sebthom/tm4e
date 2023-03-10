@@ -1,13 +1,13 @@
 /**
- *  Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2017 Angelo ZERR.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Contributors:
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.tm4e.languageconfiguration.internal.widgets;
 
@@ -24,7 +24,6 @@ import org.eclipse.swt.SWT;
  *
  */
 public final class ColumnViewerComparator extends ViewerComparator {
-
 
 	private int fSortColumn = 0;
 	private int fSortOrder = 1; // 1 = asc, -1 = desc
@@ -58,7 +57,6 @@ public final class ColumnViewerComparator extends ViewerComparator {
 
 		if (viewer instanceof final TableViewer tableViewer) {
 			final IBaseLabelProvider baseLabel = tableViewer.getLabelProvider();
-
 			final String left = ((ITableLabelProvider) baseLabel).getColumnText(e1, fSortColumn);
 			final String right = ((ITableLabelProvider) baseLabel).getColumnText(e2, fSortColumn);
 			final int sortResult = getComparator().compare(left != null ? left : "", right != null ? right : ""); //$NON-NLS-1$ //$NON-NLS-2$

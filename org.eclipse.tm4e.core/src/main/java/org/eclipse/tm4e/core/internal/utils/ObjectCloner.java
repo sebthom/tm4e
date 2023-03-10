@@ -31,16 +31,16 @@ import com.google.common.cache.LoadingCache;
 public final class ObjectCloner {
 
 	private static final LoadingCache<Class<?>, Optional<Method>> CLONE_METHODS = CacheBuilder.newBuilder().weakKeys()
-		.build(new CacheLoader<>() {
-			@Override
-			public Optional<Method> load(final Class<?> cls) {
-				try {
-					return Optional.of(cls.getMethod("clone"));
-				} catch (final Exception ex) {
-					return Optional.empty();
+			.build(new CacheLoader<>() {
+				@Override
+				public Optional<Method> load(final Class<?> cls) {
+					try {
+						return Optional.of(cls.getMethod("clone"));
+					} catch (final Exception ex) {
+						return Optional.empty();
+					}
 				}
-			}
-		});
+			});
 
 	public static <@NonNull T> T deepClone(final T obj) {
 		return deepClone(obj, new IdentityHashMap<>());

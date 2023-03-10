@@ -97,8 +97,7 @@ public class RawTestImpl {
 	private IGrammar getGrammar(final Registry registry, final File testLocation) throws Exception {
 		IGrammar grammar = null;
 		for (final String grammarPath : getGrammars()) {
-			final IGrammar tmpGrammar = registry
-				.addGrammar(IGrammarSource.fromFile(new File(testLocation, grammarPath).toPath()));
+			final IGrammar tmpGrammar = registry.addGrammar(IGrammarSource.fromFile(new File(testLocation, grammarPath).toPath()));
 			if (grammarPath.equals(getGrammarPath())) {
 				grammar = tmpGrammar;
 			}
@@ -106,18 +105,18 @@ public class RawTestImpl {
 		return grammar;
 	}
 
-	private static IStateStack assertLineTokenization(final IGrammar grammar, final RawTestLine testCase,
-		final IStateStack prevState) {
+	private static IStateStack assertLineTokenization(final IGrammar grammar, final RawTestLine testCase, final IStateStack prevState) {
 		final var line = testCase.line;
 		final var actual = grammar.tokenizeLine(line, prevState, null);
 
 		final var actualTokens = Arrays.stream(actual.getTokens())
-			.map(token -> new RawToken(
-				line.substring(
-					token.getStartIndex(),
-					Math.min(token.getEndIndex(), line.length())), // TODO Math.min not required in upstream why?
-				token.getScopes()))
-			.toList();
+				.map(token -> new RawToken(
+						line.substring(
+								token.getStartIndex(),
+								Math.min(token.getEndIndex(), line.length()) // TODO Math.min not required in upstream why?
+						),
+						token.getScopes()))
+				.toList();
 
 		// TODO@Alex: fix tests instead of working around
 		if (!line.isEmpty()) {
@@ -130,8 +129,7 @@ public class RawTestImpl {
 		return actual.getRuleStack();
 	}
 
-	private static void deepEqual(final List<RawToken> actualTokens, final List<RawToken> expextedTokens,
-		final String message) {
+	private static void deepEqual(final List<RawToken> actualTokens, final List<RawToken> expextedTokens, final String message) {
 
 		// compare collection size
 		if (expextedTokens.size() != actualTokens.size()) {
@@ -139,8 +137,7 @@ public class RawTestImpl {
 			final var expextedTokensStr = expextedTokens.stream().map(Object::toString).collect(joining("\n"));
 
 			assertEquals(expextedTokensStr, actualTokensStr,
-				message + " (collection size problem: actual=" + actualTokens.size() + " expected="
-					+ expextedTokens.size() + ")");
+					message + " (collection size problem: actual=" + actualTokens.size() + " expected=" + expextedTokens.size() + ")");
 		}
 
 		// compare item

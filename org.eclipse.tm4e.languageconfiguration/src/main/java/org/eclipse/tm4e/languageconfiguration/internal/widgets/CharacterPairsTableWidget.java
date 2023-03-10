@@ -107,9 +107,9 @@ class CharacterPairsTableWidget extends TableViewer {
 				return null;
 
 			return switch (columnIndex) {
-			case 0 -> ((CharacterPair) element).open;
-			case 1 -> ((CharacterPair) element).close;
-			default -> ""; //$NON-NLS-1$
+				case 0 -> ((CharacterPair) element).open;
+				case 1 -> ((CharacterPair) element).close;
+				default -> ""; //$NON-NLS-1$
 			};
 		}
 	}

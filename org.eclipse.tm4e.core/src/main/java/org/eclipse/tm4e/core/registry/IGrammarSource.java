@@ -36,10 +36,10 @@ public interface IGrammarSource {
 		final String extension = fileName.substring(fileName.lastIndexOf('.') + 1).trim().toLowerCase();
 
 		return switch (extension) {
-		case "json" -> ContentType.JSON;
-		case "yaml", "yaml-tmlanguage", "yml" -> ContentType.YAML;
-		case "plist", "tmlanguage", "xml" -> ContentType.XML;
-		default -> throw new IllegalArgumentException("Unsupported file type: " + fileName);
+			case "json" -> ContentType.JSON;
+			case "yaml", "yaml-tmlanguage", "yml" -> ContentType.YAML;
+			case "plist", "tmlanguage", "xml" -> ContentType.XML;
+			default -> throw new IllegalArgumentException("Unsupported file type: " + fileName);
 		};
 	}
 
@@ -47,8 +47,7 @@ public interface IGrammarSource {
 		return fromFile(file, null, null);
 	}
 
-	static IGrammarSource fromFile(final Path file, @Nullable final ContentType contentType,
-		@Nullable final Charset charset) {
+	static IGrammarSource fromFile(final Path file, @Nullable final ContentType contentType, @Nullable final Charset charset) {
 
 		final var filePath = file.toString();
 		final var contentType1 = contentType == null ? guessFileFormat(filePath) : contentType;
@@ -80,16 +79,16 @@ public interface IGrammarSource {
 	/**
 	 * @throws IllegalArgumentException if the content type is unsupported or cannot be determined
 	 */
-	static IGrammarSource fromResource(final Class<?> clazz, final String resourceName,
-		@Nullable final ContentType contentType, @Nullable final Charset charset) {
+	static IGrammarSource fromResource(final Class<?> clazz, final String resourceName, @Nullable final ContentType contentType,
+			@Nullable final Charset charset) {
 
 		final var contentType1 = contentType == null ? guessFileFormat(resourceName) : contentType;
 		return new IGrammarSource() {
 			@Override
 			public Reader getReader() throws IOException {
 				return new BufferedReader(new InputStreamReader(
-					clazz.getResourceAsStream(resourceName),
-					charset == null ? StandardCharsets.UTF_8 : charset));
+						clazz.getResourceAsStream(resourceName),
+						charset == null ? StandardCharsets.UTF_8 : charset));
 			}
 
 			@Override

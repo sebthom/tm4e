@@ -54,8 +54,7 @@ public class TokenizationUtils {
 	 *
 	 * @throws IOException
 	 */
-	public static Stream<ITokenizeLineResult<IToken[]>> tokenizeText(final InputStream text, final IGrammar grammar)
-		throws IOException {
+	public static Stream<ITokenizeLineResult<IToken[]>> tokenizeText(final InputStream text, final IGrammar grammar) throws IOException {
 		final var reader = new BufferedReader(new InputStreamReader(text));
 
 		final var prevStack = new AtomicReference<IStateStack>();

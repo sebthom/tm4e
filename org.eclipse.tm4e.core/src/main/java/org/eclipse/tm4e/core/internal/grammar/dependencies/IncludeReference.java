@@ -36,21 +36,21 @@ public class IncludeReference {
 
 	public static IncludeReference parseInclude(final String include) {
 		switch (include) {
-		case "$base":
-			return BASE;
-		case "$self":
-			return SELF;
-		default:
-			final var indexOfSharp = include.indexOf("#");
-			return switch (indexOfSharp) {
-			case -1 -> new IncludeReference(Kind.TopLevelReference, include, "");
-			case 0 -> new IncludeReference(Kind.RelativeReference, "", include.substring(1));
-			default -> {
-				final var scopeName = include.substring(0, indexOfSharp);
-				final var ruleName = include.substring(indexOfSharp + 1);
-				yield new IncludeReference(Kind.TopLevelRepositoryReference, scopeName, ruleName);
-			}
-			};
+			case "$base":
+				return BASE;
+			case "$self":
+				return SELF;
+			default:
+				final var indexOfSharp = include.indexOf("#");
+				return switch (indexOfSharp) {
+					case -1 -> new IncludeReference(Kind.TopLevelReference, include, "");
+					case 0 -> new IncludeReference(Kind.RelativeReference, "", include.substring(1));
+					default -> {
+						final var scopeName = include.substring(0, indexOfSharp);
+						final var ruleName = include.substring(indexOfSharp + 1);
+						yield new IncludeReference(Kind.TopLevelRepositoryReference, scopeName, ruleName);
+					}
+				};
 		}
 	}
 

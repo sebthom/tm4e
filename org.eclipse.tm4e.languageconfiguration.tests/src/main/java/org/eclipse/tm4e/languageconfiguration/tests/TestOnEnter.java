@@ -39,8 +39,9 @@ public class TestOnEnter {
 		p.open(null);
 		final IFile file = p.getFile("whatever.lc-test");
 		file.create(new ByteArrayInputStream("  ///".getBytes()), true, null);
-		final ITextEditor editor = (ITextEditor) IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
-		final StyledText text = (StyledText)editor.getAdapter(Control.class);
+		final ITextEditor editor = (ITextEditor) IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final StyledText text = (StyledText) editor.getAdapter(Control.class);
 		text.setSelection(text.getText().length());
 		text.insert("\n");
 		assertEquals("  ///\n  /// ", text.getText());

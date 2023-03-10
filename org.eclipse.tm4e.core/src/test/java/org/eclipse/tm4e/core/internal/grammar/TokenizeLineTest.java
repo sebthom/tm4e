@@ -31,7 +31,7 @@ class TokenizeLineTest {
 			Token from 29 to 32 with scopes [source.js, meta.function.js, meta.decl.block.js]
 			Token from 32 to 33 with scopes [source.js, meta.function.js, meta.decl.block.js, meta.brace.curly.js]
 			"""
-			.split("\n");
+				.split("\n");
 
 		final var lineText = "function add(a,b) { return a+b; }";
 		final var lineTokens = grammar.tokenizeLine(lineText);
@@ -39,13 +39,12 @@ class TokenizeLineTest {
 			final var token = lineTokens.getTokens()[i];
 
 			assertTrue(token.getStartIndex() >= 0 //
-				&& token.getStartIndex() <= lineText.length() //
-				&& token.getEndIndex() >= 0 //
-				&& token.getEndIndex() <= lineText.length() //
+					&& token.getStartIndex() <= lineText.length() //
+					&& token.getEndIndex() >= 0 //
+					&& token.getEndIndex() <= lineText.length() //
 			);
 
-			final var s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
-				+ token.getScopes();
+			final var s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes " + token.getScopes();
 			assertEquals(expected[i], s);
 		}
 	}
@@ -91,8 +90,7 @@ class TokenizeLineTest {
 			Token from 37 to 38 with scopes [source.c, keyword.operator.c]
 			Token from 38 to 39 with scopes [source.c, constant.numeric.decimal.c]
 			Token from 39 to 40 with scopes [source.c, punctuation.terminator.statement.c]
-			"""
-			.split("\n");
+			""".split("\n");
 
 		final var lineText = "char cat[] = {\"кошка\"}; char mouse = -1;\n";
 		final var lineTokens = grammar.tokenizeLine(lineText);
@@ -100,16 +98,14 @@ class TokenizeLineTest {
 			final var token = lineTokens.getTokens()[i];
 
 			assertTrue(token.getStartIndex() >= 0 //
-				&& token.getStartIndex() <= lineText.length() //
-				&& token.getEndIndex() >= 0 //
-				&& token.getEndIndex() <= lineText.length() //
+					&& token.getStartIndex() <= lineText.length() //
+					&& token.getEndIndex() >= 0 //
+					&& token.getEndIndex() <= lineText.length() //
 			);
 
-			final var s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
-				+ token.getScopes();
+			final var s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes " + token.getScopes();
 			assertEquals(expected[i], s);
 		}
-
 	}
 
 	/**

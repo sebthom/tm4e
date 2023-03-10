@@ -18,7 +18,7 @@ class OnigRegExpTest {
 	@Test
 	void testOnigRegExp() throws Exception {
 		final var regexp = new OnigRegExp(
-			"\\G(MAKEFILES|VPATH|SHELL|MAKESHELL|MAKE|MAKELEVEL|MAKEFLAGS|MAKECMDGOALS|CURDIR|SUFFIXES|\\.LIBPATTERNS)(?=\\s*\\))");
+				"\\G(MAKEFILES|VPATH|SHELL|MAKESHELL|MAKE|MAKELEVEL|MAKEFLAGS|MAKECMDGOALS|CURDIR|SUFFIXES|\\.LIBPATTERNS)(?=\\s*\\))");
 
 		final var line = "ifeq (version,$(firstword $(MAKECMDGOALS))\n";
 		final var onigLine = OnigString.of(line);
@@ -36,7 +36,7 @@ class OnigRegExpTest {
 	@Test
 	void testOnigRegExpCaching() {
 		final var regexp = new OnigRegExp(
-			"\\G(MAKEFILES|VPATH|SHELL|MAKESHELL|MAKE|MAKELEVEL|MAKEFLAGS|MAKECMDGOALS|CURDIR|SUFFIXES|\\.LIBPATTERNS)(?=\\s*\\))");
+				"\\G(MAKEFILES|VPATH|SHELL|MAKESHELL|MAKE|MAKELEVEL|MAKEFLAGS|MAKECMDGOALS|CURDIR|SUFFIXES|\\.LIBPATTERNS)(?=\\s*\\))");
 
 		final var line = "ifeq (version,$(firstword $(MAKECMDGOALS))\n";
 		final var onigLine = OnigString.of(line);

@@ -41,11 +41,11 @@ final class DocumentModelLines extends AbstractModelLines implements IDocumentLi
 			return;
 		try {
 			switch (DocumentHelper.getEventType(event)) {
-			case REMOVE, REPLACE /*= Remove + Insert */:
-				endLineIndexOfRemovedText = DocumentHelper.getEndLineIndexOfRemovedText(event);
-				// => cannot be calculated in documentChanged() where it will result in BadLocationException
-				break;
-			default:
+				case REMOVE, REPLACE /*= Remove + Insert */:
+					endLineIndexOfRemovedText = DocumentHelper.getEndLineIndexOfRemovedText(event);
+					// => cannot be calculated in documentChanged() where it will result in BadLocationException
+					break;
+				default:
 			}
 		} catch (final BadLocationException ex) {
 			TMUIPlugin.logError(ex);
@@ -59,29 +59,29 @@ final class DocumentModelLines extends AbstractModelLines implements IDocumentLi
 		try {
 			final int startLineIndex = DocumentHelper.getStartLineIndex(event);
 			switch (DocumentHelper.getEventType(event)) {
-			case INSERT: {
-				final var endLineIndexOfAddedText = DocumentHelper.getEndLineIndexOfAddedText(event);
-				final var isFullLineInsert = DocumentHelper.getStartLineCharIndex(event) == 0
-						&& event.getText().endsWith("\n");
+				case INSERT: {
+					final var endLineIndexOfAddedText = DocumentHelper.getEndLineIndexOfAddedText(event);
+					final var isFullLineInsert = DocumentHelper.getStartLineCharIndex(event) == 0
+							&& event.getText().endsWith("\n");
 
-				final var linesAdded = (isFullLineInsert ? 0 : 1) + (endLineIndexOfAddedText - startLineIndex);
-				replaceLines(startLineIndex, isFullLineInsert ? 0 : 1, linesAdded);
-				break;
-			}
-			case REMOVE: {
-				replaceLines(startLineIndex, 1 + (endLineIndexOfRemovedText - startLineIndex), 1);
-				break;
-			}
-			case REPLACE: {
-				final var endLineIndexOfAddedText = DocumentHelper.getEndLineIndexOfAddedText(event);
-				final var isFullLineInsert = DocumentHelper.getStartLineCharIndex(event) == 0
-						&& event.getText().endsWith("\n");
+					final var linesAdded = (isFullLineInsert ? 0 : 1) + (endLineIndexOfAddedText - startLineIndex);
+					replaceLines(startLineIndex, isFullLineInsert ? 0 : 1, linesAdded);
+					break;
+				}
+				case REMOVE: {
+					replaceLines(startLineIndex, 1 + (endLineIndexOfRemovedText - startLineIndex), 1);
+					break;
+				}
+				case REPLACE: {
+					final var endLineIndexOfAddedText = DocumentHelper.getEndLineIndexOfAddedText(event);
+					final var isFullLineInsert = DocumentHelper.getStartLineCharIndex(event) == 0
+							&& event.getText().endsWith("\n");
 
-				replaceLines(startLineIndex,
-						(isFullLineInsert ? 0 : 1) + (endLineIndexOfRemovedText - startLineIndex),
-						(isFullLineInsert ? 0 : 1) + (endLineIndexOfAddedText - startLineIndex));
-				break;
-			}
+					replaceLines(startLineIndex,
+							(isFullLineInsert ? 0 : 1) + (endLineIndexOfRemovedText - startLineIndex),
+							(isFullLineInsert ? 0 : 1) + (endLineIndexOfAddedText - startLineIndex));
+					break;
+				}
 			}
 		} catch (final BadLocationException ex) {
 			TMUIPlugin.logError(ex);

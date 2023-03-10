@@ -35,9 +35,9 @@ public final class GrammarReader {
 			return new RawGrammar();
 		}
 		return switch (path.last()) {
-		case RawRule.REPOSITORY -> new RawRepository();
-		case RawRule.BEGIN_CAPTURES, RawRule.CAPTURES, RawRule.END_CAPTURES, RawRule.WHILE_CAPTURES -> new RawCaptures();
-		default -> new RawRule();
+			case RawRule.REPOSITORY -> new RawRepository();
+			case RawRule.BEGIN_CAPTURES, RawRule.CAPTURES, RawRule.END_CAPTURES, RawRule.WHILE_CAPTURES -> new RawCaptures();
+			default -> new RawRule();
 		};
 	};
 
@@ -48,13 +48,13 @@ public final class GrammarReader {
 	public static IRawGrammar readGrammar(final IGrammarSource source) throws Exception {
 		try (var reader = source.getReader()) {
 			switch (source.getContentType()) {
-			case JSON:
-				return JSON_PARSER.parse(reader);
-			case YAML:
-				return YAML_PARSER.parse(reader);
-			case XML:
-			default:
-				return XML_PARSER.parse(reader);
+				case JSON:
+					return JSON_PARSER.parse(reader);
+				case YAML:
+					return YAML_PARSER.parse(reader);
+				case XML:
+				default:
+					return XML_PARSER.parse(reader);
 			}
 		}
 	}

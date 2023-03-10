@@ -36,46 +36,46 @@ public final class PListParserJSON<T> implements PListParser<T> {
 			while (parsing) {
 				final var nextToken = reader.peek();
 				switch (nextToken) {
-				case BEGIN_ARRAY:
-					pList.startElement(null, "array", null, null);
-					reader.beginArray();
-					break;
-				case END_ARRAY:
-					pList.endElement(null, "array", null);
-					reader.endArray();
-					break;
-				case BEGIN_OBJECT:
-					pList.startElement(null, "dict", null, null);
-					reader.beginObject();
-					break;
-				case END_OBJECT:
-					pList.endElement(null, "dict", null);
-					reader.endObject();
-					break;
-				case NAME:
-					pList.startElement(null, "key", null, null);
-					pList.characters(reader.nextName());
-					pList.endElement(null, "key", null);
-					break;
-				case NULL:
-					reader.nextNull();
-					break;
-				case BOOLEAN:
-					reader.nextBoolean();
-					break;
-				case NUMBER:
-					reader.nextLong();
-					break;
-				case STRING:
-					pList.startElement(null, "string", null, null);
-					pList.characters(reader.nextString());
-					pList.endElement(null, "string", null);
-					break;
-				case END_DOCUMENT:
-					parsing = false;
-					break;
-				default:
-					break;
+					case BEGIN_ARRAY:
+						pList.startElement(null, "array", null, null);
+						reader.beginArray();
+						break;
+					case END_ARRAY:
+						pList.endElement(null, "array", null);
+						reader.endArray();
+						break;
+					case BEGIN_OBJECT:
+						pList.startElement(null, "dict", null, null);
+						reader.beginObject();
+						break;
+					case END_OBJECT:
+						pList.endElement(null, "dict", null);
+						reader.endObject();
+						break;
+					case NAME:
+						pList.startElement(null, "key", null, null);
+						pList.characters(reader.nextName());
+						pList.endElement(null, "key", null);
+						break;
+					case NULL:
+						reader.nextNull();
+						break;
+					case BOOLEAN:
+						reader.nextBoolean();
+						break;
+					case NUMBER:
+						reader.nextLong();
+						break;
+					case STRING:
+						pList.startElement(null, "string", null, null);
+						pList.characters(reader.nextString());
+						pList.endElement(null, "string", null);
+						break;
+					case END_DOCUMENT:
+						parsing = false;
+						break;
+					default:
+						break;
 				}
 			}
 			pList.endElement(null, "plist", null);

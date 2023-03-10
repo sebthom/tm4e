@@ -81,8 +81,7 @@ class GrammarTest {
 		assertFalse(lineTokens.isStoppedEarly());
 		for (int i = 0; i < lineTokens.getTokens().length; i++) {
 			final IToken token = lineTokens.getTokens()[i];
-			final String s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
-				+ token.getScopes();
+			final String s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes " + token.getScopes();
 			Assertions.assertEquals(EXPECTED_SINGLE_LINE_TOKENS[i], s);
 		}
 	}
@@ -102,8 +101,7 @@ class GrammarTest {
 			ruleStack = lineTokens.getRuleStack();
 			for (i = 0; i < lineTokens.getTokens().length; i++) {
 				final IToken token = lineTokens.getTokens()[i];
-				final String s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
-					+ token.getScopes();
+				final String s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes " + token.getScopes();
 				Assertions.assertEquals(EXPECTED_MULTI_LINE_TOKENS[i + j], s);
 			}
 			j = i;
@@ -200,11 +198,9 @@ class GrammarTest {
 		final var lines = ">\n should.be.string.unquoted.block.yaml\n should.also.be.string.unquoted.block.yaml";
 		final var result = TokenizationUtils.tokenizeText(lines, grammar).iterator();
 		assertTrue(Arrays.stream(result.next().getTokens()).anyMatch(t -> t.getScopes().contains(
-			"keyword.control.flow.block-scalar.folded.yaml")));
-		assertTrue(Arrays.stream(result.next().getTokens())
-			.anyMatch(t -> t.getScopes().contains("string.unquoted.block.yaml")));
-		assertTrue(Arrays.stream(result.next().getTokens())
-			.anyMatch(t -> t.getScopes().contains("string.unquoted.block.yaml")));
+				"keyword.control.flow.block-scalar.folded.yaml")));
+		assertTrue(Arrays.stream(result.next().getTokens()).anyMatch(t -> t.getScopes().contains("string.unquoted.block.yaml")));
+		assertTrue(Arrays.stream(result.next().getTokens()).anyMatch(t -> t.getScopes().contains("string.unquoted.block.yaml")));
 	}
 
 	@Test
@@ -213,8 +209,7 @@ class GrammarTest {
 
 		final List<String> expectedTokens;
 		try (var resource = Data.class.getResourceAsStream("raytracer_tokens.txt")) {
-			expectedTokens = new BufferedReader(new InputStreamReader(resource, StandardCharsets.UTF_8))
-				.lines().toList();
+			expectedTokens = new BufferedReader(new InputStreamReader(resource, StandardCharsets.UTF_8)).lines().toList();
 		}
 
 		IStateStack stateStack = null;
@@ -228,9 +223,8 @@ class GrammarTest {
 					tokenIndex++;
 					final var token = lineTokens.getTokens()[i];
 					Assertions.assertEquals(
-						expectedTokens.get(tokenIndex),
-						"Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
-							+ token.getScopes());
+							expectedTokens.get(tokenIndex),
+							"Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes " + token.getScopes());
 				}
 			}
 		}
@@ -295,7 +289,6 @@ class GrammarTest {
 
 		final var result = grammar.tokenizeLine("bar1");
 		assertFalse(result.isStoppedEarly());
-		assertEquals("[{startIndex: 0, endIndex: 4, scopes: [source.test, outer]}]",
-			Arrays.toString(result.getTokens()));
+		assertEquals("[{startIndex: 0, endIndex: 4, scopes: [source.test, outer]}]", Arrays.toString(result.getTokens()));
 	}
 }

@@ -32,7 +32,6 @@ import org.w3c.css.sac.SelectorList;
 
 /**
  * CSS Parser to parse style for TextMate syntax coloring.
- *
  */
 public class CSSParser {
 
@@ -75,7 +74,7 @@ public class CSSParser {
 				if (selector instanceof final ExtendedSelector s) {
 					final int nbMatch = s.nbMatch(names);
 					if (nbMatch > 0 && nbMatch == s.nbClass() //
-						&& (bestStyle == null || nbMatch >= bestSpecificity)) {
+							&& (bestStyle == null || nbMatch >= bestSpecificity)) {
 						bestStyle = style;
 						bestSpecificity = nbMatch;
 					}

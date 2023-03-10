@@ -28,7 +28,7 @@ public final class CaptureRule extends Rule {
 	public final RuleId retokenizeCapturedWithRuleId;
 
 	CaptureRule(final RuleId id, @Nullable final String name, @Nullable final String contentName,
-		final RuleId retokenizeCapturedWithRuleId) {
+			final RuleId retokenizeCapturedWithRuleId) {
 		super(id, name, contentName);
 		this.retokenizeCapturedWithRuleId = retokenizeCapturedWithRuleId;
 	}
@@ -45,7 +45,7 @@ public final class CaptureRule extends Rule {
 
 	@Override
 	public CompiledRule compileAG(final IRuleRegistry grammar, @Nullable final String endRegexSource,
-		final boolean allowA, final boolean allowG) {
+			final boolean allowA, final boolean allowG) {
 		throw new UnsupportedOperationException();
 	}
 }

@@ -49,11 +49,11 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 	private static final String PAGE_NAME = SelectGrammarWizardPage.class.getName();
 
 	private static final String[] TEXTMATE_EXTENSIONS = {
-			"*.tmLanguage",
-			"*.json",
-			"*.YAML-tmLanguage",
-			"*.yaml",
-			"*.yml" };
+		"*.tmLanguage",
+		"*.json",
+		"*.YAML-tmLanguage",
+		"*.yaml",
+		"*.yml" };
 
 	private Text grammarFileText = lazyNonNull();
 	private GrammarInfoWidget grammarInfoWidget = lazyNonNull();

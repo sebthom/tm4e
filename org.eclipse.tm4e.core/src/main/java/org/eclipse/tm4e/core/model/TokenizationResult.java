@@ -34,7 +34,7 @@ public final class TokenizationResult {
 	final boolean stoppedEarly;
 
 	public TokenizationResult(final List<TMToken> tokens, final int actualStopOffset, final IStateStack endState,
-		final boolean stoppedEarly) {
+			final boolean stoppedEarly) {
 		this.tokens = tokens;
 		this.actualStopOffset = actualStopOffset;
 		this.endState = endState;

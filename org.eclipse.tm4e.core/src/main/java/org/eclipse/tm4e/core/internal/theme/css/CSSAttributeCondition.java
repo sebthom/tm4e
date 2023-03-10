@@ -1,13 +1,13 @@
 /**
- *  Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2017 Angelo ZERR.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Contributors:
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.tm4e.core.internal.theme.css;
 
@@ -32,7 +32,8 @@ class CSSAttributeCondition extends AbstractAttributeCondition {
 	 */
 	private final boolean specified;
 
-	protected CSSAttributeCondition(@Nullable final String localName, @Nullable final String namespaceURI, final boolean specified, final String value) {
+	protected CSSAttributeCondition(@Nullable final String localName, @Nullable final String namespaceURI, final boolean specified,
+			final String value) {
 		super(value);
 		this.localName = localName;
 		this.namespaceURI = namespaceURI;
@@ -63,12 +64,12 @@ class CSSAttributeCondition extends AbstractAttributeCondition {
 
 	@Override
 	public int nbMatch(final String... names) {
-//		TODO
-//      String val = getValue();
-//		if (val == null) {
-//			return !e.getAttribute(getLocalName()).equals("");
-//		}
-//		return e.getAttribute(getLocalName()).equals(val);
+		// TODO
+		// String val = getValue();
+		// if (val == null) {
+		// return !e.getAttribute(getLocalName()).equals("");
+		// }
+		// return e.getAttribute(getLocalName()).equals(val);
 		return 0;
 	}
 

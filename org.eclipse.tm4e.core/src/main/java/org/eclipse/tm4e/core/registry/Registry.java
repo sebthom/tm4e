@@ -59,8 +59,7 @@ public final class Registry {
 	public Registry(final IRegistryOptions options) {
 		this._options = options;
 
-		this._syncRegistry = new SyncRegistry(
-			Theme.createFromRawTheme(options.getTheme(), options.getColorMap()));
+		this._syncRegistry = new SyncRegistry(Theme.createFromRawTheme(options.getTheme(), options.getColorMap()));
 	}
 
 	/**
@@ -68,9 +67,7 @@ public final class Registry {
 	 */
 	public void setTheme(final IThemeSource source) throws TMException {
 		try {
-			this._syncRegistry.setTheme(Theme.createFromRawTheme(
-				ThemeReader.readTheme(source),
-				_options.getColorMap()));
+			this._syncRegistry.setTheme(Theme.createFromRawTheme(ThemeReader.readTheme(source), _options.getColorMap()));
 		} catch (final Exception ex) {
 			throw new TMException("Loading theme from '" + source.getFilePath() + "' failed: " + ex.getMessage(), ex);
 		}
@@ -89,16 +86,16 @@ public final class Registry {
 	 */
 	@Nullable
 	public IGrammar loadGrammarWithEmbeddedLanguages(
-		final String initialScopeName,
-		final int initialLanguage,
-		final Map<String, Integer> embeddedLanguages) {
+			final String initialScopeName,
+			final int initialLanguage,
+			final Map<String, Integer> embeddedLanguages) {
 		return this.loadGrammarWithConfiguration(initialScopeName, initialLanguage,
-			new IGrammarConfiguration() {
-				@Override
-				public @Nullable Map<String, Integer> getEmbeddedLanguages() {
-					return embeddedLanguages;
-				}
-			});
+				new IGrammarConfiguration() {
+					@Override
+					public @Nullable Map<String, Integer> getEmbeddedLanguages() {
+						return embeddedLanguages;
+					}
+				});
 	}
 
 	/**
@@ -107,17 +104,17 @@ public final class Registry {
 	 */
 	@Nullable
 	public IGrammar loadGrammarWithConfiguration(
-		final String initialScopeName,
-		final int initialLanguage,
-		final IGrammarConfiguration configuration) {
+			final String initialScopeName,
+			final int initialLanguage,
+			final IGrammarConfiguration configuration) {
 		return this._loadGrammar(
-			initialScopeName,
-			initialLanguage,
-			configuration.getEmbeddedLanguages(),
-			configuration.getTokenTypes(),
-			new BalancedBracketSelectors(
-				nullToEmpty(configuration.getBalancedBracketSelectors()),
-				nullToEmpty(configuration.getUnbalancedBracketSelectors())));
+				initialScopeName,
+				initialLanguage,
+				configuration.getEmbeddedLanguages(),
+				configuration.getTokenTypes(),
+				new BalancedBracketSelectors(
+						nullToEmpty(configuration.getBalancedBracketSelectors()),
+						nullToEmpty(configuration.getUnbalancedBracketSelectors())));
 	}
 
 	/**
@@ -130,11 +127,11 @@ public final class Registry {
 
 	@Nullable
 	private IGrammar _loadGrammar(
-		final String initialScopeName,
-		final int initialLanguage,
-		@Nullable final Map<String, Integer> embeddedLanguages,
-		@Nullable final Map<String, Integer> tokenTypes,
-		@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
+			final String initialScopeName,
+			final int initialLanguage,
+			@Nullable final Map<String, Integer> embeddedLanguages,
+			@Nullable final Map<String, Integer> tokenTypes,
+			@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
 		final var dependencyProcessor = new ScopeDependencyProcessor(this._syncRegistry, initialScopeName);
 		while (!dependencyProcessor.Q.isEmpty()) {
 			dependencyProcessor.Q.forEach(request -> this._loadSingleGrammar(request.scopeName));
@@ -142,11 +139,11 @@ public final class Registry {
 		}
 
 		return this._grammarForScopeName(
-			initialScopeName,
-			initialLanguage,
-			embeddedLanguages,
-			tokenTypes,
-			balancedBracketSelectors);
+				initialScopeName,
+				initialLanguage,
+				embeddedLanguages,
+				tokenTypes,
+				balancedBracketSelectors);
 	}
 
 	private void _loadSingleGrammar(final String scopeName) {
@@ -174,18 +171,18 @@ public final class Registry {
 	}
 
 	public IGrammar addGrammar(
-		final IGrammarSource source,
-		@Nullable final List<String> injections,
-		@Nullable final Integer initialLanguage,
-		@Nullable final Map<String, Integer> embeddedLanguages) throws TMException {
+			final IGrammarSource source,
+			@Nullable final List<String> injections,
+			@Nullable final Integer initialLanguage,
+			@Nullable final Map<String, Integer> embeddedLanguages) throws TMException {
 		try {
 			final var rawGrammar = GrammarReader.readGrammar(source);
 			this._syncRegistry.addGrammar(rawGrammar,
-				injections == null || injections.isEmpty()
-					? this._options.getInjections(rawGrammar.getScopeName())
-					: injections);
+					injections == null || injections.isEmpty()
+							? this._options.getInjections(rawGrammar.getScopeName())
+							: injections);
 			return castNonNull(
-				this._grammarForScopeName(rawGrammar.getScopeName(), initialLanguage, embeddedLanguages, null, null));
+					this._grammarForScopeName(rawGrammar.getScopeName(), initialLanguage, embeddedLanguages, null, null));
 
 		} catch (final Exception ex) {
 			throw new TMException("Loading grammar from '" + source.getFilePath() + "' failed: " + ex.getMessage(), ex);
@@ -205,16 +202,16 @@ public final class Registry {
 	 */
 	@Nullable
 	private IGrammar _grammarForScopeName(
-		final String scopeName,
-		@Nullable final Integer initialLanguage,
-		@Nullable final Map<String, Integer> embeddedLanguages,
-		@Nullable final Map<String, Integer> tokenTypes,
-		@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
+			final String scopeName,
+			@Nullable final Integer initialLanguage,
+			@Nullable final Map<String, Integer> embeddedLanguages,
+			@Nullable final Map<String, Integer> tokenTypes,
+			@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
 		return this._syncRegistry.grammarForScopeName(
-			scopeName,
-			initialLanguage == null ? 0 : initialLanguage,
-			embeddedLanguages,
-			tokenTypes,
-			balancedBracketSelectors);
+				scopeName,
+				initialLanguage == null ? 0 : initialLanguage,
+				embeddedLanguages,
+				tokenTypes,
+				balancedBracketSelectors);
 	}
 }

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tm4e.core.internal.theme.css.sac;
 
@@ -14,6 +14,7 @@ package org.eclipse.tm4e.core.internal.theme.css.sac;
  * SAC Constants Parsers.
  *
  * @version 1.0.0
+ * 
  * @author <a href="mailto:angelo.zerr@gmail.com">Angelo ZERR</a>
  *
  */

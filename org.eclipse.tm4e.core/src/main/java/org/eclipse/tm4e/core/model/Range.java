@@ -65,7 +65,7 @@ public class Range {
 	@Override
 	public String toString() {
 		return StringUtils.toString(this, sb -> sb
-			.append("from=").append(fromLineNumber).append(", ")
-			.append("to=").append(toLineNumber));
+				.append("from=").append(fromLineNumber).append(", ")
+				.append("to=").append(toLineNumber));
 	}
 }

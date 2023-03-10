@@ -80,19 +80,17 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 	private final BalancedBracketSelectors balancedBracketSelectors;
 
 	public Grammar(
-		final String rootScopeName,
-		final IRawGrammar grammar,
-		final int initialLanguage,
-		@Nullable final Map<String, Integer> embeddedLanguages,
-		@Nullable final Map<String, Integer> tokenTypes,
-		@Nullable final BalancedBracketSelectors balancedBracketSelectors,
-		final IGrammarRepository grammarRepository,
-		final IThemeProvider themeProvider) {
+			final String rootScopeName,
+			final IRawGrammar grammar,
+			final int initialLanguage,
+			@Nullable final Map<String, Integer> embeddedLanguages,
+			@Nullable final Map<String, Integer> tokenTypes,
+			@Nullable final BalancedBracketSelectors balancedBracketSelectors,
+			final IGrammarRepository grammarRepository,
+			final IThemeProvider themeProvider) {
 
 		this.rootScopeName = rootScopeName;
-		this._basicScopeAttributesProvider = new BasicScopeAttributesProvider(
-			initialLanguage,
-			embeddedLanguages);
+		this._basicScopeAttributesProvider = new BasicScopeAttributesProvider(initialLanguage, embeddedLanguages);
 		this._grammarRepository = grammarRepository;
 		this._grammar = initGrammar(grammar, null);
 		this.balancedBracketSelectors = balancedBracketSelectors;
@@ -114,16 +112,16 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	private void collectInjections(final List<Injection> result, final String selector, final IRawRule rule,
-		final IRuleFactoryHelper ruleFactoryHelper, final IRawGrammar grammar) {
+			final IRuleFactoryHelper ruleFactoryHelper, final IRawGrammar grammar) {
 		final var matchers = Matcher.createMatchers(selector);
 		final var ruleId = RuleFactory.getCompiledRuleId(rule, ruleFactoryHelper, this._grammar.getRepository());
 		for (final var matcher : matchers) {
 			result.add(new Injection(
-				selector,
-				matcher.matcher,
-				ruleId,
-				grammar,
-				matcher.priority));
+					selector,
+					matcher.matcher,
+					ruleId,
+					grammar,
+					matcher.priority));
 		}
 	}
 
@@ -154,11 +152,11 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 			if (rawInjections != null) {
 				for (final var e : rawInjections.entrySet()) {
 					collectInjections(
-						result,
-						e.getKey(),
-						e.getValue(),
-						this,
-						grammar);
+							result,
+							e.getKey(),
+							e.getValue(),
+							this,
+							grammar);
 				}
 			}
 
@@ -171,11 +169,11 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 						final var selector = injectionGrammar.getInjectionSelector();
 						if (selector != null) {
 							collectInjections(
-								result,
-								selector,
-								injectionGrammar.toRawRule(),
-								this,
-								injectionGrammar);
+									result,
+									selector,
+									injectionGrammar.toRawRule(),
+									this,
+									injectionGrammar);
 						}
 					}
 				});
@@ -193,8 +191,7 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 			injections = this._injections = this._collectInjections();
 
 			if (LOGGER.isLoggable(Level.TRACE) && !injections.isEmpty()) {
-				LOGGER.log(Level.TRACE,
-					"Grammar " + rootScopeName + " contains the following injections:");
+				LOGGER.log(Level.TRACE, "Grammar " + rootScopeName + " contains the following injections:");
 				for (final var injection : injections) {
 					LOGGER.log(Level.TRACE, "  - " + injection.debugSelector);
 				}
@@ -216,7 +213,7 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 		final var rule = this._ruleId2desc.get(ruleId);
 		if (rule == null) {
 			throw new IndexOutOfBoundsException(
-				"No rule with index " + ruleId.id + " found. Possible values: 0.." + this._ruleId2desc.size());
+					"No rule with index " + ruleId.id + " found. Possible values: 0.." + this._ruleId2desc.size());
 		}
 		return rule;
 	}
@@ -231,8 +228,8 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 		final IRawGrammar rawIncludedGrammar = this._grammarRepository.lookup(scopeName);
 		if (rawIncludedGrammar != null) {
 			this.includedGrammars.put(scopeName, initGrammar(
-				rawIncludedGrammar,
-				repository != null ? repository.getBase() : null));
+					rawIncludedGrammar,
+					repository != null ? repository.getBase() : null));
 			return this.includedGrammars.get(scopeName);
 		}
 		return null;
@@ -243,8 +240,8 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 
 		final var repo = grammar.getRepository();
 		repo.setSelf(new RawRule()
-			.setName(grammar.getScopeName())
-			.setPatterns(grammar.getPatterns()));
+				.setName(grammar.getScopeName())
+				.setPatterns(grammar.getPatterns()));
 		repo.setBase(base != null ? base : repo.getSelf());
 		return grammar;
 	}
@@ -256,8 +253,8 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 
 	@Override
 	public ITokenizeLineResult<IToken[]> tokenizeLine(final String lineText,
-		@Nullable final IStateStack prevState,
-		@Nullable final Duration timeLimit) {
+			@Nullable final IStateStack prevState,
+			@Nullable final Duration timeLimit) {
 		return _tokenize(lineText, (StateStack) prevState, false, timeLimit);
 	}
 
@@ -268,22 +265,22 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 
 	@Override
 	public ITokenizeLineResult<int[]> tokenizeLine2(final String lineText, @Nullable final IStateStack prevState,
-		@Nullable final Duration timeLimit) {
+			@Nullable final Duration timeLimit) {
 		return _tokenize(lineText, (StateStack) prevState, true, timeLimit);
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> T _tokenize(
-		String lineText,
-		@Nullable StateStack prevState,
-		final boolean emitBinaryTokens,
-		@Nullable final Duration timeLimit) {
+			String lineText,
+			@Nullable StateStack prevState,
+			final boolean emitBinaryTokens,
+			@Nullable final Duration timeLimit) {
 		var rootId = this._rootId;
 		if (rootId == null) {
 			rootId = this._rootId = RuleFactory.getCompiledRuleId(
-				this._grammar.getRepository().getSelf(),
-				this,
-				this._grammar.getRepository());
+					this._grammar.getRepository().getSelf(),
+					this,
+					this._grammar.getRepository());
 			// This ensures ids are deterministic, and thus equal in renderer and webworker.
 			this.getInjections();
 		}
@@ -294,39 +291,37 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 			final var rawDefaultMetadata = this._basicScopeAttributesProvider.getDefaultAttributes();
 			final var defaultTheme = this.themeProvider.getDefaults();
 			final int defaultMetadata = EncodedTokenAttributes.set(
-				0,
-				rawDefaultMetadata.languageId,
-				rawDefaultMetadata.tokenType,
-				null,
-				defaultTheme.fontStyle,
-				defaultTheme.foregroundId,
-				defaultTheme.backgroundId);
+					0,
+					rawDefaultMetadata.languageId,
+					rawDefaultMetadata.tokenType,
+					null,
+					defaultTheme.fontStyle,
+					defaultTheme.foregroundId,
+					defaultTheme.backgroundId);
 
-			final var rootScopeName = this.getRule(rootId).getName(
-				null,
-				null);
+			final var rootScopeName = this.getRule(rootId).getName(null, null);
 
 			AttributedScopeStack scopeList;
 			if (rootScopeName != null) {
 				scopeList = AttributedScopeStack.createRootAndLookUpScopeName(
-					rootScopeName,
-					defaultMetadata,
-					this);
+						rootScopeName,
+						defaultMetadata,
+						this);
 			} else {
 				scopeList = AttributedScopeStack.createRoot(
-					"unknown",
-					defaultMetadata);
+						"unknown",
+						defaultMetadata);
 			}
 
 			prevState = new StateStack(
-				null,
-				rootId,
-				-1,
-				-1,
-				false,
-				null,
-				scopeList,
-				scopeList);
+					null,
+					rootId,
+					-1,
+					-1,
+					false,
+					null,
+					scopeList,
+					scopeList);
 		} else {
 			isFirstLine = false;
 			prevState.reset();
@@ -339,26 +334,26 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 		final var onigLineText = OnigString.of(lineText);
 		final int lineLength = lineText.length();
 		final var lineTokens = new LineTokens(
-			emitBinaryTokens,
-			lineText,
-			_tokenTypeMatchers,
-			balancedBracketSelectors);
+				emitBinaryTokens,
+				lineText,
+				_tokenTypeMatchers,
+				balancedBracketSelectors);
 		final var tokenizeResult = LineTokenizer.tokenizeString(
-			this,
-			onigLineText,
-			isFirstLine,
-			0,
-			prevState,
-			lineTokens,
-			true,
-			timeLimit == null ? Duration.ZERO : timeLimit);
+				this,
+				onigLineText,
+				isFirstLine,
+				0,
+				prevState,
+				lineTokens,
+				true,
+				timeLimit == null ? Duration.ZERO : timeLimit);
 
 		if (emitBinaryTokens) {
 			return (T) new TokenizeLineResult<>(lineTokens.getBinaryResult(tokenizeResult.stack, lineLength),
-				tokenizeResult.stack, tokenizeResult.stoppedEarly);
+					tokenizeResult.stack, tokenizeResult.stoppedEarly);
 		}
 		return (T) new TokenizeLineResult<>(lineTokens.getResult(tokenizeResult.stack, lineLength),
-			tokenizeResult.stack, tokenizeResult.stoppedEarly);
+				tokenizeResult.stack, tokenizeResult.stoppedEarly);
 	}
 
 	@Override
@@ -380,7 +375,7 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 	@Override
 	public String toString() {
 		return StringUtils.toString(this, sb -> sb
-			.append("name=").append(getName()).append(", ")
-			.append("scopeName=").append(getScopeName()));
+				.append("name=").append(getName()).append(", ")
+				.append("scopeName=").append(getScopeName()));
 	}
 }

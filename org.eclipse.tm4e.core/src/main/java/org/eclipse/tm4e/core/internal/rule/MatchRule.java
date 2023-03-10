@@ -33,8 +33,7 @@ public final class MatchRule extends Rule {
 	@Nullable
 	private RegExpSourceList cachedCompiledPatterns;
 
-	MatchRule(final RuleId id, @Nullable final String name, final String match,
-		final List<@Nullable CaptureRule> captures) {
+	MatchRule(final RuleId id, @Nullable final String name, final String match, final List<@Nullable CaptureRule> captures) {
 		super(id, name, null);
 		this.match = new RegExpSource(match, this.id);
 		this.captures = captures;
@@ -52,7 +51,7 @@ public final class MatchRule extends Rule {
 
 	@Override
 	public CompiledRule compileAG(final IRuleRegistry grammar, @Nullable final String endRegexSource,
-		final boolean allowA, final boolean allowG) {
+			final boolean allowA, final boolean allowG) {
 		return getCachedCompiledPatterns(grammar).compileAG(allowA, allowG);
 	}
 

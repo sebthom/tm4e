@@ -53,22 +53,20 @@ class GrammarInjectionTest {
 			@Override
 			public @Nullable IGrammarSource getGrammarSource(final String scopeName) {
 				return switch (scopeName) {
-				case "source.css" -> IGrammarSource.fromResource(Data.class, "css.json");
-				case "source.js" -> IGrammarSource.fromResource(Data.class, "JavaScript.tmLanguage.json");
-				case "styles.ng" -> IGrammarSource.fromResource(Data.class, "styles.ng.json");
-				case "template.ng" -> IGrammarSource.fromResource(Data.class, "template.ng.json");
-				case "text.html.basic" -> IGrammarSource.fromResource(Data.class, "html.json");
-				default -> null;
+					case "source.css" -> IGrammarSource.fromResource(Data.class, "css.json");
+					case "source.js" -> IGrammarSource.fromResource(Data.class, "JavaScript.tmLanguage.json");
+					case "styles.ng" -> IGrammarSource.fromResource(Data.class, "styles.ng.json");
+					case "template.ng" -> IGrammarSource.fromResource(Data.class, "template.ng.json");
+					case "text.html.basic" -> IGrammarSource.fromResource(Data.class, "html.json");
+					default -> null;
 				};
 			}
 		});
-		final IGrammar grammar = registry.addGrammar(
-			IGrammarSource.fromResource(Data.class, "TypeScript.tmLanguage.json"));
+		final IGrammar grammar = registry.addGrammar(IGrammarSource.fromResource(Data.class, "TypeScript.tmLanguage.json"));
 		final var lineTokens = grammar.tokenizeLine("@Component({template:`<a href='' ></a>`})");
 		for (int i = 0; i < lineTokens.getTokens().length; i++) {
 			final IToken token = lineTokens.getTokens()[i];
-			final var s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
-				+ token.getScopes();
+			final var s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes " + token.getScopes();
 			System.err.println(s);
 			Assertions.assertEquals(EXPECTED_TOKENS[i], s);
 		}

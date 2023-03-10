@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *      IBM Corporation - initial API and implementation
+ * IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.tm4e.core.internal.theme.css;
 
@@ -58,20 +58,20 @@ final class Measure extends CSSValueImpl {
 	@Override
 	public short getPrimitiveType() {
 		return switch (value.getLexicalUnitType()) {
-		case LexicalUnit.SAC_IDENT -> CSS_IDENT;
-		case LexicalUnit.SAC_INTEGER, LexicalUnit.SAC_REAL -> CSS_NUMBER;
-		case LexicalUnit.SAC_URI -> CSS_URI;
-		case LexicalUnit.SAC_PERCENTAGE -> CSS_PERCENTAGE;
-		case LexicalUnit.SAC_PIXEL -> CSS_PX;
-		case LexicalUnit.SAC_CENTIMETER -> CSS_CM;
-		case LexicalUnit.SAC_EM -> CSS_EMS;
-		case LexicalUnit.SAC_EX -> CSS_EXS;
-		case LexicalUnit.SAC_INCH -> CSS_IN;
-		case LexicalUnit.SAC_STRING_VALUE -> CSS_STRING;
-		case LexicalUnit.SAC_DIMENSION -> CSS_DIMENSION;
-		case LexicalUnit.SAC_OPERATOR_COMMA -> CSS_CUSTOM; // TODO don't think this is right, see bug #278139
-		case LexicalUnit.SAC_INHERIT -> CSS_INHERIT;
-		default -> throw new UnsupportedOperationException(
+			case LexicalUnit.SAC_IDENT -> CSS_IDENT;
+			case LexicalUnit.SAC_INTEGER, LexicalUnit.SAC_REAL -> CSS_NUMBER;
+			case LexicalUnit.SAC_URI -> CSS_URI;
+			case LexicalUnit.SAC_PERCENTAGE -> CSS_PERCENTAGE;
+			case LexicalUnit.SAC_PIXEL -> CSS_PX;
+			case LexicalUnit.SAC_CENTIMETER -> CSS_CM;
+			case LexicalUnit.SAC_EM -> CSS_EMS;
+			case LexicalUnit.SAC_EX -> CSS_EXS;
+			case LexicalUnit.SAC_INCH -> CSS_IN;
+			case LexicalUnit.SAC_STRING_VALUE -> CSS_STRING;
+			case LexicalUnit.SAC_DIMENSION -> CSS_DIMENSION;
+			case LexicalUnit.SAC_OPERATOR_COMMA -> CSS_CUSTOM; // TODO don't think this is right, see bug #278139
+			case LexicalUnit.SAC_INHERIT -> CSS_INHERIT;
+			default -> throw new UnsupportedOperationException(
 					"NOT YET IMPLEMENTED - LexicalUnit type: " + value.getLexicalUnitType());
 		};
 	}
@@ -82,22 +82,14 @@ final class Measure extends CSSValueImpl {
 		// now as it's not even clear whether they should be treated as measures
 		// see bug #278139
 		return switch (value.getLexicalUnitType()) {
-		case LexicalUnit.SAC_INTEGER -> String.valueOf(value.getIntegerValue());
-		case LexicalUnit.SAC_REAL -> String.valueOf(value.getFloatValue());
-		case LexicalUnit.SAC_PERCENTAGE,
-			LexicalUnit.SAC_PIXEL,
-			LexicalUnit.SAC_CENTIMETER,
-			LexicalUnit.SAC_EM,
-			LexicalUnit.SAC_EX,
-			LexicalUnit.SAC_PICA,
-			LexicalUnit.SAC_POINT,
-			LexicalUnit.SAC_INCH,
-			LexicalUnit.SAC_DEGREE ->
-			String.valueOf(value.getFloatValue()) + value.getDimensionUnitText();
-		case LexicalUnit.SAC_URI -> "url(" + value.getStringValue() + ")";
-		case LexicalUnit.SAC_OPERATOR_COMMA -> ",";
-		case LexicalUnit.SAC_INHERIT -> "inherit";
-		default -> value.getStringValue();
+			case LexicalUnit.SAC_INTEGER -> String.valueOf(value.getIntegerValue());
+			case LexicalUnit.SAC_REAL -> String.valueOf(value.getFloatValue());
+			case LexicalUnit.SAC_PERCENTAGE, LexicalUnit.SAC_PIXEL, LexicalUnit.SAC_CENTIMETER, LexicalUnit.SAC_EM, LexicalUnit.SAC_EX, LexicalUnit.SAC_PICA, LexicalUnit.SAC_POINT, LexicalUnit.SAC_INCH, LexicalUnit.SAC_DEGREE -> String
+					.valueOf(value.getFloatValue()) + value.getDimensionUnitText();
+			case LexicalUnit.SAC_URI -> "url(" + value.getStringValue() + ")";
+			case LexicalUnit.SAC_OPERATOR_COMMA -> ",";
+			case LexicalUnit.SAC_INHERIT -> "inherit";
+			default -> value.getStringValue();
 		};
 	}
 }

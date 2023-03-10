@@ -41,7 +41,7 @@ public final class AttributedScopeStack {
 
 	@Nullable
 	static AttributedScopeStack fromExtension(final @Nullable AttributedScopeStack namesScopeList,
-		final List<AttributedScopeStack.Frame> contentNameScopesList) {
+			final List<AttributedScopeStack.Frame> contentNameScopesList) {
 		var current = namesScopeList;
 		@Nullable
 		ScopeStack scopeNames = namesScopeList != null ? namesScopeList.scopePath : null;
@@ -53,20 +53,20 @@ public final class AttributedScopeStack {
 	}
 
 	public static AttributedScopeStack createRoot(final String scopeName,
-		final int /*EncodedTokenAttributes*/ tokenAttributes) {
+			final int /*EncodedTokenAttributes*/ tokenAttributes) {
 		return new AttributedScopeStack(null, new ScopeStack(null, scopeName), tokenAttributes);
 	}
 
-	public static AttributedScopeStack createRootAndLookUpScopeName(final String scopeName,
-		final int encodedTokenAttributes, final Grammar grammar) {
+	public static AttributedScopeStack createRootAndLookUpScopeName(final String scopeName, final int encodedTokenAttributes,
+			final Grammar grammar) {
 		final var rawRootMetadata = grammar.getMetadataForScope(scopeName);
 		final var scopePath = new ScopeStack(null, scopeName);
 		final var rootStyle = grammar.themeProvider.themeMatch(scopePath);
 
 		final var resolvedTokenAttributes = AttributedScopeStack.mergeAttributes(
-			encodedTokenAttributes,
-			rawRootMetadata,
-			rootStyle);
+				encodedTokenAttributes,
+				rawRootMetadata,
+				rootStyle);
 
 		return new AttributedScopeStack(null, scopePath, resolvedTokenAttributes);
 	}
@@ -80,9 +80,9 @@ public final class AttributedScopeStack {
 	final int tokenAttributes;
 
 	public AttributedScopeStack(
-		final @Nullable AttributedScopeStack parent,
-		final ScopeStack scopePath,
-		final int tokenAttributes) {
+			final @Nullable AttributedScopeStack parent,
+			final ScopeStack scopePath,
+			final int tokenAttributes) {
 		this.parent = parent;
 		this.scopePath = scopePath;
 		this.tokenAttributes = tokenAttributes;
@@ -98,8 +98,8 @@ public final class AttributedScopeStack {
 	}
 
 	public static boolean equals(
-		@Nullable AttributedScopeStack a,
-		@Nullable AttributedScopeStack b) {
+			@Nullable AttributedScopeStack a,
+			@Nullable AttributedScopeStack b) {
 		do {
 			if (a == b) {
 				return true;
@@ -126,9 +126,9 @@ public final class AttributedScopeStack {
 	}
 
 	public static int mergeAttributes(
-		final int existingTokenAttributes,
-		final BasicScopeAttributes basicScopeAttributes,
-		final @Nullable StyleAttributes styleAttributes) {
+			final int existingTokenAttributes,
+			final BasicScopeAttributes basicScopeAttributes,
+			final @Nullable StyleAttributes styleAttributes) {
 		var fontStyle = FontStyle.NotSet;
 		var foreground = 0;
 		var background = 0;
@@ -140,13 +140,13 @@ public final class AttributedScopeStack {
 		}
 
 		return EncodedTokenAttributes.set(
-			existingTokenAttributes,
-			basicScopeAttributes.languageId,
-			basicScopeAttributes.tokenType,
-			null,
-			fontStyle,
-			foreground,
-			background);
+				existingTokenAttributes,
+				basicScopeAttributes.languageId,
+				basicScopeAttributes.tokenType,
+				null,
+				fontStyle,
+				foreground,
+				background);
 	}
 
 	AttributedScopeStack pushAttributed(final @Nullable String scopePath, final Grammar grammar) {
@@ -168,17 +168,17 @@ public final class AttributedScopeStack {
 	}
 
 	private AttributedScopeStack _pushAttributed(
-		final AttributedScopeStack target,
-		final String scopeName,
-		final Grammar grammar) {
+			final AttributedScopeStack target,
+			final String scopeName,
+			final Grammar grammar) {
 		final var rawMetadata = grammar.getMetadataForScope(scopeName);
 
 		final var newPath = target.scopePath.push(scopeName);
 		final var scopeThemeMatchResult = grammar.themeProvider.themeMatch(newPath);
 		final var metadata = mergeAttributes(
-			target.tokenAttributes,
-			rawMetadata,
-			scopeThemeMatchResult);
+				target.tokenAttributes,
+				rawMetadata,
+				scopeThemeMatchResult);
 		return new AttributedScopeStack(target, newPath, metadata);
 	}
 
@@ -193,8 +193,8 @@ public final class AttributedScopeStack {
 		while (self != null && self != base) {
 			final var parent = self.parent;
 			result.add(new AttributedScopeStack.Frame(
-				self.tokenAttributes,
-				self.scopePath.getExtensionIfDefined(parent != null ? parent.scopePath : null)));
+					self.tokenAttributes,
+					self.scopePath.getExtensionIfDefined(parent != null ? parent.scopePath : null)));
 			self = self.parent;
 		}
 		if (self == base) {

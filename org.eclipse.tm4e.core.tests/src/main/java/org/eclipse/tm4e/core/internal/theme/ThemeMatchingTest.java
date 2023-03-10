@@ -57,9 +57,7 @@ class ThemeMatchingTest extends AbstractThemeTest {
 
 		final var map = theme.getColorMap();
 
-		assertEquals(
-			map.get(theme.match(ScopeStack.from("d", "a.b")).foregroundId),
-			"#400000");
+		assertEquals(map.get(theme.match(ScopeStack.from("d", "a.b")).foregroundId), "#400000");
 	}
 
 	@Test
@@ -75,10 +73,10 @@ class ThemeMatchingTest extends AbstractThemeTest {
 			]}""");
 
 		final var result = theme.match(
-			ScopeStack.from(
-				"text.html.cshtml",
-				"meta.tag.structure.any.html",
-				"entity.name.tag.structure.any.html"));
+				ScopeStack.from(
+						"text.html.cshtml",
+						"meta.tag.structure.any.html",
+						"entity.name.tag.structure.any.html"));
 
 		final var colorMap = theme.getColorMap();
 		assertEquals(colorMap.get(result.foregroundId), "#300000");
@@ -136,10 +134,8 @@ class ThemeMatchingTest extends AbstractThemeTest {
 		assertEquals(match(theme, "constant.numeric.baz"), map("foreground", "#400000", "fontStyle", "italic"));
 		assertEquals(match(theme, "constant.numeric.hex"), map("foreground", "#400000", "fontStyle", "bold"));
 		assertEquals(match(theme, "constant.numeric.hex.baz"), map("foreground", "#400000", "fontStyle", "bold"));
-		assertEquals(match(theme, "constant.numeric.oct"),
-			map("foreground", "#400000", "fontStyle", "italic bold underline"));
-		assertEquals(match(theme, "constant.numeric.oct.baz"),
-			map("foreground", "#400000", "fontStyle", "italic bold underline"));
+		assertEquals(match(theme, "constant.numeric.oct"), map("foreground", "#400000", "fontStyle", "italic bold underline"));
+		assertEquals(match(theme, "constant.numeric.oct.baz"), map("foreground", "#400000", "fontStyle", "italic bold underline"));
 		assertEquals(match(theme, "constant.numeric.dec"), map("foreground", "#500000", "fontStyle", "none"));
 		assertEquals(match(theme, "constant.numeric.dec.baz"), map("foreground", "#500000", "fontStyle", "none"));
 		assertEquals(match(theme, "storage.object.bar"), map("foreground", "#600000", "fontStyle", "none"));
@@ -155,8 +151,7 @@ class ThemeMatchingTest extends AbstractThemeTest {
 
 		// multiMatch1..2
 		assertEquals(match(theme, "bar"), map("background", "#200000", "fontStyle", "not set"));
-		assertEquals(match(theme, "source.css", "selector", "bar"),
-			map("background", "#200000", "fontStyle", "bold"));
+		assertEquals(match(theme, "source.css", "selector", "bar"), map("background", "#200000", "fontStyle", "bold"));
 	}
 
 	@Test
@@ -190,10 +185,10 @@ class ThemeMatchingTest extends AbstractThemeTest {
 			]}""");
 
 		final var path = ScopeStack.from(
-			"source.json",
-			"meta.structure.dictionary.json",
-			"meta.structure.dictionary.value.json",
-			"string.quoted.double.json");
+				"source.json",
+				"meta.structure.dictionary.json",
+				"meta.structure.dictionary.value.json",
+				"string.quoted.double.json");
 		final var result = theme.match(path);
 		assertEquals(theme.getColorMap().get(result.foregroundId), "#FF410D");
 	}

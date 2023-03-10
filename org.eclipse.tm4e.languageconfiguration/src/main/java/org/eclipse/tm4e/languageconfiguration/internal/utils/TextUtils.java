@@ -155,8 +155,7 @@ public final class TextUtils {
 	 * @return the offset in the specified range whose character is not a space or
 	 *         tab
 	 *
-	 * @exception BadLocationException if position is an invalid range in the given
-	 *            document
+	 * @exception BadLocationException if position is an invalid range in the given document
 	 */
 	private static int findEndOfWhiteSpace(final IDocument document, int offset, final int end)
 			throws BadLocationException {
@@ -189,8 +188,8 @@ public final class TextUtils {
 	 * @param document the document to search in
 	 * @param line zero-based document line number
 	 *
-	 * @return  <code>true</code>  if all the characters of the specified document line are the whitespace
-	 * 				characters, otherwise returns <code>false</code>
+	 * @return <code>true</code> if all the characters of the specified document line are the whitespace
+	 *         characters, otherwise returns <code>false</code>
 	 */
 	public static boolean isBlankLine(final IDocument document, int line) {
 		try {
@@ -203,7 +202,7 @@ public final class TextUtils {
 				offset++;
 			}
 		} catch (BadLocationException e) {
-			// Ignore,  forcing a positive result
+			// Ignore, forcing a positive result
 		}
 		return true;
 	}

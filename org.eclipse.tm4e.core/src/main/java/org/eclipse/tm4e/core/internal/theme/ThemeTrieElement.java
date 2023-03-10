@@ -37,16 +37,16 @@ public final class ThemeTrieElement {
 	}
 
 	public ThemeTrieElement(
-		final ThemeTrieElementRule mainRule,
-		final List<ThemeTrieElementRule> rulesWithParentScopes) {
+			final ThemeTrieElementRule mainRule,
+			final List<ThemeTrieElementRule> rulesWithParentScopes) {
 
 		this(mainRule, rulesWithParentScopes, new HashMap<>());
 	}
 
 	public ThemeTrieElement(
-		final ThemeTrieElementRule mainRule,
-		final List<ThemeTrieElementRule> rulesWithParentScopes,
-		final Map<String /*segment*/, ThemeTrieElement> children) {
+			final ThemeTrieElementRule mainRule,
+			final List<ThemeTrieElementRule> rulesWithParentScopes,
+			final Map<String /*segment*/, ThemeTrieElement> children) {
 
 		this._mainRule = mainRule;
 		this._rulesWithParentScopes = rulesWithParentScopes;
@@ -108,8 +108,8 @@ public final class ThemeTrieElement {
 		return ThemeTrieElement._sortBySpecificity(asArrayList(this._mainRule, this._rulesWithParentScopes));
 	}
 
-	public void insert(final int scopeDepth, final String scope, @Nullable final List<String> parentScopes,
-		final int fontStyle, final int foreground, final int background) {
+	public void insert(final int scopeDepth, final String scope, @Nullable final List<String> parentScopes, final int fontStyle,
+			final int foreground, final int background) {
 		if (scope.isEmpty()) {
 			this.doInsertHere(scopeDepth, parentScopes, fontStyle, foreground, background);
 			return;
@@ -130,16 +130,15 @@ public final class ThemeTrieElement {
 		if (this._children.containsKey(head)) {
 			child = this._children.get(head);
 		} else {
-			child = new ThemeTrieElement(this._mainRule.clone(),
-				ThemeTrieElementRule.cloneArr(this._rulesWithParentScopes));
+			child = new ThemeTrieElement(this._mainRule.clone(), ThemeTrieElementRule.cloneArr(this._rulesWithParentScopes));
 			this._children.put(head, child);
 		}
 
 		child.insert(scopeDepth + 1, tail, parentScopes, fontStyle, foreground, background);
 	}
 
-	private void doInsertHere(final int scopeDepth, @Nullable final List<String> parentScopes, int fontStyle,
-		int foreground, int background) {
+	private void doInsertHere(final int scopeDepth, @Nullable final List<String> parentScopes, int fontStyle, int foreground,
+			int background) {
 
 		if (parentScopes == null) {
 			// Merge into the main rule
@@ -169,8 +168,7 @@ public final class ThemeTrieElement {
 			background = this._mainRule.background;
 		}
 
-		this._rulesWithParentScopes.add(
-			new ThemeTrieElementRule(scopeDepth, parentScopes, fontStyle, foreground, background));
+		this._rulesWithParentScopes.add(new ThemeTrieElementRule(scopeDepth, parentScopes, fontStyle, foreground, background));
 	}
 
 	@Override
@@ -191,7 +189,7 @@ public final class ThemeTrieElement {
 			return false;
 		final ThemeTrieElement other = (ThemeTrieElement) obj;
 		return _children.equals(other._children)
-			&& _mainRule.equals(other._mainRule)
-			&& _rulesWithParentScopes.equals(other._rulesWithParentScopes);
+				&& _mainRule.equals(other._mainRule)
+				&& _rulesWithParentScopes.equals(other._rulesWithParentScopes);
 	}
 }

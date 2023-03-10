@@ -35,13 +35,11 @@ import com.google.gson.GsonBuilder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ThemeResolvingTest extends AbstractThemeTest {
 
-	private static final ThemeTrieElementRule NOTSET_THEME_TRIE_ELEMENT_RULE = new ThemeTrieElementRule(0, null, NotSet,
-		_NOT_SET, _NOT_SET);
-	private static final ThemeTrieElement NOTSET_THEME_TRIE_ELEMENT = new ThemeTrieElement(
-		NOTSET_THEME_TRIE_ELEMENT_RULE);
+	private static final ThemeTrieElementRule NOTSET_THEME_TRIE_ELEMENT_RULE = new ThemeTrieElementRule(0, null, NotSet, _NOT_SET,
+			_NOT_SET);
+	private static final ThemeTrieElement NOTSET_THEME_TRIE_ELEMENT = new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE);
 
-	private static void assertStrArrCmp(final String testCase, final List<String> a, final List<String> b,
-		final int expected) {
+	private static void assertStrArrCmp(final String testCase, final List<String> a, final List<String> b, final int expected) {
 		assertEquals(expected, StringUtils.strArrCmp(a, b), testCase);
 	}
 
@@ -77,19 +75,18 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 	}
 
 	protected static final Gson THEME_GSON = new GsonBuilder()
-		.setExclusionStrategies(new ExclusionStrategy() {
-			@Override
-			public boolean shouldSkipField(FieldAttributes f) {
-				return f.getDeclaredClass() == Theme.class
-					&& f.getName().equals("_cachedMatchRoot"); // ignore the cache objects
-			}
+			.setExclusionStrategies(new ExclusionStrategy() {
+				@Override
+				public boolean shouldSkipField(FieldAttributes f) {
+					return f.getDeclaredClass() == Theme.class && f.getName().equals("_cachedMatchRoot"); // ignore the cache objects
+				}
 
-			@Override
-			public boolean shouldSkipClass(Class<?> clazz) {
-				return false;
-			}
-		})
-		.setPrettyPrinting().create();
+				@Override
+				public boolean shouldSkipClass(Class<?> clazz) {
+					return false;
+				}
+			})
+			.setPrettyPrinting().create();
 
 	private static void assertThemeEqual(Theme actual, Theme expected) {
 		// if this fails, we get a nice visual representation of the difference:
@@ -109,9 +106,9 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 		final int _A = colorMap.getId("#000000");
 		final int _B = colorMap.getId("#ffffff");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(None, _A, _B),
-			NOTSET_THEME_TRIE_ELEMENT);
+				colorMap,
+				new StyleAttributes(None, _A, _B),
+				NOTSET_THEME_TRIE_ELEMENT);
 		assertThemeEqual(actual, expected);
 	}
 
@@ -124,9 +121,9 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 		final int _A = colorMap.getId("#000000");
 		final int _B = colorMap.getId("#ffffff");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(None, _A, _B),
-			NOTSET_THEME_TRIE_ELEMENT);
+				colorMap,
+				new StyleAttributes(None, _A, _B),
+				NOTSET_THEME_TRIE_ELEMENT);
 		assertThemeEqual(actual, expected);
 	}
 
@@ -139,9 +136,9 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 		final int _A = colorMap.getId("#000000");
 		final int _B = colorMap.getId("#ffffff");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(None, _A, _B),
-			NOTSET_THEME_TRIE_ELEMENT);
+				colorMap,
+				new StyleAttributes(None, _A, _B),
+				NOTSET_THEME_TRIE_ELEMENT);
 		assertThemeEqual(actual, expected);
 	}
 
@@ -154,9 +151,9 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 		final int _A = colorMap.getId("#000000");
 		final int _B = colorMap.getId("#ffffff");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(Bold, _A, _B),
-			NOTSET_THEME_TRIE_ELEMENT);
+				colorMap,
+				new StyleAttributes(Bold, _A, _B),
+				NOTSET_THEME_TRIE_ELEMENT);
 		assertThemeEqual(actual, expected);
 	}
 
@@ -169,9 +166,9 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 		final int _A = colorMap.getId("#ff0000");
 		final int _B = colorMap.getId("#ffffff");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(None, _A, _B),
-			NOTSET_THEME_TRIE_ELEMENT);
+				colorMap,
+				new StyleAttributes(None, _A, _B),
+				NOTSET_THEME_TRIE_ELEMENT);
 		assertThemeEqual(actual, expected);
 	}
 
@@ -184,9 +181,9 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 		final int _A = colorMap.getId("#000000");
 		final int _B = colorMap.getId("#ff0000");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(None, _A, _B),
-			NOTSET_THEME_TRIE_ELEMENT);
+				colorMap,
+				new StyleAttributes(None, _A, _B),
+				NOTSET_THEME_TRIE_ELEMENT);
 		assertThemeEqual(actual, expected);
 	}
 
@@ -195,16 +192,16 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 	@DisplayName("Theme resolving can merge incoming defaults")
 	public void testCanMergeIncomingDefaults() {
 		final var actual = createTheme(
-			new ParsedThemeRule("", null, -1, NotSet, null, "#ff0000"),
-			new ParsedThemeRule("", null, -1, NotSet, "#00ff00", null),
-			new ParsedThemeRule("", null, -1, Bold, null, null));
+				new ParsedThemeRule("", null, -1, NotSet, null, "#ff0000"),
+				new ParsedThemeRule("", null, -1, NotSet, "#00ff00", null),
+				new ParsedThemeRule("", null, -1, Bold, null, null));
 		final var colorMap = new ColorMap();
 		final int _A = colorMap.getId("#00ff00");
 		final int _B = colorMap.getId("#ff0000");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(Bold, _A, _B),
-			NOTSET_THEME_TRIE_ELEMENT);
+				colorMap,
+				new StyleAttributes(Bold, _A, _B),
+				NOTSET_THEME_TRIE_ELEMENT);
 		assertThemeEqual(actual, expected);
 	}
 
@@ -213,18 +210,18 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 	@DisplayName("Theme resolving defaults are inherited")
 	public void testDefaultsAreInherited() {
 		final Theme actual = createTheme(
-			new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
-			new ParsedThemeRule("var", null, -1, NotSet, "#ff0000", null));
+				new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
+				new ParsedThemeRule("var", null, -1, NotSet, "#ff0000", null));
 		final var colorMap = new ColorMap();
 		final int _A = colorMap.getId("#F8F8F2");
 		final int _B = colorMap.getId("#272822");
 		final int _C = colorMap.getId("#ff0000");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(None, _A, _B),
-			new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
-				"var", new ThemeTrieElement(new ThemeTrieElementRule(1, null, NotSet, _C, _NOT_SET)) //
-			)));
+				colorMap,
+				new StyleAttributes(None, _A, _B),
+				new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
+						"var", new ThemeTrieElement(new ThemeTrieElementRule(1, null, NotSet, _C, _NOT_SET)) //
+				)));
 		assertThemeEqual(actual, expected);
 	}
 
@@ -233,19 +230,19 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 	@DisplayName("Theme resolving same rules get merged")
 	public void testSameRulesGetMerged() {
 		final var actual = createTheme(
-			new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
-			new ParsedThemeRule("var", null, 1, Bold, null, null),
-			new ParsedThemeRule("var", null, 0, NotSet, "#ff0000", null));
+				new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
+				new ParsedThemeRule("var", null, 1, Bold, null, null),
+				new ParsedThemeRule("var", null, 0, NotSet, "#ff0000", null));
 		final var colorMap = new ColorMap();
 		final int _A = colorMap.getId("#F8F8F2");
 		final int _B = colorMap.getId("#272822");
 		final int _C = colorMap.getId("#ff0000");
 		final var expected = new Theme(
-			colorMap,
-			new StyleAttributes(None, _A, _B),
-			new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
-				"var", new ThemeTrieElement(new ThemeTrieElementRule(1, null, Bold, _C, _NOT_SET)) //
-			)));
+				colorMap,
+				new StyleAttributes(None, _A, _B),
+				new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
+						"var", new ThemeTrieElement(new ThemeTrieElementRule(1, null, Bold, _C, _NOT_SET)) //
+				)));
 		assertThemeEqual(actual, expected);
 	}
 
@@ -254,21 +251,21 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 	@DisplayName("Theme resolving rules are inherited 1")
 	public void testRulesAreInherited1() {
 		final var actual = createTheme(
-			new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
-			new ParsedThemeRule("var", null, -1, Bold, "#ff0000", null),
-			new ParsedThemeRule("var.identifier", null, -1, NotSet, "#00ff00", null));
+				new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
+				new ParsedThemeRule("var", null, -1, Bold, "#ff0000", null),
+				new ParsedThemeRule("var.identifier", null, -1, NotSet, "#00ff00", null));
 		final var colorMap = new ColorMap();
 		final int _A = colorMap.getId("#F8F8F2");
 		final int _B = colorMap.getId("#272822");
 		final int _C = colorMap.getId("#ff0000");
 		final int _D = colorMap.getId("#00ff00");
 		final var expected = new Theme(colorMap,
-			new StyleAttributes(None, _A, _B),
-			new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
-				"var", new ThemeTrieElement(new ThemeTrieElementRule(1, null, Bold, _C, _NOT_SET), list(), map(
-					"identifier", new ThemeTrieElement(new ThemeTrieElementRule(2, null, Bold, _D, _NOT_SET)) //
-				)) //
-			)));
+				new StyleAttributes(None, _A, _B),
+				new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
+						"var", new ThemeTrieElement(new ThemeTrieElementRule(1, null, Bold, _C, _NOT_SET), list(), map(
+								"identifier", new ThemeTrieElement(new ThemeTrieElementRule(2, null, Bold, _D, _NOT_SET)) //
+						)) //
+				)));
 		assertThemeEqual(actual, expected);
 	}
 
@@ -277,15 +274,14 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 	@DisplayName("Theme resolving rules are inherited 2")
 	public void testRulesAreInherited2() {
 		final var actual = createTheme(
-			new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
-			new ParsedThemeRule("var", null, -1, Bold, "#ff0000", null),
-			new ParsedThemeRule("var.identifier", null, -1, NotSet, "#00ff00", null),
-			new ParsedThemeRule("constant", null, 4, Italic, "#100000", null),
-			new ParsedThemeRule("constant.numeric", null, 5, NotSet, "#200000", null),
-			new ParsedThemeRule("constant.numeric.hex", null, 6, Bold, null, null),
-			new ParsedThemeRule("constant.numeric.oct", null, 7,
-				Bold | Italic | Underline, null, null),
-			new ParsedThemeRule("constant.numeric.dec", null, 8, None, "#300000", null));
+				new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
+				new ParsedThemeRule("var", null, -1, Bold, "#ff0000", null),
+				new ParsedThemeRule("var.identifier", null, -1, NotSet, "#00ff00", null),
+				new ParsedThemeRule("constant", null, 4, Italic, "#100000", null),
+				new ParsedThemeRule("constant.numeric", null, 5, NotSet, "#200000", null),
+				new ParsedThemeRule("constant.numeric.hex", null, 6, Bold, null, null),
+				new ParsedThemeRule("constant.numeric.oct", null, 7, Bold | Italic | Underline, null, null),
+				new ParsedThemeRule("constant.numeric.dec", null, 8, None, "#300000", null));
 		final var colorMap = new ColorMap();
 		final int _A = colorMap.getId("#F8F8F2");
 		final int _B = colorMap.getId("#272822");
@@ -296,20 +292,20 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 		final int _G = colorMap.getId("#00ff00");
 
 		final var expected = new Theme(colorMap,
-			new StyleAttributes(None, _A, _B),
-			new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
-				"var", new ThemeTrieElement(new ThemeTrieElementRule(1, null, Bold, _F, _NOT_SET), list(), map(
-					"identifier", new ThemeTrieElement(new ThemeTrieElementRule(2, null, Bold, _G, _NOT_SET)) //
-				)),
-				"constant", new ThemeTrieElement(new ThemeTrieElementRule(1, null, Italic, _C, _NOT_SET), list(), map(
-					"numeric",
-					new ThemeTrieElement(new ThemeTrieElementRule(2, null, Italic, _D, _NOT_SET), list(), map(
-						"hex", new ThemeTrieElement(new ThemeTrieElementRule(3, null, Bold, _D, _NOT_SET)),
-						"oct", new ThemeTrieElement(new ThemeTrieElementRule(3, null,
-							Bold | Italic | Underline, _D, _NOT_SET)),
-						"dec", new ThemeTrieElement(new ThemeTrieElementRule(3, null, None, _E, _NOT_SET)) //
-					)))) //
-			)));
+				new StyleAttributes(None, _A, _B),
+				new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
+						"var", new ThemeTrieElement(new ThemeTrieElementRule(1, null, Bold, _F, _NOT_SET), list(), map(
+								"identifier", new ThemeTrieElement(new ThemeTrieElementRule(2, null, Bold, _G, _NOT_SET)) //
+						)),
+						"constant", new ThemeTrieElement(new ThemeTrieElementRule(1, null, Italic, _C, _NOT_SET), list(), map(
+								"numeric",
+								new ThemeTrieElement(new ThemeTrieElementRule(2, null, Italic, _D, _NOT_SET), list(), map(
+										"hex", new ThemeTrieElement(new ThemeTrieElementRule(3, null, Bold, _D, _NOT_SET)),
+										"oct", new ThemeTrieElement(new ThemeTrieElementRule(3, null, Bold | Italic | Underline, _D,
+												_NOT_SET)),
+										"dec", new ThemeTrieElement(new ThemeTrieElementRule(3, null, None, _E, _NOT_SET)) //
+								)))) //
+				)));
 		assertThemeEqual(actual, expected);
 	}
 
@@ -318,11 +314,11 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 	@DisplayName("Theme resolving rules with parent scopes")
 	public void testRulesWithParentScopes() {
 		final var actual = createTheme(
-			new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
-			new ParsedThemeRule("var", null, -1, Bold, "#100000", null),
-			new ParsedThemeRule("var.identifier", null, -1, NotSet, "#200000", null),
-			new ParsedThemeRule("var", list("source.css"), 1, Italic, "#300000", null),
-			new ParsedThemeRule("var", list("source.css"), 2, Underline, null, null));
+				new ParsedThemeRule("", null, -1, NotSet, "#F8F8F2", "#272822"),
+				new ParsedThemeRule("var", null, -1, Bold, "#100000", null),
+				new ParsedThemeRule("var.identifier", null, -1, NotSet, "#200000", null),
+				new ParsedThemeRule("var", list("source.css"), 1, Italic, "#300000", null),
+				new ParsedThemeRule("var", list("source.css"), 2, Underline, null, null));
 		final var colorMap = new ColorMap();
 		final int _A = colorMap.getId("#F8F8F2");
 		final int _B = colorMap.getId("#272822");
@@ -330,17 +326,17 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 		final int _D = colorMap.getId("#300000");
 		final int _E = colorMap.getId("#200000");
 		final var expected = new Theme(colorMap,
-			new StyleAttributes(None, _A, _B),
-			new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
-				"var", new ThemeTrieElement(
-					new ThemeTrieElementRule(1, null, Bold, _C, _NOT_SET),
-					list(new ThemeTrieElementRule(1, list("source.css"), Underline, _D, _NOT_SET)), map(
-						"identifier", new ThemeTrieElement(
-							new ThemeTrieElementRule(2, null, Bold, _E, _NOT_SET),
-							list(new ThemeTrieElementRule(1, list("source.css"), Underline, _D, _NOT_SET))) //
-					) //
-				) //
-			)));
+				new StyleAttributes(None, _A, _B),
+				new ThemeTrieElement(NOTSET_THEME_TRIE_ELEMENT_RULE, list(), map(
+						"var", new ThemeTrieElement(
+								new ThemeTrieElementRule(1, null, Bold, _C, _NOT_SET),
+								list(new ThemeTrieElementRule(1, list("source.css"), Underline, _D, _NOT_SET)), map(
+										"identifier", new ThemeTrieElement(
+												new ThemeTrieElementRule(2, null, Bold, _E, _NOT_SET),
+												list(new ThemeTrieElementRule(1, list("source.css"), Underline, _D, _NOT_SET))) //
+								) //
+						) //
+				)));
 		assertThemeEqual(actual, expected);
 	}
 
@@ -392,12 +388,12 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 			]}""");
 
 		final var expected = list(
-			new ParsedThemeRule("", null, 0, NotSet, "#cccccc", "#222222"),
-			new ParsedThemeRule("variable", null, 1, None, null, null),
-			new ParsedThemeRule("variable.parameter", null, 2, Italic, null, null),
-			new ParsedThemeRule("support.other.variable", null, 3, None, null, null),
-			new ParsedThemeRule("variable.other", null, 4, None, null, null),
-			new ParsedThemeRule("variable.parameter.function.coffee", null, 5, Italic, "#F9D423", null));
+				new ParsedThemeRule("", null, 0, NotSet, "#cccccc", "#222222"),
+				new ParsedThemeRule("variable", null, 1, None, null, null),
+				new ParsedThemeRule("variable.parameter", null, 2, Italic, null, null),
+				new ParsedThemeRule("support.other.variable", null, 3, None, null, null),
+				new ParsedThemeRule("variable.other", null, 4, None, null, null),
+				new ParsedThemeRule("variable.parameter.function.coffee", null, 5, Italic, "#F9D423", null));
 
 		assertArrayEquals(expected.toArray(), actual.toArray());
 	}
@@ -429,13 +425,13 @@ public class ThemeResolvingTest extends AbstractThemeTest {
 			]}""");
 
 		final var expected = list(
-			new ParsedThemeRule("", null, 0, NotSet, "#EFEFEF", "#25292C"),
-			new ParsedThemeRule("meta.at-rule.return.scss", null, 1, NotSet, "#CC7832", null),
-			new ParsedThemeRule("punctuation.definition", list("meta.at-rule.return.scss"), 1, NotSet, "#CC7832", null),
-			new ParsedThemeRule("meta.at-rule.else.scss", null, 1, NotSet, "#CC7832", null),
-			new ParsedThemeRule("punctuation.definition", list("meta.at-rule.else.scss"), 1, NotSet, "#CC7832", null),
-			new ParsedThemeRule("meta.at-rule.if.scss", null, 1, NotSet, "#CC7832", null),
-			new ParsedThemeRule("punctuation.definition", list("meta.at-rule.if.scss"), 1, NotSet, "#CC7832", null));
+				new ParsedThemeRule("", null, 0, NotSet, "#EFEFEF", "#25292C"),
+				new ParsedThemeRule("meta.at-rule.return.scss", null, 1, NotSet, "#CC7832", null),
+				new ParsedThemeRule("punctuation.definition", list("meta.at-rule.return.scss"), 1, NotSet, "#CC7832", null),
+				new ParsedThemeRule("meta.at-rule.else.scss", null, 1, NotSet, "#CC7832", null),
+				new ParsedThemeRule("punctuation.definition", list("meta.at-rule.else.scss"), 1, NotSet, "#CC7832", null),
+				new ParsedThemeRule("meta.at-rule.if.scss", null, 1, NotSet, "#CC7832", null),
+				new ParsedThemeRule("punctuation.definition", list("meta.at-rule.if.scss"), 1, NotSet, "#CC7832", null));
 
 		assertArrayEquals(expected.toArray(), actual.toArray());
 	}

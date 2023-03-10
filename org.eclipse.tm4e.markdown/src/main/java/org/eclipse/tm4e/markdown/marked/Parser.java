@@ -68,23 +68,23 @@ public class Parser {
 			return;
 
 		switch (token.type) {
-		case space:
-			break;
-		case hr:
-			this.renderer.hr();
-			break;
-		case heading:
-			// this.renderer.heading(this.inline.output(token.text), token.depth, token.text);
-			this.renderer.heading(Strings.nullToEmpty(token.text), token.depth, Strings.nullToEmpty(token.text));
-			break;
-		case code:
-			this.renderer.code(Strings.nullToEmpty(token.text), token.lang, token.escaped);
-			break;
-		case paragraph:
-			this.renderer.startParagraph();
-			inline.output(Strings.nullToEmpty(token.text));
-			this.renderer.endParagraph();
-			break;
+			case space:
+				break;
+			case hr:
+				this.renderer.hr();
+				break;
+			case heading:
+				// this.renderer.heading(this.inline.output(token.text), token.depth, token.text);
+				this.renderer.heading(Strings.nullToEmpty(token.text), token.depth, Strings.nullToEmpty(token.text));
+				break;
+			case code:
+				this.renderer.code(Strings.nullToEmpty(token.text), token.lang, token.escaped);
+				break;
+			case paragraph:
+				this.renderer.startParagraph();
+				inline.output(Strings.nullToEmpty(token.text));
+				this.renderer.endParagraph();
+				break;
 		}
 	}
 }

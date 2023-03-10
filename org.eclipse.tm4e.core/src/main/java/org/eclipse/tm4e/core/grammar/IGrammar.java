@@ -54,8 +54,7 @@ public interface IGrammar {
 	/**
 	 * Tokenize `lineText`.
 	 *
-	 * @param lineText
-	 *        the line text to tokenize.
+	 * @param lineText the line text to tokenize.
 	 *
 	 * @return the result of the tokenization.
 	 */
@@ -66,13 +65,12 @@ public interface IGrammar {
 	 *
 	 * @param lineText the line text to tokenize.
 	 * @param prevState previous line state.
-	 * @param timeLimit duration after which tokenization is aborted, in which case the returned result
-	 *        will have {@link ITokenizeLineResult#isStoppedEarly()} set to <code>true</code>
+	 * @param timeLimit duration after which tokenization is aborted, in which case the returned result will have
+	 *            {@link ITokenizeLineResult#isStoppedEarly()} set to <code>true</code>
 	 *
 	 * @return the result of the tokenization.
 	 */
-	ITokenizeLineResult<IToken[]> tokenizeLine(String lineText, @Nullable IStateStack prevState,
-		@Nullable Duration timeLimit);
+	ITokenizeLineResult<IToken[]> tokenizeLine(String lineText, @Nullable IStateStack prevState, @Nullable Duration timeLimit);
 
 	/**
 	 * Tokenize `lineText` using previous line state `prevState`.
@@ -108,9 +106,8 @@ public interface IGrammar {
 	 *
 	 * @param lineText the line text to tokenize.
 	 * @param prevState previous line state.
-	 * @param timeLimit duration after which tokenization is aborted, in which case the returned result
-	 *        will have {@link ITokenizeLineResult#isStoppedEarly()} set to <code>true</code>
+	 * @param timeLimit duration after which tokenization is aborted, in which case the returned result will have
+	 *            {@link ITokenizeLineResult#isStoppedEarly()} set to <code>true</code>
 	 */
-	ITokenizeLineResult<int[]> tokenizeLine2(String lineText, @Nullable IStateStack prevState,
-		@Nullable Duration timeLimit);
+	ITokenizeLineResult<int[]> tokenizeLine2(String lineText, @Nullable IStateStack prevState, @Nullable Duration timeLimit);
 }

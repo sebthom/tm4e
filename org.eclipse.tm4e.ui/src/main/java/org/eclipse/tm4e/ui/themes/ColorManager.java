@@ -57,15 +57,14 @@ public final class ColorManager {
 	/**
 	 * Get the color from preferences store using a token.
 	 *
-	 * @param tokenId
-	 *        name of the token
+	 * @param tokenId name of the token
 	 *
 	 * @return Color matching token
 	 */
 	@Nullable
 	public Color getPreferenceEditorColor(final String tokenId) {
 		final var prefStore = PreferenceUtils.getEditorsPreferenceStore();
-		if(prefStore == null)
+		if (prefStore == null)
 			return null;
 		return getColor(stringToRGB(prefStore.get(tokenId, "")));
 	}
@@ -73,14 +72,13 @@ public final class ColorManager {
 	/**
 	 * The method verifies that a color is defined in a preferences store using a token.
 	 *
-	 * @param tokenId
-	 *        name of the token
+	 * @param tokenId name of the token
 	 *
 	 * @return color is user defined or not
 	 */
 	public boolean isColorUserDefined(final String tokenId) {
 		final var prefStore = PreferenceUtils.getEditorsPreferenceStore();
-		if(prefStore == null)
+		if (prefStore == null)
 			return false;
 
 		final String systemDefaultToken = getSystemDefaultToken(tokenId);
@@ -94,10 +92,8 @@ public final class ColorManager {
 	 * See Issue #176
 	 * Priority: User defined > TM defined > Eclipse color
 	 *
-	 * @param themeColor
-	 *        color defined in TM theme
-	 * @param tokenId
-	 *        name of the token for preferences store
+	 * @param themeColor color defined in TM theme
+	 * @param tokenId name of the token for preferences store
 	 *
 	 * @return Highest priority color
 	 */
@@ -115,33 +111,32 @@ public final class ColorManager {
 	/**
 	 * Returns a token for the system default value of the given token.
 	 *
-	 * @param tokenId
-	 *        name of the token
+	 * @param tokenId name of the token
 	 *
 	 * @return system default token or empty string if doesn't exist
 	 */
 	private String getSystemDefaultToken(final String tokenId) {
 		return switch (tokenId) {
-		case AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND -> AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT;
-		case AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND -> AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT;
-		case AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND -> AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT;
-		case AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND -> AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT;
-		default -> "";
+			case AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND -> AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT;
+			case AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND -> AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT;
+			case AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND -> AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT;
+			case AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND -> AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT;
+			default -> "";
 		};
 	}
 
 	/**
 	 * Convert String to RGB.
 	 *
-	 * @param value
-	 *        string value of rgb
+	 * @param value string value of rgb
 	 *
 	 * @return RGB value
 	 */
 	private RGB stringToRGB(final String value) {
 		final String[] rgbValues = BY_COMMA_SPLITTER.splitToStream(value).toArray(String[]::new);
 		return rgbValues.length == 3
-				? new RGB(Integer.parseInt(rgbValues[0]), Integer.parseInt(rgbValues[1]), Integer.parseInt(rgbValues[2]))
+				? new RGB(Integer.parseInt(rgbValues[0]), Integer.parseInt(rgbValues[1]),
+						Integer.parseInt(rgbValues[2]))
 				: new RGB(255, 255, 255);
 	}
 }

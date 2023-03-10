@@ -52,8 +52,7 @@ public final class PListParserYAML<T> implements PListParser<T> {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void addMapToPList(final PListContentHandler<T> pList, final Map<String, Object> map)
-		throws SAXException {
+	private void addMapToPList(final PListContentHandler<T> pList, final Map<String, Object> map) throws SAXException {
 		pList.startElement(null, "dict", null, null);
 
 		for (final Entry<String, Object> entry : map.entrySet()) {

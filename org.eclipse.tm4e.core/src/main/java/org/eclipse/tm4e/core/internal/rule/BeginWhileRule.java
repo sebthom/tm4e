@@ -44,9 +44,10 @@ public final class BeginWhileRule extends Rule {
 	@Nullable
 	private RegExpSourceList cachedCompiledWhilePatterns;
 
-	BeginWhileRule(final RuleId id, @Nullable final String name, @Nullable final String contentName, final String begin,
-		final List<@Nullable CaptureRule> beginCaptures, final String _while,
-		final List<@Nullable CaptureRule> whileCaptures, final CompilePatternsResult patterns) {
+	BeginWhileRule(final RuleId id, @Nullable final String name, @Nullable final String contentName,
+			final String begin, final List<@Nullable CaptureRule> beginCaptures,
+			final String _while, final List<@Nullable CaptureRule> whileCaptures,
+			final CompilePatternsResult patterns) {
 		super(/* $location, */id, name, contentName);
 		this.begin = new RegExpSource(begin, this.id);
 		this.beginCaptures = beginCaptures;
@@ -57,8 +58,7 @@ public final class BeginWhileRule extends Rule {
 		this.hasMissingPatterns = patterns.hasMissingPatterns;
 	}
 
-	public String getWhileWithResolvedBackReferences(final CharSequence lineText,
-		final OnigCaptureIndex[] captureIndices) {
+	public String getWhileWithResolvedBackReferences(final CharSequence lineText, final OnigCaptureIndex[] captureIndices) {
 		return this._while.resolveBackReferences(lineText, captureIndices);
 	}
 
@@ -74,8 +74,7 @@ public final class BeginWhileRule extends Rule {
 
 	@Override
 	public CompiledRule compileAG(final IRuleRegistry grammar, @Nullable final String endRegexSource,
-		final boolean allowA,
-		final boolean allowG) {
+			final boolean allowA, final boolean allowG) {
 		return getCachedCompiledPatterns(grammar).compileAG(allowA, allowG);
 	}
 
@@ -97,8 +96,8 @@ public final class BeginWhileRule extends Rule {
 		return getCachedCompiledWhilePatterns(endRegexSource).compile();
 	}
 
-	public CompiledRule compileWhileAG(@Nullable final String endRegexSource, final boolean allowA,
-		final boolean allowG) {
+	public CompiledRule compileWhileAG(@Nullable final String endRegexSource,
+			final boolean allowA, final boolean allowG) {
 		return getCachedCompiledWhilePatterns(endRegexSource).compileAG(allowA, allowG);
 	}
 

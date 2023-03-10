@@ -41,8 +41,8 @@ public class ParsedThemeRule {
 	@Nullable
 	public final String background;
 
-	public ParsedThemeRule(final String scope, @Nullable final List<String> parentScopes, final int index,
-		final int fontStyle, @Nullable final String foreground, @Nullable final String background) {
+	public ParsedThemeRule(final String scope, @Nullable final List<String> parentScopes, final int index, final int fontStyle,
+			@Nullable final String foreground, @Nullable final String background) {
 		this.scope = scope;
 		this.parentScopes = parentScopes;
 		this.index = index;
@@ -71,13 +71,13 @@ public class ParsedThemeRule {
 			return false;
 		final ParsedThemeRule other = (ParsedThemeRule) obj;
 		return Objects.equals(background, other.background) && fontStyle == other.fontStyle
-			&& Objects.equals(foreground, other.foreground) && index == other.index
-			&& Objects.equals(parentScopes, other.parentScopes) && Objects.equals(scope, other.scope);
+				&& Objects.equals(foreground, other.foreground) && index == other.index
+				&& Objects.equals(parentScopes, other.parentScopes) && Objects.equals(scope, other.scope);
 	}
 
 	@Override
 	public String toString() {
 		return "ParsedThemeRule [scope=" + scope + ", parentScopes=" + parentScopes + ", index=" + index
-			+ ", fontStyle=" + fontStyle + ", foreground=" + foreground + ", background=" + background + "]";
+				+ ", fontStyle=" + fontStyle + ", foreground=" + foreground + ", background=" + background + "]";
 	}
 }

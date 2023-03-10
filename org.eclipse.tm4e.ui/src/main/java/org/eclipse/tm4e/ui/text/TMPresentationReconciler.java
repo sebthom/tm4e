@@ -146,12 +146,12 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				return;
 			final IThemeManager themeManager = TMUIPlugin.getThemeManager();
 			switch (event.getKey()) {
-			case PreferenceConstants.E4_THEME_ID:
-				preferenceThemeChange((String) event.getNewValue(), themeManager);
-				break;
-			case PreferenceConstants.THEME_ASSOCIATIONS:
-				preferenceThemeChange(PreferenceUtils.getE4PreferenceCSSThemeId(), themeManager);
-				break;
+				case PreferenceConstants.E4_THEME_ID:
+					preferenceThemeChange((String) event.getNewValue(), themeManager);
+					break;
+				case PreferenceConstants.THEME_ASSOCIATIONS:
+					preferenceThemeChange(PreferenceUtils.getE4PreferenceCSSThemeId(), themeManager);
+					break;
 			}
 		}
 
@@ -360,7 +360,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		 * Translates the given text event into the corresponding range of the viewer's document.
 		 *
 		 * @param event
-		 *        the text event
+		 *            the text event
 		 *
 		 * @return the widget region corresponding the region of the given event or <code>null</code> if none
 		 *
@@ -641,7 +641,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * is no encoded text attribute found.
 	 *
 	 * @param token
-	 *        the token whose text attribute is to be determined
+	 *            the token whose text attribute is to be determined
 	 *
 	 * @return the token's text attribute
 	 */
@@ -657,13 +657,13 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * Adds style information to the given text presentation.
 	 *
 	 * @param presentation
-	 *        the text presentation to be extended
+	 *            the text presentation to be extended
 	 * @param offset
-	 *        the offset of the range to be styled
+	 *            the offset of the range to be styled
 	 * @param length
-	 *        the length of the range to be styled
+	 *            the length of the range to be styled
 	 * @param attr
-	 *        the attribute describing the style of the range to be styled
+	 *            the attribute describing the style of the range to be styled
 	 * @param lastLineStyleRanges
 	 */
 	protected void addRange(final TextPresentation presentation, final int offset, final int length,
@@ -684,7 +684,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * Applies the given text presentation to the text viewer the presentation reconciler is installed on.
 	 *
 	 * @param presentation
-	 *        the text presentation to be applied to the text viewer
+	 *            the text presentation to be applied to the text viewer
 	 */
 	private void applyTextRegionCollection(final TextPresentation presentation) {
 		final var viewer = this.viewer;
@@ -697,7 +697,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * Add a TextMate presentation reconciler listener.
 	 *
 	 * @param listener
-	 *        the TextMate presentation reconciler listener to add.
+	 *            the TextMate presentation reconciler listener to add.
 	 */
 	public void addTMPresentationReconcilerListener(final ITMPresentationReconcilerListener listener) {
 		synchronized (listeners) {
@@ -711,7 +711,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * Remove a TextMate presentation reconciler listener.
 	 *
 	 * @param listener
-	 *        the TextMate presentation reconciler listener to remove.
+	 *            the TextMate presentation reconciler listener to remove.
 	 */
 	public void removeTMPresentationReconcilerListener(final ITMPresentationReconcilerListener listener) {
 		synchronized (listeners) {
