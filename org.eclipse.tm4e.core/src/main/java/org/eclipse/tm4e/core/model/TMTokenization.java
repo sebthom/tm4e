@@ -172,7 +172,7 @@ public class TMTokenization implements ITokenizationSupport {
 		}
 
 		String getToken(final Map<Integer, Boolean> tokenMap) {
-			final StringBuilder result = new StringBuilder();
+			final var result = new StringBuilder();
 			boolean isFirst = true;
 			for (int i = 1; i <= this.lastAssignedId; i++) {
 				if (tokenMap.containsKey(i)) {

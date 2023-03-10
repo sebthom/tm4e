@@ -264,7 +264,7 @@ public class TMModel implements ITMModel {
 	}
 
 	private void buildAndEmitEvent(final Consumer<ModelTokensChangedEventBuilder> callback) {
-		final ModelTokensChangedEventBuilder eventBuilder = new ModelTokensChangedEventBuilder(this);
+		final var eventBuilder = new ModelTokensChangedEventBuilder(this);
 
 		callback.accept(eventBuilder);
 

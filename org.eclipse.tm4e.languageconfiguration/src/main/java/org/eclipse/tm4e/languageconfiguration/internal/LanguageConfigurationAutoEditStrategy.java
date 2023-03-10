@@ -261,9 +261,9 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		}
 		final TabSpacesInfo tabSpaces = getTabSpaces();
 		if (tabSpaces.isInsertSpaces()) {
-			final char[] chars = new char[tabSpaces.getTabSize()];
+			final var chars = new char[tabSpaces.getTabSize()];
 			Arrays.fill(chars, ' ');
-			final String spaces = new String(chars);
+			final var spaces = new String(chars);
 			if (str.startsWith(spaces)) {
 				return str.substring(spaces.length());
 			}
