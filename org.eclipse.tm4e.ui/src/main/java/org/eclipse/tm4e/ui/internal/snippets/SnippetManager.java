@@ -47,7 +47,7 @@ public final class SnippetManager implements ISnippetManager {
 		if (INSTANCE != null) {
 			return INSTANCE;
 		}
-		final SnippetManager manager = new SnippetManager();
+		final var manager = new SnippetManager();
 		manager.load();
 		return manager;
 	}

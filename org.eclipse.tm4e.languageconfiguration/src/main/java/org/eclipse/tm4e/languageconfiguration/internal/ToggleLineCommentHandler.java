@@ -359,7 +359,7 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 
 	private static Set<ITypedRegion> getBlockCommentParts(final IDocument document, final int offset, final int length,
 			final String open, final String close) throws BadLocationException {
-		TreeSet<ITypedRegion> result = new TreeSet<>((r1, r2) -> r1.getOffset() - r2.getOffset());
+		final var result = new TreeSet<ITypedRegion>((r1, r2) -> r1.getOffset() - r2.getOffset());
 		String text = document.get(offset, length);
 		int index = 0;
 		while (true) {
