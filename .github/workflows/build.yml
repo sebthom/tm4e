@@ -55,8 +55,7 @@ jobs:
     - name: Set up Maven
       uses: stCarolas/setup-maven@v4.5
       with:
-        maven-version: 3.8.6
-
+        maven-version: 3.9.0
 
     - name: Build with Maven
       id: maven-build
