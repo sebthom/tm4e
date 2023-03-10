@@ -141,64 +141,64 @@ public class TMModel implements ITMModel {
 				}
 			});
 		}
-	}
 
-	private enum UpdateTokensOfLineResult {
-		DONE,
-		UPDATE_FAILED,
-		NEXT_LINE_IS_OUTDATED,
-	}
-
-	/**
-	 * @param lineIndex 0-based
-	 */
-	private UpdateTokensOfLineResult updateTokensOfLine(final ModelTokensChangedEventBuilder eventBuilder,
-		final int lineIndex, final Duration timeLimit) {
-
-		final var modelLine = modelLines.getOrNull(lineIndex);
-		if (modelLine == null) {
-			return UpdateTokensOfLineResult.DONE; // line does not exist anymore
+		private enum UpdateTokensOfLineResult {
+			DONE,
+			UPDATE_FAILED,
+			NEXT_LINE_IS_OUTDATED,
 		}
 
-		/*
-		 * (re-)tokenize the requested line
+		/**
+		 * @param lineIndex 0-based
 		 */
-		final TokenizationResult r;
-		final String lineText;
-		try {
-			lineText = modelLines.getLineText(lineIndex);
-			r = castNonNull(tokenizer).tokenize(lineText, modelLine.startState, 0, timeLimit);
-		} catch (final Exception ex) {
-			LOGGER.log(ERROR, ex.toString());
-			return UpdateTokensOfLineResult.UPDATE_FAILED;
+		private UpdateTokensOfLineResult updateTokensOfLine(final ModelTokensChangedEventBuilder eventBuilder,
+			final int lineIndex, final Duration timeLimit) {
+
+			final var modelLine = modelLines.getOrNull(lineIndex);
+			if (modelLine == null) {
+				return UpdateTokensOfLineResult.DONE; // line does not exist anymore
+			}
+
+			/*
+			 * (re-)tokenize the requested line
+			 */
+			final TokenizationResult r;
+			final String lineText;
+			try {
+				lineText = modelLines.getLineText(lineIndex);
+				r = castNonNull(tokenizer).tokenize(lineText, modelLine.startState, 0, timeLimit);
+			} catch (final Exception ex) {
+				LOGGER.log(ERROR, ex.toString());
+				return UpdateTokensOfLineResult.UPDATE_FAILED;
+			}
+
+			if (r.stoppedEarly) {
+				// treat the rest of the line as one default token
+				r.tokens.add(new TMToken(r.actualStopOffset, ""));
+				// Use the line's starting state as end state in case of incomplete tokenization
+				r.endState = modelLine.startState;
+			}
+
+			modelLine.tokens = r.tokens;
+			eventBuilder.registerChangedTokens(lineIndex + 1);
+			modelLine.isInvalid = false;
+
+			/*
+			 * check if the next line now requires a token update too
+			 */
+			final var nextModelLine = modelLines.getOrNull(lineIndex + 1);
+			if (nextModelLine == null) {
+				return UpdateTokensOfLineResult.DONE; // next line does not exist
+			}
+
+			if (!nextModelLine.isInvalid && nextModelLine.startState.equals(r.endState)) {
+				return UpdateTokensOfLineResult.DONE; // next line is valid and has matching start state
+			}
+
+			// next line is out of date
+			nextModelLine.startState = r.endState;
+			return UpdateTokensOfLineResult.NEXT_LINE_IS_OUTDATED;
 		}
-
-		if (r.stoppedEarly) {
-			// treat the rest of the line as one default token
-			r.tokens.add(new TMToken(r.actualStopOffset, ""));
-			// Use the line's starting state as end state in case of incomplete tokenization
-			r.endState = modelLine.startState;
-		}
-
-		modelLine.tokens = r.tokens;
-		eventBuilder.registerChangedTokens(lineIndex + 1);
-		modelLine.isInvalid = false;
-
-		/*
-		 * check if the next line now requires a token update too
-		 */
-		final var nextModelLine = modelLines.getOrNull(lineIndex + 1);
-		if (nextModelLine == null) {
-			return UpdateTokensOfLineResult.DONE; // next line does not exist
-		}
-
-		if (!nextModelLine.isInvalid && nextModelLine.startState.equals(r.endState)) {
-			return UpdateTokensOfLineResult.DONE; // next line is valid and has matching start state
-		}
-
-		// next line is out of date
-		nextModelLine.startState = r.endState;
-		return UpdateTokensOfLineResult.NEXT_LINE_IS_OUTDATED;
 	}
 
 	@Nullable
