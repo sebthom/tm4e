@@ -87,3 +87,17 @@ The delta for version bumps are:
 ### ➕ Submit changes
 
 TM4E only accepts contributions via GitHub Pull Requests against [https://github.com/eclipse/tm4e](https://github.com/eclipse/tm4e) repository.
+
+Before sending us a pull request, please ensure that:
+
+1. You are working against the latest source on the **master** branch.
+1. You check existing open and recently merged pull requests to make sure someone else hasn't already addressed the issue.
+
+To send us a pull request, please:
+
+1. Fork the repository.
+1. Modify the source while focusing on the specific change you are contributing.
+1. Commit to your fork using clear, descriptive [semantic commit messages](https://www.conventionalcommits.org/en/).
+1. Send us a pull request, answering any default questions in the pull request interface.
+
+GitHub provides additional documentation on [forking a repository](https://help.github.com/articles/fork-a-repo/) and [creating a pull request](https://help.github.com/articles/creating-a-pull-request/)
