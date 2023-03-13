@@ -38,7 +38,7 @@ pipeline {
 		}
 		stage('Deploy Snapshot') {
 			when {
-				branch 'master'
+				branch 'main'
 				// TODO deploy all branch from Eclipse.org Git repo
 			}
 			steps {
