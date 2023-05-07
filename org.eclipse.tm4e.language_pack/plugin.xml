@@ -403,12 +403,15 @@
     -->
 
     <!-- markdown-math -->
+    <!-- issues: broken because math.block begin regex not supported by Joni. Re-enable when the following is fixed
+         and integrated: https://github.com/microsoft/vscode/issues/181662
     <extension point="org.eclipse.tm4e.registry.grammars">
         <grammar scopeName="lngpck.text.html.markdown.math" path="markdown-math/md-math.tmLanguage.json"/>
         <scopeNameContentTypeBinding scopeName="lngpck.text.html.markdown.math" contentTypeId="lng.markdown-math"/>
         <grammar scopeName="lngpck.markdown.math.block" path="markdown-math/md-math-block.tmLanguage.json"/>
         <grammar scopeName="lngpck.markdown.math.inline" path="markdown-math/md-math-inline.tmLanguage.json"/>
     </extension>
+    -->
 
     <!-- objective-c -->
     <extension point="org.eclipse.core.contenttype.contentTypes">
