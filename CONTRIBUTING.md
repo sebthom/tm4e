@@ -101,3 +101,16 @@ To send us a pull request, please:
 1. Send us a pull request, answering any default questions in the pull request interface.
 
 GitHub provides additional documentation on [forking a repository](https://help.github.com/articles/fork-a-repo/) and [creating a pull request](https://help.github.com/articles/creating-a-pull-request/)
+
+### Release
+
+1. Decide of a version name, we'll call it `x.y.z` here. The version is not so important as it may not be the version of the built artifacts (itself being the important one as it usually follow semantic versioning)
+1. Contribute necessary content to [RELEASE_NOTES.md](RELEASE_NOTES.md)
+1. Get the main code locally: `git fetch eclipse main && git checkout FETCH_HEAD`
+1. tag it `git tag x.y.x`
+1. push tag `git push eclipse x.y.z`
+1. Re-run a build from https://ci.eclipse.org/tm4e/job/TM4E/job/main/ and ensure it passes
+1. Upon completion of the build, run https://ci.eclipse.org/tm4e/job/promote-snapshot-to-release/ with version `x.y.z`
+1. Create a new `x.y.z` release entry on GitHub, from the `x.y.z` tag
+1. Create a new `x.y.z` release entry on https://projects.eclipse.org/projects/technology.tm4e
+1. (Optionally) Announce on mailing-lists. social media...
