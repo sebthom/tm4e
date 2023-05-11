@@ -4,6 +4,31 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Latest release
 
+## 0.7.0
+
+* 📅 Release Date: May 11th 2023
+* All changes: https://github.com/eclipse/tm4e/compare/0.6.3...0.7.0
+
+### Fixed
+- On enter rule don't use the proper insert spaces / tab width when those settings are changed
+- ToggleLineCommentHandler.removeLineComments does not process comment lines in order which may corrupt the open document
+
+### Added
+- Task Tag UI preferences
+
+### Changed
+- dependency updates
+- disable broken markdown.math grammars
+
+
+## 0.6.3
+
+* 📅 Release Date: March 16th 2023
+* All changes: https://github.com/eclipse/tm4e/compare/0.6.2...0.6.3
+
+Many bugfixes and dependency updates.
+
+
 ## 0.6.2
 
 * 📅 Release Date: November 26th 2022
