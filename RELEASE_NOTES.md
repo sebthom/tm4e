@@ -4,6 +4,12 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Latest release
 
+## 0.7.1
+
+* 📅 Release Date: May 25th 2023
+* All changes: https://github.com/eclipse/tm4e/compare/0.7.0...0.7.1
+
+
 ## 0.7.0
 
 * 📅 Release Date: May 11th 2023
