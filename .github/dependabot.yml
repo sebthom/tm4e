@@ -15,8 +15,8 @@ updates:
   schedule:
     interval: daily
   commit-message:
-    prefix: deps
-    prefix-development: chore
+    prefix: build
+    prefix-development: build
     include: scope
   labels:
     - dependencies
