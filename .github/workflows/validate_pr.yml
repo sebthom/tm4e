@@ -31,7 +31,7 @@ jobs:
             feat
             refact
             revert
-            pref
+            perf
             style
           scopes: |
             core
