@@ -33,8 +33,8 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
 
 /**
  * @see <a href=
- *      "https://github.com/microsoft/vscode/blob/main/src/vs/workbenc/services/textMate/common/TMTokenization.ts">
- *      github.com/microsoft/vscode/blob/main/src/vs/workbenc/services/textMate/common/TMTokenization.ts</a>
+ *      "https://github.com/microsoft/vscode/blob/e80e4e6fd20cf045dd6c77eb4790dce06f158736/src/vs/workbench/services/textMate/common/TMTokenization.ts">
+ *      github.com/microsoft/vscode/blob/main/src/vs/workbench/services/textMate/common/TMTokenization.ts</a>
  */
 public class TMTokenization implements ITokenizationSupport {
 
@@ -87,6 +87,7 @@ public class TMTokenization implements ITokenizationSupport {
 
 		final var lastToken = tokens[tokens.length - 1];
 
+		System.out.println(tokens.length + " " + tmTokens.size());
 		return new TokenizationResult(
 				tmTokens,
 
