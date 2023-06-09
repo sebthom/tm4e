@@ -87,7 +87,6 @@ public class TMTokenization implements ITokenizationSupport {
 
 		final var lastToken = tokens[tokens.length - 1];
 
-		System.out.println(tokens.length + " " + tmTokens.size());
 		return new TokenizationResult(
 				tmTokens,
 
