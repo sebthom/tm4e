@@ -12,12 +12,10 @@
 package org.eclipse.tm4e.core.model;
 
 import static java.lang.System.Logger.Level.ERROR;
-import static org.eclipse.tm4e.core.internal.utils.MoreCollections.findLastElement;
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.castNonNull;
 
 import java.lang.System.Logger;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -151,7 +149,7 @@ public class TMModel implements ITMModel {
 		/**
 		 * @param lineIndex 0-based
 		 */
-		private UpdateTokensOfLineResult updateTokensOfLine(final ModelTokensChangedEventBuilder eventBuilder, final int lineIndex,
+		private UpdateTokensOfLineResult updateTokensOfLine(final ModelTokensChangedEvent.Builder eventBuilder, final int lineIndex,
 				final Duration timeLimit) {
 
 			final var modelLine = modelLines.getOrNull(lineIndex);
@@ -263,8 +261,8 @@ public class TMModel implements ITMModel {
 		this.fThread = null;
 	}
 
-	private void buildAndEmitEvent(final Consumer<ModelTokensChangedEventBuilder> callback) {
-		final var eventBuilder = new ModelTokensChangedEventBuilder(this);
+	private void buildAndEmitEvent(final Consumer<ModelTokensChangedEvent.Builder> callback) {
+		final var eventBuilder = new ModelTokensChangedEvent.Builder(this);
 
 		callback.accept(eventBuilder);
 
@@ -299,36 +297,6 @@ public class TMModel implements ITMModel {
 		if (modelLine != null) {
 			modelLine.isInvalid = true;
 			invalidLines.add(lineIndex);
-		}
-	}
-
-	private static final class ModelTokensChangedEventBuilder {
-
-		final ITMModel model;
-		final List<Range> ranges = new ArrayList<>();
-
-		ModelTokensChangedEventBuilder(final ITMModel model) {
-			this.model = model;
-		}
-
-		void registerChangedTokens(final int lineNumber) {
-			final Range previousRange = findLastElement(ranges);
-
-			if (previousRange != null && previousRange.toLineNumber == lineNumber - 1) {
-				// extend previous range
-				previousRange.toLineNumber++;
-			} else {
-				// insert new range
-				ranges.add(new Range(lineNumber));
-			}
-		}
-
-		@Nullable
-		ModelTokensChangedEvent build() {
-			if (this.ranges.isEmpty()) {
-				return null;
-			}
-			return new ModelTokensChangedEvent(ranges, model);
 		}
 	}
 

@@ -16,8 +16,12 @@
  */
 package org.eclipse.tm4e.core.model;
 
+import static org.eclipse.tm4e.core.internal.utils.MoreCollections.findLastElement;
+
+import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.internal.utils.StringUtils;
 
 /**
@@ -28,6 +32,36 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/textModelEvents.ts</a>
  */
 public class ModelTokensChangedEvent {
+
+	static final class Builder {
+
+		private final ITMModel model;
+		private final List<Range> ranges = new ArrayList<>();
+
+		Builder(final ITMModel model) {
+			this.model = model;
+		}
+
+		void registerChangedTokens(final int lineNumber) {
+			final Range previousRange = findLastElement(ranges);
+
+			if (previousRange != null && previousRange.toLineNumber == lineNumber - 1) {
+				// extend previous range
+				previousRange.toLineNumber++;
+			} else {
+				// insert new range
+				ranges.add(new Range(lineNumber));
+			}
+		}
+
+		@Nullable
+		ModelTokensChangedEvent build() {
+			if (this.ranges.isEmpty()) {
+				return null;
+			}
+			return new ModelTokensChangedEvent(ranges, model);
+		}
+	}
 
 	public final List<Range> ranges;
 	public final ITMModel model;
