@@ -289,15 +289,15 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 		if (prevState == null || prevState.equals(StateStack.NULL)) {
 			isFirstLine = true;
 			final var rawDefaultMetadata = this._basicScopeAttributesProvider.getDefaultAttributes();
-			final var defaultTheme = this.themeProvider.getDefaults();
+			final var defaultStyle = this.themeProvider.getDefaults();
 			final int defaultMetadata = EncodedTokenAttributes.set(
 					0,
 					rawDefaultMetadata.languageId,
 					rawDefaultMetadata.tokenType,
 					null,
-					defaultTheme.fontStyle,
-					defaultTheme.foregroundId,
-					defaultTheme.backgroundId);
+					defaultStyle.fontStyle,
+					defaultStyle.foregroundId,
+					defaultStyle.backgroundId);
 
 			final var rootScopeName = this.getRule(rootId).getName(null, null);
 
@@ -338,7 +338,7 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 				lineText,
 				_tokenTypeMatchers,
 				balancedBracketSelectors);
-		final var tokenizeResult = LineTokenizer.tokenizeString(
+		final var r = LineTokenizer.tokenizeString(
 				this,
 				onigLineText,
 				isFirstLine,
@@ -348,12 +348,12 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 				true,
 				timeLimit == null ? Duration.ZERO : timeLimit);
 
-		if (emitBinaryTokens) {
-			return (T) new TokenizeLineResult<>(lineTokens.getBinaryResult(tokenizeResult.stack, lineLength),
-					tokenizeResult.stack, tokenizeResult.stoppedEarly);
-		}
-		return (T) new TokenizeLineResult<>(lineTokens.getResult(tokenizeResult.stack, lineLength),
-				tokenizeResult.stack, tokenizeResult.stoppedEarly);
+		return (T) new TokenizeLineResult<>(
+				emitBinaryTokens
+						? lineTokens.getBinaryResult(r.stack, lineLength)
+						: lineTokens.getResult(r.stack, lineLength),
+				r.stack,
+				r.stoppedEarly);
 	}
 
 	@Override

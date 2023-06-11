@@ -44,7 +44,7 @@ import org.eclipse.tm4e.core.internal.rule.RuleId;
 /**
  * @see <a href=
  *      "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/grammar/tokenizeString.ts#L31">
- *      github.com/microsoft/vscode-textmate/blob/main/src/tokenizeString.ts</a>
+ *      github.com/microsoft/vscode-textmate/blob/main/src/grammar/tokenizeString.ts</a>
  */
 final class LineTokenizer {
 
@@ -145,9 +145,7 @@ final class LineTokenizer {
 		}
 
 		final OnigCaptureIndex[] captureIndices = r.captureIndices;
-
 		final RuleId matchedRuleId = r.matchedRuleId;
-
 		final boolean hasAdvanced = captureIndices.length > 0 && captureIndices[0].end > linePos;
 
 		if (matchedRuleId.equals(RuleId.END_RULE)) {
