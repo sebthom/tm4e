@@ -12,16 +12,18 @@
 package org.eclipse.tm4e.core.model;
 
 import static java.lang.System.Logger.Level.ERROR;
+import static org.eclipse.tm4e.core.internal.utils.MoreCollections.findLastElement;
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.castNonNull;
 
 import java.lang.System.Logger;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
@@ -116,28 +118,44 @@ public class TMModel implements ITMModel {
 		 * @param startLineIndex 0-based
 		 */
 		private void revalidateTokens(final int startLineIndex) {
-			buildAndEmitEvent(eventBuilder -> {
-				int lineIndex = startLineIndex;
-				final long startTime = System.currentTimeMillis();
+
+			final var changedRanges = new ArrayList<Range>();
+			final IntConsumer lineChangedListener = lineNumber -> {
+				final Range previousRange = findLastElement(changedRanges);
+				if (previousRange != null && previousRange.toLineNumber == lineNumber - 1) {
+					previousRange.toLineNumber++; // extend previous range
+				} else {
+					changedRanges.add(new Range(lineNumber)); // insert new range
+				}
+			};
+
+			int lineIndex = startLineIndex;
+			final long startTime = System.currentTimeMillis();
+
+			revalidateTokens_Loop: {
 				while (lineIndex < modelLines.getNumberOfLines()) {
-					switch (updateTokensOfLine(eventBuilder, lineIndex, MAX_TIME_PER_LINE)) {
+					switch (updateTokensOfLine(lineChangedListener, lineIndex, MAX_TIME_PER_LINE)) {
 						case DONE:
-							return;
+							break revalidateTokens_Loop;
 						case UPDATE_FAILED:
 							// mark the current line as invalid and add it to the end of the queue
 							invalidateLine(lineIndex);
-							return;
+							break revalidateTokens_Loop;
 						case NEXT_LINE_IS_OUTDATED:
 							if (System.currentTimeMillis() - startTime >= MAX_LOOP_TIME) {
 								// mark the next line as invalid and add it to the end of the queue
 								invalidateLine(lineIndex + 1);
-								return;
+								break revalidateTokens_Loop;
 							}
 							lineIndex++;
 							break;
 					}
 				}
-			});
+			}
+
+			if (!changedRanges.isEmpty()) {
+				emit(new ModelTokensChangedEvent(changedRanges, TMModel.this));
+			}
 		}
 
 		private enum UpdateTokensOfLineResult {
@@ -149,7 +167,7 @@ public class TMModel implements ITMModel {
 		/**
 		 * @param lineIndex 0-based
 		 */
-		private UpdateTokensOfLineResult updateTokensOfLine(final ModelTokensChangedEvent.Builder eventBuilder, final int lineIndex,
+		private UpdateTokensOfLineResult updateTokensOfLine(final IntConsumer lineChangedListener, final int lineIndex,
 				final Duration timeLimit) {
 
 			final var modelLine = modelLines.getOrNull(lineIndex);
@@ -178,7 +196,7 @@ public class TMModel implements ITMModel {
 			}
 
 			modelLine.tokens = r.tokens;
-			eventBuilder.registerChangedTokens(lineIndex + 1);
+			lineChangedListener.accept(lineIndex + 1);
 			modelLine.isInvalid = false;
 
 			/*
@@ -259,17 +277,6 @@ public class TMModel implements ITMModel {
 		}
 		fThread.interrupt();
 		this.fThread = null;
-	}
-
-	private void buildAndEmitEvent(final Consumer<ModelTokensChangedEvent.Builder> callback) {
-		final var eventBuilder = new ModelTokensChangedEvent.Builder(this);
-
-		callback.accept(eventBuilder);
-
-		final ModelTokensChangedEvent event = eventBuilder.build();
-		if (event != null) {
-			emit(event);
-		}
 	}
 
 	private void emit(final ModelTokensChangedEvent e) {
