@@ -19,7 +19,7 @@ import org.eclipse.jdt.annotation.Nullable;
 /**
  * Theme association implementation.
  */
-public class ThemeAssociation implements IThemeAssociation {
+public final class ThemeAssociation implements IThemeAssociation {
 
 	private static final String THEME_ID_ATTR = "themeId"; //$NON-NLS-1$
 	private static final String SCOPE_NAME_ATTR = "scopeName"; //$NON-NLS-1$
@@ -81,22 +81,22 @@ public class ThemeAssociation implements IThemeAssociation {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(pluginId, scopeName, themeId, whenDark);
+		int result = 31 + Boolean.hashCode(whenDark);
+		result = 31 * result + Objects.hashCode(pluginId);
+		result = 31 * result + Objects.hashCode(scopeName);
+		return 31 * result + themeId.hashCode();
 	}
 
 	@Override
 	public boolean equals(@Nullable final Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final ThemeAssociation other = (ThemeAssociation) obj;
-		return whenDark == other.whenDark
-				&& Objects.equals(pluginId, other.pluginId)
-				&& Objects.equals(scopeName, other.scopeName)
-				&& Objects.equals(themeId, other.themeId);
+		if (obj instanceof ThemeAssociation other)
+			return whenDark == other.whenDark
+					&& Objects.equals(pluginId, other.pluginId)
+					&& Objects.equals(scopeName, other.scopeName)
+					&& Objects.equals(themeId, other.themeId);
+		return false;
 	}
 
 }

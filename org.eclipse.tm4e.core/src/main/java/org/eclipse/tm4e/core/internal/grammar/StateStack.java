@@ -194,11 +194,11 @@ public final class StateStack implements IStateStack {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Objects.hash(endRule, parent, contentNameScopesList, ruleId);
-		result = prime * result + depth;
-		return result;
+		int result = 31 + Objects.hashCode(contentNameScopesList);
+		result = 31 * result + Objects.hashCode(endRule);
+		result = 31 * result + Objects.hashCode(parent);
+		result = 31 * result + Objects.hashCode(ruleId);
+		return 31 * result + depth;
 	}
 
 	void reset() {

@@ -56,11 +56,10 @@ public final class OnigScannerMatch {
 	public boolean equals(@Nullable final Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-		final var other = (OnigScannerMatch) obj;
-		return index == other.index
-				&& Arrays.equals(captureIndices, other.captureIndices);
+		if (obj instanceof final OnigScannerMatch other)
+			return index == other.index
+					&& Arrays.equals(captureIndices, other.captureIndices);
+		return false;
 	}
 
 	public OnigCaptureIndex[] getCaptureIndices() {
@@ -69,11 +68,7 @@ public final class OnigScannerMatch {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + index;
-		result = prime * result + Arrays.hashCode(captureIndices);
-		return result;
+		return 31 * (31 + index) + Arrays.hashCode(captureIndices);
 	}
 
 	@Override

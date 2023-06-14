@@ -38,11 +38,10 @@ public final class OnigCaptureIndex {
 	public boolean equals(@Nullable final Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-		final var other = (OnigCaptureIndex) obj;
-		return end == other.end
-				&& start == other.start;
+		if (obj instanceof final OnigCaptureIndex other)
+			return end == other.end
+					&& start == other.start;
+		return false;
 	}
 
 	public int getLength() {
@@ -51,11 +50,7 @@ public final class OnigCaptureIndex {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + end;
-		result = prime * result + start;
-		return result;
+		return 31 * (31 + end) + start;
 	}
 
 	@Override

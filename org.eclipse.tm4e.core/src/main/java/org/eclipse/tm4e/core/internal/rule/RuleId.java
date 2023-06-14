@@ -54,12 +54,9 @@ public final class RuleId {
 	public boolean equals(@Nullable final Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (RuleId.class != obj.getClass())
-			return false;
-		final var other = (RuleId) obj;
-		return id == other.id;
+		if (obj instanceof final RuleId other)
+			return id == other.id;
+		return false;
 	}
 
 	public boolean equals(final RuleId otherRule) {

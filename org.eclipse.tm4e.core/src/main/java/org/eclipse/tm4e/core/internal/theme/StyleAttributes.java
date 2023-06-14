@@ -41,36 +41,23 @@ public class StyleAttributes {
 		this.fontStyle = fontStyle;
 		this.foregroundId = foregroundId;
 		this.backgroundId = backgroundId;
-		if (fontStyle != -1 && foregroundId != 0 && backgroundId != 0) {
-			System.err.println("HEY!");
-		}
 	}
 
 	@Override
 	public boolean equals(@Nullable final Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final StyleAttributes other = (StyleAttributes) obj;
-		if (backgroundId != other.backgroundId)
-			return false;
-		if (fontStyle != other.fontStyle)
-			return false;
-		if (foregroundId != other.foregroundId)
-			return false;
-		return true;
+		if (obj instanceof final StyleAttributes other)
+			return backgroundId == other.backgroundId
+					&& fontStyle == other.fontStyle
+					&& foregroundId == other.foregroundId;
+		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + backgroundId;
-		result = prime * result + fontStyle;
-		result = prime * result + foregroundId;
-		return result;
+		int result = 31 + backgroundId;
+		result = 31 * result + fontStyle;
+		return 31 * result + foregroundId;
 	}
 }

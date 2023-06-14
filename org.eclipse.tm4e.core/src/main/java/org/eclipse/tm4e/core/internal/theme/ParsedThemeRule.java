@@ -53,29 +53,27 @@ public class ParsedThemeRule {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + fontStyle;
-		result = prime * result + index;
-		result = prime * result + Objects.hash(background, foreground, parentScopes, scope);
-		return result;
+		int result = 31 + fontStyle;
+		result = 31 * result + index;
+		result = 31 * result + Objects.hashCode(background);
+		result = 31 * result + Objects.hashCode(foreground);
+		result = 31 * result + Objects.hashCode(parentScopes);
+		return 31 * result + Objects.hashCode(scope);
 	}
 
 	@Override
 	public boolean equals(@Nullable final Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final ParsedThemeRule other = (ParsedThemeRule) obj;
-		return fontStyle == other.fontStyle
-				&& index == other.index
-				&& Objects.equals(background, other.background)
-				&& Objects.equals(foreground, other.foreground)
-				&& Objects.equals(parentScopes, other.parentScopes)
-				&& Objects.equals(scope, other.scope);
+		if (obj instanceof final ParsedThemeRule other)
+			return fontStyle == other.fontStyle
+					&& index == other.index
+					&& Objects.equals(background, other.background)
+					&& Objects.equals(foreground, other.foreground)
+					&& Objects.equals(parentScopes, other.parentScopes)
+					&& Objects.equals(scope, other.scope);
+		return false;
+
 	}
 
 	@Override

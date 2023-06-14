@@ -267,25 +267,19 @@ public final class Theme {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + _colorMap.hashCode();
-		result = prime * result + _defaults.hashCode();
-		result = prime * result + _root.hashCode();
-		return result;
+		int result = 31 + _colorMap.hashCode();
+		result = 31 * result + _defaults.hashCode();
+		return 31 * result + _root.hashCode();
 	}
 
 	@Override
 	public boolean equals(@Nullable final Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-		final Theme other = (Theme) obj;
-		return Objects.equals(_colorMap, other._colorMap)
-				&& Objects.equals(_defaults, other._defaults)
-				&& Objects.equals(_root, other._root);
+		if (obj instanceof final Theme other)
+			return Objects.equals(_colorMap, other._colorMap)
+					&& Objects.equals(_defaults, other._defaults)
+					&& Objects.equals(_root, other._root);
+		return false;
 	}
 }

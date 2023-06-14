@@ -12,7 +12,6 @@
 package org.eclipse.tm4e.ui.internal.utils;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.core.resources.IMarker;
@@ -47,17 +46,18 @@ public abstract class MarkerConfig {
 		public boolean equals(final @Nullable Object obj) {
 			if (this == obj)
 				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			ProblemMarkerConfig other = (ProblemMarkerConfig) obj;
-			return Objects.equals(tag, other.tag) && type == other.type && severity == other.severity;
+			if (obj instanceof ProblemMarkerConfig other)
+				return type == other.type
+						&& severity == other.severity
+						&& tag.equals(other.tag);
+			return false;
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(tag, type, severity);
+			int result = 31 + severity.hashCode();
+			result = 31 * result + tag.hashCode();
+			return 31 * result + type.hashCode();
 		}
 
 		@Override
@@ -91,17 +91,18 @@ public abstract class MarkerConfig {
 		public boolean equals(final @Nullable Object obj) {
 			if (this == obj)
 				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			TaskMarkerConfig other = (TaskMarkerConfig) obj;
-			return Objects.equals(tag, other.tag) && type == other.type && priority == other.priority;
+			if (obj instanceof TaskMarkerConfig other)
+				return type == other.type
+						&& priority == other.priority
+						&& tag.equals(other.tag);
+			return false;
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(tag, type, priority);
+			int result = 31 + priority.hashCode();
+			result = 31 * result + tag.hashCode();
+			return 31 * result + type.hashCode();
 		}
 
 		@Override

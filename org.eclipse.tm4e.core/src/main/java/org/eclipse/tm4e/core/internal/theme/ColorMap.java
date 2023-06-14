@@ -75,26 +75,16 @@ public final class ColorMap {
 
 	@Override
 	public boolean equals(@Nullable final Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final ColorMap other = (ColorMap) obj;
-		return _lastColorId == other._lastColorId
-				&& _color2id.equals(other._color2id);
+		if (obj instanceof final ColorMap other)
+			return _lastColorId == other._lastColorId
+					&& _color2id.equals(other._color2id);
+		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + _lastColorId;
-		result = prime * result + _color2id.hashCode();
-		return result;
+		return 31 * (31 + _lastColorId) + _color2id.hashCode();
 	}
 }

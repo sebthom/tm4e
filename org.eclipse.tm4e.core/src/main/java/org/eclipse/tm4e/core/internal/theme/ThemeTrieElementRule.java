@@ -35,7 +35,6 @@ public class ThemeTrieElementRule {
 
 	public ThemeTrieElementRule(final int scopeDepth, @Nullable final List<String> parentScopes, final int fontStyle, final int foreground,
 			final int background) {
-
 		this.scopeDepth = scopeDepth;
 		this.parentScopes = parentScopes;
 		this.fontStyle = fontStyle;
@@ -77,32 +76,23 @@ public class ThemeTrieElementRule {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + background;
-		result = prime * result + fontStyle;
-		result = prime * result + foreground;
-		result = prime * result + Objects.hashCode(parentScopes);
-		result = prime * result + scopeDepth;
-		return result;
+		int result = 31 + background;
+		result = 31 * result + fontStyle;
+		result = 31 * result + foreground;
+		result = 31 * result + Objects.hashCode(parentScopes);
+		return 31 * result + scopeDepth;
 	}
 
 	@Override
 	public boolean equals(@Nullable final Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final ThemeTrieElementRule other = (ThemeTrieElementRule) obj;
-		return scopeDepth == other.scopeDepth
-				&& background == other.background
-				&& fontStyle == other.fontStyle
-				&& foreground == other.foreground
-				&& Objects.equals(parentScopes, other.parentScopes);
+		if (obj instanceof final ThemeTrieElementRule other)
+			return scopeDepth == other.scopeDepth
+					&& background == other.background
+					&& fontStyle == other.fontStyle
+					&& foreground == other.foreground
+					&& Objects.equals(parentScopes, other.parentScopes);
+		return false;
 	}
 }
