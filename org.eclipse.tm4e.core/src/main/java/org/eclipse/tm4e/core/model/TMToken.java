@@ -50,6 +50,6 @@ public final class TMToken {
 
 	@Override
 	public String toString() {
-		return "(" + this.startIndex + ", " + this.type + ")";
+		return "(" + startIndex + ", " + (type.isEmpty() ? "<empty>" : type) + ")";
 	}
 }
