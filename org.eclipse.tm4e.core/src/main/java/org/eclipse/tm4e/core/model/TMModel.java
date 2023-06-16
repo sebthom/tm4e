@@ -77,11 +77,9 @@ public class TMModel implements ITMModel {
 
 		/**
 		 * Creates a new background thread. The thread runs with minimal priority.
-		 *
-		 * @param name the thread's name
 		 */
-		TokenizerThread(final String name) {
-			super(name);
+		TokenizerThread() {
+			super("tm4e." + TokenizerThread.class.getSimpleName());
 			setPriority(Thread.MIN_PRIORITY);
 			setDaemon(true);
 		}
@@ -259,7 +257,7 @@ public class TMModel implements ITMModel {
 		if (tokenizer != null && !listeners.isEmpty()) {
 			var thread = this.tokenizerThread;
 			if (thread == null || thread.isInterrupted()) {
-				thread = this.tokenizerThread = new TokenizerThread(getClass().getName());
+				thread = this.tokenizerThread = new TokenizerThread();
 			}
 			if (!thread.isAlive()) {
 				thread.start();
