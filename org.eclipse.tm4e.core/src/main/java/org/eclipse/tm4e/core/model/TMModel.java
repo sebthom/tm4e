@@ -40,19 +40,15 @@ public class TMModel implements ITMModel {
 	private static final Logger LOGGER = System.getLogger(TMModel.class.getName());
 
 	/** The TextMate grammar to use to parse for each lines of the document the TextMate tokens. **/
-	@Nullable
-	private IGrammar grammar;
+	private @Nullable IGrammar grammar;
 
 	/** Listener when TextMate model tokens changed **/
 	private final Set<IModelTokensChangedListener> listeners = new CopyOnWriteArraySet<>();
 
-	@Nullable
-	private TMTokenization tokenizer;
+	/** The background thread performing async tokenization. */
+	private @Nullable volatile TokenizerThread tokenizerThread;
 	private volatile boolean tokenizerThreadIsWorking;
-
-	/** The background thread. */
-	@Nullable
-	private volatile TokenizerThread tokenizerThread;
+	private @Nullable TMTokenization tokenizer;
 
 	private final AbstractModelLines modelLines;
 	private final PriorityBlockingQueue<Integer> invalidLines = new PriorityBlockingQueue<>();
@@ -76,9 +72,7 @@ public class TMModel implements ITMModel {
 	 */
 	private final class TokenizerThread extends Thread {
 
-		/**
-		 * Creates a new background thread. The thread runs with minimal priority.
-		 */
+		/** Creates a new background thread. The thread runs with minimal priority. */
 		TokenizerThread() {
 			super("tm4e." + TokenizerThread.class.getSimpleName());
 			setPriority(Thread.MIN_PRIORITY);
@@ -224,9 +218,8 @@ public class TMModel implements ITMModel {
 		return tokenizerThreadIsWorking ? BackgroundTokenizationState.IN_PROGRESS : BackgroundTokenizationState.COMPLETED;
 	}
 
-	@Nullable
 	@Override
-	public IGrammar getGrammar() {
+	public @Nullable IGrammar getGrammar() {
 		return grammar;
 	}
 
@@ -262,7 +255,7 @@ public class TMModel implements ITMModel {
 		modelLines.dispose();
 	}
 
-	private synchronized void startTokenizerThread() {
+	private void startTokenizerThread() {
 		if (tokenizer != null && !listeners.isEmpty()) {
 			var thread = this.tokenizerThread;
 			if (thread == null || thread.isInterrupted()) {
@@ -274,9 +267,7 @@ public class TMModel implements ITMModel {
 		}
 	}
 
-	/**
-	 * Interrupt the thread if running.
-	 */
+	/** Interrupt the thread if running. */
 	private synchronized void stopTokenizerThread() {
 		final var thread = this.tokenizerThread;
 		if (thread == null) {
@@ -293,8 +284,7 @@ public class TMModel implements ITMModel {
 	}
 
 	@Override
-	@Nullable
-	public List<TMToken> getLineTokens(final int lineIndex) {
+	public @Nullable List<TMToken> getLineTokens(final int lineIndex) {
 		final var modelLine = modelLines.getOrNull(lineIndex);
 		return modelLine == null ? null : modelLine.tokens;
 	}
@@ -303,9 +293,7 @@ public class TMModel implements ITMModel {
 		return modelLines.getNumberOfLines();
 	}
 
-	/**
-	 * Marks the given line as out-of-date resulting in async re-parsing
-	 */
+	/** Marks the given line as out-of-date resulting in async re-parsing */
 	void invalidateLine(final int lineIndex) {
 		final var modelLine = modelLines.getOrNull(lineIndex);
 		if (modelLine != null) {
