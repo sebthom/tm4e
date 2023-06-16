@@ -23,7 +23,6 @@ import org.eclipse.tm4e.ui.internal.utils.PreferenceUtils;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
-import org.eclipse.tm4e.ui.themes.ITokenProvider;
 import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 
 /**
