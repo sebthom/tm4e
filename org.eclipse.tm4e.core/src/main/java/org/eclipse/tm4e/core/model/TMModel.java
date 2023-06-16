@@ -51,7 +51,7 @@ public class TMModel implements ITMModel {
 
 	/** The background thread. */
 	@Nullable
-	private volatile TokenizerThread fThread;
+	private volatile TokenizerThread tokenizerThread;
 
 	private final AbstractModelLines modelLines;
 	private final PriorityBlockingQueue<Integer> invalidLines = new PriorityBlockingQueue<>();
@@ -88,7 +88,7 @@ public class TMModel implements ITMModel {
 
 		@Override
 		public void run() {
-			while (fThread == this && !isInterrupted()) {
+			while (tokenizerThread == this && !isInterrupted()) {
 				try {
 					final int lineIndexToProcess = invalidLines.take();
 
@@ -257,12 +257,12 @@ public class TMModel implements ITMModel {
 
 	private synchronized void startTokenizerThread() {
 		if (tokenizer != null && !listeners.isEmpty()) {
-			var fThread = this.fThread;
-			if (fThread == null || fThread.isInterrupted()) {
-				fThread = this.fThread = new TokenizerThread(getClass().getName());
+			var thread = this.tokenizerThread;
+			if (thread == null || thread.isInterrupted()) {
+				thread = this.tokenizerThread = new TokenizerThread(getClass().getName());
 			}
-			if (!fThread.isAlive()) {
-				fThread.start();
+			if (!thread.isAlive()) {
+				thread.start();
 			}
 		}
 	}
@@ -271,12 +271,12 @@ public class TMModel implements ITMModel {
 	 * Interrupt the thread if running.
 	 */
 	private synchronized void stopTokenizerThread() {
-		final var fThread = this.fThread;
-		if (fThread == null) {
+		final var thread = this.tokenizerThread;
+		if (thread == null) {
 			return;
 		}
-		fThread.interrupt();
-		this.fThread = null;
+		thread.interrupt();
+		this.tokenizerThread = null;
 	}
 
 	private void emit(final ModelTokensChangedEvent e) {
