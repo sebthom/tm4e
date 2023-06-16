@@ -22,7 +22,7 @@ import org.eclipse.tm4e.core.grammar.IStateStack;
 
 /**
  * @see <a href="https://github.com/microsoft/vscode/blob/d81ca6dfcae29a9bf0f648b94dff145b3665fac1/src/vs/editor/common/languages.ts#L53">
- *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages.ts</a>
+ *      github.com/microsoft/vscode/main/src/vs/editor/common/languages.ts <code>#TokenizationResult</code></a>
  */
 public final class TokenizationResult {
 

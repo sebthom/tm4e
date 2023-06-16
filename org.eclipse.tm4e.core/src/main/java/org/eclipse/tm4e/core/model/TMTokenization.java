@@ -39,8 +39,15 @@ import com.google.common.cache.LoadingCache;
 
 /**
  * @see <a href=
+ *      "https://github.com/microsoft/vscode/blob/b22c1ee2ac18b1446e8710edecd5b29cc4a3ed19/src/vs/workbench/services/textMate/browser/tokenizationSupport/textMateTokenizationSupport.ts">
+ *      github.com/microsoft/vscode/main/src/vs/workbench/services/textMate/browser/tokenizationSupport/textMateTokenizationSupport.ts
+ *      <code>#TextMateTokenizationSupport</code></a>
+ * @see <a href=
  *      "https://github.com/microsoft/vscode/blob/e80e4e6fd20cf045dd6c77eb4790dce06f158736/src/vs/workbench/services/textMate/common/TMTokenization.ts">
- *      github.com/microsoft/vscode/blob/main/src/vs/workbench/services/textMate/common/TMTokenization.ts</a>
+ *      github.com/microsoft/vscode/main/src/vs/workbench/services/textMate/common/TMTokenization.ts (old)</a>
+ * @see <a href=
+ *      "https://github.com/microsoft/vscode/blob/70d250824ef66ef09f04c4084b804d5f353fb704/src/vs/editor/node/textMate/TMSyntax.ts#L120">
+ *      github.com/microsoft/vscode/main/src/vs/editor/node/textMate/TMSyntax.ts (old)</a>
  */
 public class TMTokenization implements ITokenizationSupport {
 

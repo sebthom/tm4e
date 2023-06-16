@@ -22,8 +22,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IStateStack;
 
 /**
- * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages.ts">
- *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages.ts</a>
+ * @see <a href="https://github.com/microsoft/vscode/blob/d81ca6dfcae29a9bf0f648b94dff145b3665fac1/src/vs/editor/common/languages.ts#L101">
+ *      github.com/microsoft/vscode/main/src/vs/editor/common/languages.ts</a>
  */
 public interface ITokenizationSupport {
 

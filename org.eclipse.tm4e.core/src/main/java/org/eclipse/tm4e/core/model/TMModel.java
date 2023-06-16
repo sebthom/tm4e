@@ -32,8 +32,8 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
 /**
  * TextMate model class.
  *
- * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/tokenizationTextModelPart.ts">
- *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/tokenizationTextModelPart.ts</a>
+ * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/model/tokenizationTextModelPart.ts">
+ *      github.com/microsoft/vscode/src/vs/editor/common/model/tokenizationTextModelPart.ts <code>#TokenizationTextModelPart</code></a>
  */
 public class TMModel implements ITMModel {
 

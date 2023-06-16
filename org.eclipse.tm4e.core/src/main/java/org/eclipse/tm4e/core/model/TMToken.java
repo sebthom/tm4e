@@ -19,8 +19,8 @@ package org.eclipse.tm4e.core.model;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages.ts">
- *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages.ts</a>
+ * @see <a href="https://github.com/microsoft/vscode/blob/d81ca6dfcae29a9bf0f648b94dff145b3665fac1/src/vs/editor/common/languages.ts#L35">
+ *      github.com/microsoft/vscode/main/src/vs/editor/common/languages.ts <code>#Token</code></a>
  */
 public final class TMToken {
 

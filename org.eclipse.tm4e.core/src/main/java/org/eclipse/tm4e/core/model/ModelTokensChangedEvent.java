@@ -25,7 +25,7 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  *
  * @see <a href=
  *      "https://github.com/microsoft/vscode/blob/d81ca6dfcae29a9bf0f648b94dff145b3665fac1/src/vs/editor/common/textModelEvents.ts#L100">
- *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/textModelEvents.ts</a>
+ *      github.com/microsoft/vscode/main/src/vs/editor/common/textModelEvents.ts <code>#IModelTokensChangedEvent</code></a>
  */
 public class ModelTokensChangedEvent {
 

@@ -17,30 +17,31 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 
 /**
- * TextMate model API.
+ * Provides tokenization related functionality of the text model.
  *
- * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/model/tokenizationTextModelPart.ts">
- *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/model/tokenizationTextModelPart.ts</a>
+ * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/tokenizationTextModelPart.ts">
+ *      github.com/microsoft/vscode/main/src/vs/editor/common/tokenizationTextModelPart.ts
+ *      <code>#ITokenizationTextModelPart</code></a>
  */
 public interface ITMModel {
 
-   enum BackgroundTokenizationState {
-      IN_PROGRESS,
-      COMPLETED
-   }
+	enum BackgroundTokenizationState {
+		IN_PROGRESS,
+		COMPLETED
+	}
 
-   BackgroundTokenizationState getBackgroundTokenizationState();
+	BackgroundTokenizationState getBackgroundTokenizationState();
 
 	/**
-	 * Returns the TextMate grammar to use to parse for each lines of the document the TextMate tokens.
+	 * Returns the grammar to use to parse the lines of the document.
 	 *
-	 * @return the TextMate grammar to use to parse for each lines of the document the TextMate tokens.
+	 * @return the grammar to use to parse the lines of the document
 	 */
 	@Nullable
 	IGrammar getGrammar();
 
 	/**
-	 * Set the TextMate grammar to use to parse for each lines of the document the TextMate tokens.
+	 * Sets the grammar to use to parse the lines of the document.
 	 */
 	void setGrammar(IGrammar grammar);
 
@@ -63,7 +64,7 @@ public interface ITMModel {
 	/**
 	 * @param lineIndex 0-based
 	 *
-	 * @throws IndexOutOfBoundsException
+	 * @return <code>null</code> if line does not exit or has not yet been tokenized.
 	 */
 	@Nullable
 	List<TMToken> getLineTokens(int lineIndex);
