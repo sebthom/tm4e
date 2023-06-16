@@ -24,6 +24,13 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
  */
 public interface ITMModel {
 
+   enum BackgroundTokenizationState {
+      IN_PROGRESS,
+      COMPLETED
+   }
+
+   BackgroundTokenizationState getBackgroundTokenizationState();
+
 	/**
 	 * Returns the TextMate grammar to use to parse for each lines of the document the TextMate tokens.
 	 *

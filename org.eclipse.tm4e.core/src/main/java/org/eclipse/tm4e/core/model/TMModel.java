@@ -48,6 +48,7 @@ public class TMModel implements ITMModel {
 
 	@Nullable
 	private TMTokenization tokenizer;
+	private volatile boolean tokenizerThreadIsWorking;
 
 	/** The background thread. */
 	@Nullable
@@ -88,7 +89,9 @@ public class TMModel implements ITMModel {
 		public void run() {
 			while (tokenizerThread == this && !isInterrupted()) {
 				try {
+					tokenizerThreadIsWorking = false;
 					final int lineIndexToProcess = invalidLines.take();
+					tokenizerThreadIsWorking = true;
 
 					// skip if the queued line is not invalid anymore
 					final var modelLine = modelLines.getOrNull(lineIndexToProcess);
@@ -105,6 +108,7 @@ public class TMModel implements ITMModel {
 					interrupt();
 				}
 			}
+			tokenizerThreadIsWorking = false;
 		}
 
 		/** process follow-up lines until this limit is reached */
@@ -213,6 +217,11 @@ public class TMModel implements ITMModel {
 			nextModelLine.startState = r.endState;
 			return UpdateTokensOfLineResult.NEXT_LINE_IS_OUTDATED;
 		}
+	}
+
+	@Override
+	public BackgroundTokenizationState getBackgroundTokenizationState() {
+		return tokenizerThreadIsWorking ? BackgroundTokenizationState.IN_PROGRESS : BackgroundTokenizationState.COMPLETED;
 	}
 
 	@Nullable
