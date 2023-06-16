@@ -13,13 +13,14 @@ import static org.eclipse.tm4e.core.registry.IGrammarSource.fromResource;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.eclipse.tm4e.core.Data;
+import org.eclipse.tm4e.core.model.ITMModel.BackgroundTokenizationState;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.jupiter.api.Test;
 
 class TMModelTest {
 
 	@Test
-	void testTokenizeWithTimeout() throws InterruptedException {
+	void testTokenizeWithTimeout() {
 		final var grammar = new Registry().addGrammar(fromResource(Data.class, "TypeScript.tmLanguage.json"));
 
 		final var lines = """
@@ -48,11 +49,30 @@ class TMModelTest {
 				assertTrue(modelLines.get(i).isInvalid, "Line " + i + " is expected to be outdated");
 			}
 
+			assertEquals(BackgroundTokenizationState.COMPLETED, tmModel.getBackgroundTokenizationState());
+
 			// adding a listener will spawn the TokenizerThread
 			tmModel.addModelTokensChangedListener(event -> {
 			});
+			modelLines.replaceLines(0, 5, 5);
 
-			Thread.sleep(2000);
+			boolean tokenizationWasSeenInProgress = false;
+			boolean tokenizationCompleted = false;
+			while (!tokenizationCompleted) {
+				switch (tmModel.getBackgroundTokenizationState()) {
+					case IN_PROGRESS:
+						tokenizationWasSeenInProgress = true;
+						break;
+					case COMPLETED:
+						if (tokenizationWasSeenInProgress)
+							tokenizationCompleted = true;
+						break;
+				}
+				Thread.yield();
+			}
+
+			assertEquals(BackgroundTokenizationState.COMPLETED, tmModel.getBackgroundTokenizationState());
+
 			for (int i = 0; i < lines.length; i++) {
 				assertFalse(modelLines.get(i).isInvalid, "Line " + i + " is expected to be up-to-date");
 			}
