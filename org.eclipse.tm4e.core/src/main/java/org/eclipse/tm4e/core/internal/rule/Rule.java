@@ -19,6 +19,7 @@ package org.eclipse.tm4e.core.internal.rule;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.internal.oniguruma.OnigCaptureIndex;
 import org.eclipse.tm4e.core.internal.utils.RegexSource;
+import org.eclipse.tm4e.core.internal.utils.StringUtils;
 
 /**
  * @see <a href=
@@ -68,4 +69,12 @@ public abstract class Rule {
 	public abstract CompiledRule compile(IRuleRegistry grammar, @Nullable String endRegexSource);
 
 	public abstract CompiledRule compileAG(IRuleRegistry grammar, @Nullable String endRegexSource, boolean allowA, boolean allowG);
+
+	@Override
+	public String toString() {
+		return StringUtils.toString(this, sb -> {
+			sb.append("id=").append(id);
+			sb.append(",name=").append(name);
+		});
+	}
 }

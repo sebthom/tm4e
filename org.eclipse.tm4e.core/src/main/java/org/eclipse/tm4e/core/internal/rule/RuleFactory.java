@@ -238,7 +238,7 @@ public final class RuleFactory {
 				}
 
 				if (skipRule) {
-					LOGGER.log(WARNING, "REMOVING RULE ENTIRELY DUE TO EMPTY PATTERNS THAT ARE MISSING");
+					LOGGER.log(WARNING, "REMOVING " + rule + " ENTIRELY DUE TO EMPTY PATTERNS THAT ARE MISSING");
 					continue;
 				}
 
