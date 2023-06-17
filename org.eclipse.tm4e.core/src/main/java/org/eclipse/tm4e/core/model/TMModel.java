@@ -100,7 +100,7 @@ public class TMModel implements ITMModel {
 					final int lineIndexToProcess = invalidLines.take();
 					tokenizerThreadIsWorking = true;
 
-					// skip if the queued line is not invalid anymore
+					// skip if the line marked for (re-)tokenization does not exit anymore
 					final var modelLine = modelLines.getOrNull(lineIndexToProcess);
 					if (modelLine == null || !modelLine.isInvalid)
 						continue;
@@ -252,13 +252,11 @@ public class TMModel implements ITMModel {
 		modelLines.dispose();
 	}
 
-	private void startTokenizerThread() {
+	private synchronized void startTokenizerThread() {
 		if (tokenizer != null && !listeners.isEmpty()) {
 			var thread = this.tokenizerThread;
-			if (thread == null || thread.isInterrupted()) {
+			if (thread == null || thread.isInterrupted() || !thread.isAlive()) {
 				thread = this.tokenizerThread = new TokenizerThread();
-			}
-			if (!thread.isAlive()) {
 				thread.start();
 			}
 		}
