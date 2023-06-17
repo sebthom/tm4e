@@ -21,12 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.PriorityBlockingQueue;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.internal.utils.StringUtils;
+import org.eclipse.tm4e.core.internal.utils.UniquePriorityBlockingQueue;
 
 /**
  * TextMate model class.
@@ -50,7 +51,7 @@ public class TMModel implements ITMModel {
 	private @Nullable TMTokenization tokenizer;
 
 	private final AbstractModelLines modelLines;
-	private final PriorityBlockingQueue<Integer> invalidLines = new PriorityBlockingQueue<>();
+	private final BlockingQueue<Integer> invalidLines = new UniquePriorityBlockingQueue<>();
 
 	public TMModel(final AbstractModelLines lines) {
 		modelLines = lines;
