@@ -79,7 +79,10 @@ public class TMUIPlugin extends AbstractUIPlugin {
 				@Override
 				public void publish(@Nullable final LogRecord entry) {
 					if (entry != null) {
-						log(new Status(toSeverity(entry.getLevel()), tm4eCorePluginId, entry.getMessage()));
+						log(new Status(toSeverity(entry.getLevel()), tm4eCorePluginId,
+								entry.getParameters() == null || entry.getParameters().length == 0
+										? entry.getMessage()
+										: java.text.MessageFormat.format(entry.getMessage(), entry.getParameters())));
 					}
 				}
 
