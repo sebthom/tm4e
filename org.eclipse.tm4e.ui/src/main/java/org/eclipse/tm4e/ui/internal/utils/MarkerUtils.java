@@ -9,8 +9,6 @@
  */
 package org.eclipse.tm4e.ui.internal.utils;
 
-import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -116,7 +114,9 @@ public final class MarkerUtils {
 		for (int lineNumber = startLineNumber; lineNumber <= numberOfLines; lineNumber++) {
 			final var lineNumberObj = Integer.valueOf(lineNumber);
 			final var lineIndex = lineNumber - 1;
-			final var tokens = castNonNull(docModel.getLineTokens(lineIndex));
+			final var tokens = docModel.getLineTokens(lineIndex);
+			if (tokens == null)
+				continue;
 			final var tokensCount = tokens.size();
 			final var outdatedMarkers = markers.getOrDefault(lineNumberObj, Collections.emptyList());
 
