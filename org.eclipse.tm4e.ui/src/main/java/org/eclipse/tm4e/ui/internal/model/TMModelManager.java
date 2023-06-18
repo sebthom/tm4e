@@ -13,21 +13,20 @@ package org.eclipse.tm4e.ui.internal.model;
 
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.castNullable;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
 
 /**
- * TextMate model manager which connect/disconnect a TextModel model
- * {@link TMDocumentModel} with an Eclipse {@link IDocument}.
+ * TextMate model manager which connect/disconnect a {@link TMDocumentModel} with an Eclipse {@link IDocument}.
  */
 public final class TMModelManager implements ITMModelManager {
 
 	public static final TMModelManager INSTANCE = new TMModelManager();
 
-	private final Map<IDocument, TMDocumentModel> models = new HashMap<>();
+	private final Map<IDocument, TMDocumentModel> models = new ConcurrentHashMap<>();
 
 	private TMModelManager() {
 	}
@@ -43,5 +42,10 @@ public final class TMModelManager implements ITMModelManager {
 		if (model != null) {
 			model.dispose();
 		}
+	}
+
+	@Override
+	public boolean isConnected(IDocument document) {
+		return models.containsKey(document);
 	}
 }

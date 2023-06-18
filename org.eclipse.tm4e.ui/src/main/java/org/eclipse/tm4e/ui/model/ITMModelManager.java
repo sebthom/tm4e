@@ -15,14 +15,11 @@ import org.eclipse.jface.text.IDocument;
 
 /**
  * TextMate model manager API.
- *
  */
 public interface ITMModelManager {
 
 	/**
 	 * Connect the given document to a TextMate model.
-	 *
-	 * @param document
 	 *
 	 * @return the TextMate model connected to the document.
 	 */
@@ -30,8 +27,11 @@ public interface ITMModelManager {
 
 	/**
 	 * Disconnect the TextMate model of the given document.
-	 *
-	 * @param document
 	 */
 	void disconnect(IDocument document);
+
+	/**
+	 * @return true if the document is already connected
+	 */
+	boolean isConnected(IDocument document);
 }
