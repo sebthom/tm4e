@@ -25,8 +25,8 @@ import org.eclipse.tm4e.core.model.ITMModel;
 import org.eclipse.tm4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.ui.TMUIPlugin;
-import org.eclipse.tm4e.ui.internal.model.TMDocumentModel;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceHelper;
+import org.eclipse.tm4e.ui.model.ITMDocumentModel;
 
 public final class MarkerUtils {
 
@@ -59,7 +59,7 @@ public final class MarkerUtils {
 	 */
 	public static void updateTextMarkers(final ModelTokensChangedEvent event) {
 		final ITMModel model = event.model;
-		if (model instanceof final TMDocumentModel docModel) {
+		if (model instanceof final ITMDocumentModel docModel) {
 			try {
 				updateTextMarkers(docModel, event.ranges.get(0).fromLineNumber);
 			} catch (final CoreException ex) {
@@ -69,12 +69,12 @@ public final class MarkerUtils {
 	}
 
 	/**
-	 * Updates all TM4E text markers of the {@link TMDocumentModel}'s document starting from the given line number until
+	 * Updates all TM4E text markers of the {@link ITMDocumentModel}'s document starting from the given line number until
 	 * the end of the document.
 	 *
 	 * @param startLineNumber 1-based
 	 */
-	private static void updateTextMarkers(final TMDocumentModel docModel, final int startLineNumber)
+	private static void updateTextMarkers(final ITMDocumentModel docModel, final int startLineNumber)
 			throws CoreException {
 
 		final var doc = docModel.getDocument();
@@ -83,10 +83,10 @@ public final class MarkerUtils {
 		if (res == null)
 			return;
 
-		final var numberOfLines = docModel.getNumberOfLines();
+		final var numberOfLines = doc.getNumberOfLines();
 
 		// collect affected markers
-		final var markers = new HashMap<Integer, List<IMarker>>();
+		final var markersByLineNumber = new HashMap<Integer, List<IMarker>>();
 		for (final var marker : res.findMarkers(TEXTMARKER_TYPE, true, 0)) {
 			final var lineNumberObj = getLineNumber(marker);
 			if (lineNumberObj == null) {
@@ -102,7 +102,7 @@ public final class MarkerUtils {
 				marker.delete(); // this marker is for a non-existing line
 				continue;
 			}
-			final var markersOfLine = markers.computeIfAbsent(lineNumberObj, l -> new ArrayList<>(1));
+			final var markersOfLine = markersByLineNumber.computeIfAbsent(lineNumberObj, l -> new ArrayList<>(1));
 			markersOfLine.add(marker);
 		}
 
@@ -118,7 +118,7 @@ public final class MarkerUtils {
 			if (tokens == null)
 				continue;
 			final var tokensCount = tokens.size();
-			final var outdatedMarkers = markers.getOrDefault(lineNumberObj, Collections.emptyList());
+			final var outdatedMarkers = markersByLineNumber.getOrDefault(lineNumberObj, Collections.emptyList());
 
 			// iterate over all tokens of the current line
 			for (int tokenIndex = 0; tokenIndex < tokensCount; tokenIndex++) {
