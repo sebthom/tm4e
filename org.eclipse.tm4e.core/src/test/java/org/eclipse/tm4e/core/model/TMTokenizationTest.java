@@ -28,7 +28,7 @@ class TMTokenizationTest {
 	void testTokenizeWithTimeout() throws IOException {
 		final var grammar = new Registry().addGrammar(fromResource(Data.class, "TypeScript.tmLanguage.json"));
 
-		final var tokenizer = new TMTokenization(grammar);
+		final var tokenizer = new TMTokenizationSupport(grammar);
 		try (var reader = new BufferedReader(new InputStreamReader(Data.class.getResourceAsStream("raytracer.ts")))) {
 			final String veryLongLine = reader.lines().collect(Collectors.joining());
 			final var result1 = tokenizer.tokenize(veryLongLine, null);

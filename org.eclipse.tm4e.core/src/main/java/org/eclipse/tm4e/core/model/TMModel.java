@@ -45,7 +45,7 @@ public class TMModel implements ITMModel {
 	/** The background thread performing async tokenization. */
 	private @Nullable volatile TokenizerThread tokenizerThread;
 	private volatile boolean tokenizerThreadIsWorking;
-	private @Nullable TMTokenization tokenizer;
+	private @Nullable TMTokenizationSupport tokenizer;
 
 	private final AbstractModelLines modelLines;
 	private final BlockingQueue<Integer> invalidLines = new UniquePriorityBlockingQueue<>();
@@ -220,7 +220,7 @@ public class TMModel implements ITMModel {
 	public synchronized void setGrammar(final IGrammar grammar) {
 		if (!Objects.equals(grammar, this.grammar)) {
 			this.grammar = grammar;
-			final var tokenizer = this.tokenizer = new TMTokenization(grammar);
+			final var tokenizer = this.tokenizer = new TMTokenizationSupport(grammar);
 			modelLines.get(0).startState = tokenizer.getInitialState();
 			invalidateLine(0);
 			startTokenizerThread();

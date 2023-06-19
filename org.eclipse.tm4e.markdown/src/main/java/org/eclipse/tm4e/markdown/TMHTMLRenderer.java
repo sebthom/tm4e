@@ -18,7 +18,7 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IStateStack;
 import org.eclipse.tm4e.core.model.ITokenizationSupport;
 import org.eclipse.tm4e.core.model.TMToken;
-import org.eclipse.tm4e.core.model.TMTokenization;
+import org.eclipse.tm4e.core.model.TMTokenizationSupport;
 import org.eclipse.tm4e.markdown.marked.HTMLRenderer;
 import org.eclipse.tm4e.markdown.marked.Helpers;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
@@ -37,7 +37,7 @@ public class TMHTMLRenderer extends HTMLRenderer {
 		if (grammar == null) {
 			super.code(code, lang, escaped);
 		} else {
-			final var tokenizationSupport = new TMTokenization(grammar);
+			final var tokenizationSupport = new TMTokenizationSupport(grammar);
 			html.append("<div style=\"white-space: pre-wrap;\">");
 			tokenizeLines(code, tokenizationSupport);
 			html.append("</div>");

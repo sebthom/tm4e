@@ -49,17 +49,17 @@ import com.google.common.cache.LoadingCache;
  *      "https://github.com/microsoft/vscode/blob/70d250824ef66ef09f04c4084b804d5f353fb704/src/vs/editor/node/textMate/TMSyntax.ts#L120">
  *      github.com/microsoft/vscode/main/src/vs/editor/node/textMate/TMSyntax.ts (old)</a>
  */
-public class TMTokenization implements ITokenizationSupport {
+public class TMTokenizationSupport implements ITokenizationSupport {
 
 	private final IGrammar _grammar;
 	private final IStateStack _initialState;
 	private final DecodeMap decodeMap = new DecodeMap();
 
-	public TMTokenization(final IGrammar grammar) {
+	public TMTokenizationSupport(final IGrammar grammar) {
 		this(grammar, StateStack.NULL);
 	}
 
-	public TMTokenization(final IGrammar grammar, final IStateStack initialState) {
+	public TMTokenizationSupport(final IGrammar grammar, final IStateStack initialState) {
 		this._grammar = grammar;
 		_initialState = initialState;
 	}
