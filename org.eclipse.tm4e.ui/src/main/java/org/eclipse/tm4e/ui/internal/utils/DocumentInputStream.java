@@ -10,7 +10,7 @@
  * QNX Software System
  * Sebastian Thomschke - implement read(byte[], int, int)
  *******************************************************************************/
-package org.eclipse.tm4e.ui.internal.model;
+package org.eclipse.tm4e.ui.internal.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
