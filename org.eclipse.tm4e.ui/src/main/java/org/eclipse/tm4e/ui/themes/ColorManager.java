@@ -16,10 +16,10 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.tm4e.core.internal.utils.StringUtils;
 import org.eclipse.tm4e.core.theme.RGB;
 import org.eclipse.tm4e.ui.internal.utils.PreferenceUtils;
+import org.eclipse.tm4e.ui.internal.utils.UI;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 public final class ColorManager {
@@ -31,7 +31,7 @@ public final class ColorManager {
 	}
 
 	private static Color rgbToColor(RGB rgb) {
-		return new Color(Display.getCurrent(), rgb.red, rgb.green, rgb.blue);
+		return new Color(UI.getDisplay(), rgb.red, rgb.green, rgb.blue);
 	}
 
 	private final Map<RGB, Color> fColorTable = new HashMap<>(10);

@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.tm4e.ui.TMUIPlugin;
+import org.eclipse.tm4e.ui.internal.utils.UI;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
@@ -90,7 +91,7 @@ class TMEditorColorTest implements ThemeIdConstants {
 	@Test
 	void userDefinedEditorColorTest() throws Exception {
 		final var testColorVal = "255,128,0";
-		final var testColor = new Color(Display.getCurrent(), 255, 128, 0);
+		final var testColor = new Color(UI.getDisplay(), 255, 128, 0);
 		final var prefs = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.eclipse.ui.editors");
 		prefs.setValue(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND, testColorVal);
 		prefs.setValue(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT, false);

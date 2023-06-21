@@ -9,7 +9,7 @@
  * Contributors:
  *  Sebastian Thomschke (Vegard IT GmbH) - initial implementation
  *******************************************************************************/
-package org.eclipse.tm4e.languageconfiguration.internal.utils;
+package org.eclipse.tm4e.ui.internal.utils;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.text.ITextViewer;
