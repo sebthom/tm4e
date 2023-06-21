@@ -259,6 +259,18 @@
 	</scm>
 	<profiles>
 		<profile>
+			<!-- This profile prevents local maven builds from failing if uncomitted changes are present -->
+			<id>local-dev</id>
+			<activation>
+				<property>
+					<name>!env.CI</name>
+				</property>
+			</activation>
+			<properties>
+				<jgit.dirtyWorkingTree>warning</jgit.dirtyWorkingTree>
+			</properties>
+		</profile>
+		<profile>
 			<id>lax</id>
 			<build>
 				<plugins>
