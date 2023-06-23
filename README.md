@@ -1,6 +1,7 @@
 # Eclipse tm4e - TextMate and language-configuration support for Java and in Eclipse IDE
 
-[![Build Status](https://github.com/eclipse/tm4e/actions/workflows/build.yml/badge.svg)](https://github.com/eclipse/tm4e/actions/workflows/build.yml)
+[![GitHub Actions](https://github.com/eclipse/tm4e/actions/workflows/build.yml/badge.svg)](https://github.com/eclipse/tm4e/actions/workflows/build.yml)
+[![Jenkins tests](https://img.shields.io/jenkins/tests?jobUrl=https%3A%2F%2Fci.eclipse.org%2Ftm4e%2Fjob%2FTM4E%2Fjob%2Fmain%2F&logo=jenkins&logoColor=white)](https://ci.eclipse.org/tm4e/job/TM4E/)
 [![License](https://img.shields.io/github/license/eclipse/tm4e.svg?color=blue)](LICENSE)
 
 TM4E brings Java API to tokenize textual documents according to TextMate grammars with an Eclipse IDE client that can do syntax highlighting according to this tokenization; and Eclipse IDE client for VSCode [Language Configuration](https://code.visualstudio.com/api/references/contribution-points#contributes.languages) to support matching bracket, auto close, on enter support.
