@@ -22,4 +22,9 @@ public class RGB {
 		this.green = green;
 		this.blue = blue;
 	}
+
+	@Override
+	public String toString() {
+		return "RGB(" + red + "," + green + "," + blue + ")";
+	}
 }
