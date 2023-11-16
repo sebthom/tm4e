@@ -22,11 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -205,48 +201,44 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				return;
 
 			listeners.forEach(l -> l.onInstalled(viewer, newDoc));
-			try {
-				viewer.addTextListener(TMPresentationReconciler.this.viewerListener);
 
-				// update the grammar
-				IGrammar newDocGrammar;
-				if (isForcedGrammar) {
+			viewer.addTextListener(TMPresentationReconciler.this.viewerListener);
+
+			// update the grammar
+			IGrammar newDocGrammar;
+			if (isForcedGrammar) {
+				newDocGrammar = TMPresentationReconciler.this.grammar;
+			} else {
+				newDocGrammar = findGrammar(newDoc);
+				if (newDocGrammar == null) {
 					newDocGrammar = TMPresentationReconciler.this.grammar;
 				} else {
-					newDocGrammar = findGrammar(newDoc);
-					if (newDocGrammar == null) {
-						newDocGrammar = TMPresentationReconciler.this.grammar;
-					} else {
-						TMPresentationReconciler.this.grammar = newDocGrammar;
-					}
+					TMPresentationReconciler.this.grammar = newDocGrammar;
 				}
-
-				if (newDocGrammar == null) {
-					TMPresentationReconciler.this.colorizer = null;
-					TMPresentationReconciler.this.grammar = null;
-					if (PreferenceUtils.isDebugThrowError())
-						throw new TMException("Cannot find TextMate grammar for the given document!");
-					return;
-				}
-
-				// update the theme
-				final String scopeName = newDocGrammar.getScopeName();
-				var theme = TMPresentationReconciler.this.theme;
-				if (theme == null) {
-					theme = TMPresentationReconciler.this.theme = TMUIPlugin.getThemeManager().getThemeForScope(scopeName,
-							viewer.getTextWidget().getBackground().getRGB());
-				}
-
-				TMPresentationReconciler.this.colorizer = new Colorizer(viewer, theme, listeners);
-
-				// connect a TextMate model to the new document
-				final var docModel = TMModelManager.INSTANCE.connect(newDoc);
-				docModel.setGrammar(newDocGrammar);
-				docModel.addModelTokensChangedListener(modelsTokensChangedListener);
-			} catch (final CoreException ex) {
-				Platform.getLog(Platform.getBundle(TMEclipseRegistryPlugin.PLUGIN_ID))
-						.log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, "Error while initializing TextMate model.", ex));
 			}
+
+			if (newDocGrammar == null) {
+				TMPresentationReconciler.this.colorizer = null;
+				TMPresentationReconciler.this.grammar = null;
+				if (PreferenceUtils.isDebugThrowError())
+					throw new TMException("Cannot find TextMate grammar for the given document!");
+				return;
+			}
+
+			// update the theme
+			final String scopeName = newDocGrammar.getScopeName();
+			var theme = TMPresentationReconciler.this.theme;
+			if (theme == null) {
+				theme = TMPresentationReconciler.this.theme = TMUIPlugin.getThemeManager().getThemeForScope(scopeName,
+						viewer.getTextWidget().getBackground().getRGB());
+			}
+
+			TMPresentationReconciler.this.colorizer = new Colorizer(viewer, theme, listeners);
+
+			// connect a TextMate model to the new document
+			final var docModel = TMModelManager.INSTANCE.connect(newDoc);
+			docModel.setGrammar(newDocGrammar);
+			docModel.addModelTokensChangedListener(modelsTokensChangedListener);
 		}
 
 		@Override
@@ -333,7 +325,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Finds a grammar for the given document.
 	 */
-	private @Nullable IGrammar findGrammar(final IDocument doc) throws CoreException {
+	private @Nullable IGrammar findGrammar(final IDocument doc) {
 		final IGrammar currentGrammar = isForcedGrammar ? this.grammar : null;
 		if (currentGrammar != null)
 			return currentGrammar;
