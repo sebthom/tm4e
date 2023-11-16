@@ -44,7 +44,7 @@ public final class TMParserPList implements TMParser {
 	private static final String PLIST_ARRAY = "array";
 	private static final String PLIST_DICT = "dict";
 
-	public final static TMParserPList INSTANCE = new TMParserPList();
+	public static final TMParserPList INSTANCE = new TMParserPList();
 
 	private static final class ParentRef {
 		final String sourceKind;

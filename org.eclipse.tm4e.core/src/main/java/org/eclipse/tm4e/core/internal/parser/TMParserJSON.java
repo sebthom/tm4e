@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 
 public class TMParserJSON implements TMParser {
 
-	public final static TMParserJSON INSTANCE = new TMParserJSON();
+	public static final TMParserJSON INSTANCE = new TMParserJSON();
 
 	private static final Gson LOADER = new Gson();
 
@@ -50,22 +50,22 @@ public class TMParserJSON implements TMParser {
 	 * @param propertyId String | Integer
 	 */
 	private <T extends PropertySettable<?>> void addChild(final ObjectFactory<T> handler, final TMParserPropertyPath path,
-			final PropertySettable<?> parent, final Object propertyId, final Object unmappedChild) {
+			final PropertySettable<?> parent, final Object propertyId, final Object rawChild) {
 		path.add(propertyId);
-		if (unmappedChild instanceof final Map<?, ?> map) {
-			final var mappedChild = handler.createChild(path, unmappedChild.getClass());
+		if (rawChild instanceof final Map<?, ?> map) {
+			final var transformedChild = handler.createChild(path, Map.class);
 			for (final Map.Entry<@NonNull ?, @NonNull ?> e : map.entrySet()) {
-				addChild(handler, path, mappedChild, e.getKey(), e.getValue());
+				addChild(handler, path, transformedChild, e.getKey(), e.getValue());
 			}
-			setProperty(parent, propertyId, mappedChild);
-		} else if (unmappedChild instanceof final List list) {
-			final var mappedChild = handler.createChild(path, unmappedChild.getClass());
+			setProperty(parent, propertyId, transformedChild);
+		} else if (rawChild instanceof final List list) {
+			final var transformedChild = handler.createChild(path, List.class);
 			for (int i = 0, l = list.size(); i < l; i++) {
-				addChild(handler, path, mappedChild, i, list.get(i));
+				addChild(handler, path, transformedChild, i, list.get(i));
 			}
-			setProperty(parent, propertyId, mappedChild);
+			setProperty(parent, propertyId, transformedChild);
 		} else {
-			setProperty(parent, propertyId, unmappedChild);
+			setProperty(parent, propertyId, rawChild);
 		}
 		path.removeLast();
 	}

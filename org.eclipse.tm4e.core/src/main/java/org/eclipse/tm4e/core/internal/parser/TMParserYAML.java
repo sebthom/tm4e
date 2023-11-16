@@ -23,11 +23,11 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 
 public final class TMParserYAML extends TMParserJSON {
 
-	public final static TMParserYAML INSTANCE = new TMParserYAML();
+	public static final TMParserYAML INSTANCE = new TMParserYAML();
 
 	private static final LoadSettings LOAD_SETTINGS = LoadSettings.builder()
-			.setDefaultMap(HashMap::new) //
 			.setDefaultList(ArrayList::new)
+			.setDefaultMap(HashMap::new)
 			.setDefaultSet(HashSet::new)
 			.build();
 
