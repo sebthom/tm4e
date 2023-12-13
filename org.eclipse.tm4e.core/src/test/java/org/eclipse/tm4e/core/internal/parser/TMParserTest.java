@@ -207,16 +207,14 @@ class TMParserTest {
 				if (file.getFileName().toString().endsWith("tmLanguage.json")) {
 					try (var input = Files.newBufferedReader(file)) {
 						System.out.println("Parsing [" + file + "]...");
-						try {
-							final var grammar = TMParserJSON.INSTANCE.parse(input, RawGrammarReader.OBJECT_FACTORY);
-							count.incrementAndGet();
-							assertFalse(grammar.getScopeName().isBlank());
-							assertFalse(grammar.getPatterns().isEmpty());
-							assertNotNull(grammar.getFileTypes());
-							assertNotNull(grammar.getRepository());
-						} catch (final Exception ex) {
-							throw new RuntimeException(ex);
-						}
+						final var grammar = TMParserJSON.INSTANCE.parse(input, RawGrammarReader.OBJECT_FACTORY);
+						count.incrementAndGet();
+						assertFalse(grammar.getScopeName().isBlank());
+						assertFalse(grammar.getPatterns().isEmpty());
+						assertNotNull(grammar.getFileTypes());
+						assertNotNull(grammar.getRepository());
+					} catch (final Exception ex) {
+						throw new RuntimeException(ex);
 					}
 				}
 				return FileVisitResult.CONTINUE;
