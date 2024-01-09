@@ -8,6 +8,7 @@ _LOCAL/
 !**/.settings/org.eclipse.core.resoures.prefs
 !**/.settings/org.eclipse.jdt.core.prefs
 !**/.settings/org.eclipse.pde.core.prefs
+**/.pydevproject
 
 # Eclipse GFM Viewer
 *.md.html
