@@ -194,6 +194,8 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 				} else {
 					appendText = "";
 				}
+			} else if (indentAction == IndentAction.Indent) {
+				appendText = "\t" + appendText;
 			}
 
 			String indentation = TextUtils.getIndentationAtPosition(document, offset);
