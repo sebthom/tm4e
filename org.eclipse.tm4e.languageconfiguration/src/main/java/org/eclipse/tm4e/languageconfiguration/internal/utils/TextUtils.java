@@ -62,7 +62,8 @@ public final class TextUtils {
 	}
 
 	/**
-	 * Returns the start of the string at the offset in the text. If the string is not in the text at the offset, returns -1.
+	 * Returns the start of searchFor at the offset in the searchIn.
+	 * If the searchFor is not in the searchIn at the offset, returns -1.
 	 * <p>
 	 * Example:
 	 *
@@ -70,13 +71,12 @@ public final class TextUtils {
 	 * text="apple banana", offset=8, string="banana" -> returns 6
 	 * </pre>
 	 */
-	public static int startIndexOfOffsetTouchingString(final String text, final int offset, final String string) {
-		int start = offset - string.length();
-		start = start < 0 ? 0 : start;
-		int end = offset + string.length();
-		end = end >= text.length() ? text.length() : end;
+	public static int startIndexOfOffsetTouchingString(final String searchIn, final int offset, final String searchFor) {
+		final int start = Math.max(0, offset - searchFor.length());
+		int end = offset + searchFor.length();
+		end = end >= searchIn.length() ? searchIn.length() : end;
 		try {
-			final int indexInSubtext = text.substring(start, end).indexOf(string);
+			final int indexInSubtext = searchIn.substring(start, end).indexOf(searchFor);
 			return indexInSubtext == -1 ? -1 : start + indexInSubtext;
 		} catch (final IndexOutOfBoundsException e) {
 			return -1;
@@ -97,7 +97,7 @@ public final class TextUtils {
 	}
 
 	public static String getIndentationFromWhitespace(final String whitespace, final TabPrefs tabPrefs) {
-		final var tab = "\t"; //$NON-NLS-1$
+		final var tab = "\t";
 		int indentOffset = 0;
 		boolean startsWithTab = true;
 		boolean startsWithSpaces = true;
@@ -129,7 +129,7 @@ public final class TextUtils {
 		} catch (final BadLocationException excp) {
 			// stop work
 		}
-		return ""; //$NON-NLS-1$
+		return "";
 	}
 
 	/**
@@ -160,15 +160,15 @@ public final class TextUtils {
 	 * Determines if all the characters at any offset of the specified document line are the whitespace characters.
 	 *
 	 * @param doc the document to search in
-	 * @param line zero-based document line number
+	 * @param lineIndex zero-based document line number
 	 *
 	 * @return <code>true</code> if all the characters of the specified document line are the whitespace
 	 *         characters, otherwise returns <code>false</code>
 	 */
-	public static boolean isBlankLine(final IDocument doc, final int line) {
+	public static boolean isBlankLine(final IDocument doc, final int lineIndex) {
 		try {
-			int offset = doc.getLineOffset(line);
-			final int lineEnd = offset + doc.getLineLength(line);
+			int offset = doc.getLineOffset(lineIndex);
+			final int lineEnd = offset + doc.getLineLength(lineIndex);
 			while (offset < lineEnd) {
 				if (!Character.isWhitespace(doc.getChar(offset))) {
 					return false;
