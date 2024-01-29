@@ -52,7 +52,7 @@ jobs:
       matrix:
         os: 
         - ubuntu-latest
-        - macos-latest
+        - macos-11 # macos-latest  -> more macos-11 runners than macos-12 available 
         - windows-latest
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
