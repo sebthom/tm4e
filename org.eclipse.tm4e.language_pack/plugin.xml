@@ -893,7 +893,7 @@
   </extension>
 
   <extension point="org.eclipse.tm4e.ui.snippets">
-    <snippet name="Perl 6 (Raku) Example" path="syntaxes/perl/perl6.example.pl6" scopeName="source.perl.6" />
+    <snippet name="Raku (Perl 6) Example" path="syntaxes/perl/raku.example.pl6" scopeName="source.perl.6" />
   </extension>
 
   <!-- ======================================== -->
