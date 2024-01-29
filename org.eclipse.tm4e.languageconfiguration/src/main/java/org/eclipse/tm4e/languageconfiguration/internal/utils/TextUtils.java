@@ -15,6 +15,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.tm4e.languageconfiguration.internal.utils.TextEditorPrefs.TabPrefs;
 
 public final class TextUtils {
 
@@ -25,29 +26,29 @@ public final class TextUtils {
 		return cmd.length == 0 && cmd.text != null && TextUtilities.equals(doc.getLegalLineDelimiters(), cmd.text) != -1;
 	}
 
-	public static String normalizeIndentation(final String text, final int tabSize, final boolean insertSpaces) {
+	public static String normalizeIndentation(final String text, final TabPrefs tabPrefs) {
 		int firstNonWhitespaceIndex = firstNonWhitespaceIndex(text);
 		if (firstNonWhitespaceIndex == -1) {
 			firstNonWhitespaceIndex = text.length();
 		}
-		return normalizeIndentationFromWhitespace(text.substring(0, firstNonWhitespaceIndex), tabSize, insertSpaces)
+		return normalizeIndentationFromWhitespace(text.substring(0, firstNonWhitespaceIndex), tabPrefs)
 				+ text.substring(firstNonWhitespaceIndex);
 	}
 
-	private static String normalizeIndentationFromWhitespace(final String text, final int tabSize, final boolean insertSpaces) {
+	private static String normalizeIndentationFromWhitespace(final String text, final TabPrefs tabPrefs) {
 		int spacesCnt = 0;
 		for (int i = 0; i < text.length(); i++) {
 			if (text.charAt(i) == '\t') {
-				spacesCnt += tabSize;
+				spacesCnt += tabPrefs.tabWidth;
 			} else {
 				spacesCnt++;
 			}
 		}
 
 		final var result = new StringBuilder();
-		if (!insertSpaces) {
-			final long tabsCnt = spacesCnt / tabSize;
-			spacesCnt = spacesCnt % tabSize;
+		if (!tabPrefs.useSpacesForTabs) {
+			final long tabsCnt = spacesCnt / tabPrefs.tabWidth;
+			spacesCnt = spacesCnt % tabPrefs.tabWidth;
 			for (int i = 0; i < tabsCnt; i++) {
 				result.append('\t');
 			}
@@ -83,8 +84,7 @@ public final class TextUtils {
 	}
 
 	/**
-	 * Returns first index of the string that is not whitespace. If string is empty
-	 * or contains only whitespaces, returns -1
+	 * @returns first index of the string that is not whitespace or -1 if string is empty or contains only whitespaces
 	 */
 	private static int firstNonWhitespaceIndex(final String text) {
 		for (int i = 0, len = text.length(); i < len; i++) {
@@ -96,17 +96,17 @@ public final class TextUtils {
 		return -1;
 	}
 
-	public static String getIndentationFromWhitespace(final String whitespace, final int tabSize, final boolean insertSpaces) {
+	public static String getIndentationFromWhitespace(final String whitespace, final TabPrefs tabPrefs) {
 		final var tab = "\t"; //$NON-NLS-1$
 		int indentOffset = 0;
 		boolean startsWithTab = true;
 		boolean startsWithSpaces = true;
-		final String spaces = insertSpaces
-				? " ".repeat(tabSize)
+		final String spaces = tabPrefs.useSpacesForTabs
+				? " ".repeat(tabPrefs.tabWidth)
 				: "";
 		while (startsWithTab || startsWithSpaces) {
 			startsWithTab = whitespace.startsWith(tab, indentOffset);
-			startsWithSpaces = insertSpaces && whitespace.startsWith(spaces, indentOffset);
+			startsWithSpaces = tabPrefs.useSpacesForTabs && whitespace.startsWith(spaces, indentOffset);
 			if (startsWithTab) {
 				indentOffset += tab.length();
 			}

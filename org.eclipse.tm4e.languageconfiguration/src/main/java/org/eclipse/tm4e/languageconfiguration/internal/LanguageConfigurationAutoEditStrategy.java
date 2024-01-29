@@ -11,11 +11,12 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal;
 
+import static org.eclipse.tm4e.languageconfiguration.internal.utils.TextUtils.*;
+
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
@@ -25,13 +26,12 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.languageconfiguration.internal.model.AutoClosingPairConditional;
 import org.eclipse.tm4e.languageconfiguration.internal.registry.LanguageConfigurationRegistryManager;
-import org.eclipse.tm4e.languageconfiguration.internal.utils.TextUtils;
+import org.eclipse.tm4e.languageconfiguration.internal.utils.TextEditorPrefs;
+import org.eclipse.tm4e.languageconfiguration.internal.utils.TextEditorPrefs.TabPrefs;
 import org.eclipse.tm4e.ui.internal.model.TMModelManager;
 import org.eclipse.tm4e.ui.internal.utils.ContentTypeHelper;
 import org.eclipse.tm4e.ui.internal.utils.ContentTypeInfo;
 import org.eclipse.tm4e.ui.internal.utils.UI;
-import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
@@ -58,7 +58,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		}
 		installViewer();
 
-		if (TextUtils.isEnter(document, command)) {
+		if (isEnter(document, command)) {
 			// key enter pressed
 			onEnter(document, command, UI.getActiveTextEditor());
 			return;
@@ -97,7 +97,6 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 					command.shiftsCaret = false;
 					command.text = "";
 				});
-
 	}
 
 	/**
@@ -175,6 +174,11 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		return true;
 	}
 
+	/**
+	 * @see <a href=
+	 *      "https://github.com/microsoft/vscode/blob/bf63ea1932dd253745f38a4cbe26bb9be01801b1/src/vs/editor/common/cursor/cursorTypeOperations.ts#L309">
+	 *      github.com/microsoft/vscode/src/vs/editor/common/cursor/cursorTypeOperations.ts#L309</a>
+	 */
 	private void onEnter(final IDocument document, final DocumentCommand command, final @Nullable ITextEditor editor) {
 		final var contentTypes = this.contentTypes;
 		if (contentTypes != null) {
@@ -183,50 +187,41 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 				if (!registry.shouldEnterAction(contentType)) {
 					continue;
 				}
-				// https://github.com/microsoft/vscode/blob/bf63ea1932dd253745f38a4cbe26bb9be01801b1/src/vs/editor/common/cursor/cursorTypeOperations.ts#L309
+
 				final var enterAction = registry.getEnterAction(document, command.offset, contentType);
 				if (enterAction != null) {
 					final String delim = command.text;
+					final TabPrefs tabPrefs = TextEditorPrefs.getTabPrefs(editor);
+					command.shiftsCaret = false;
 					switch (enterAction.indentAction) {
 						case None: {
 							// Nothing special
-							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText, editor);
-							final String typeText = delim + increasedIndent;
-
-							command.text = typeText;
-							command.shiftsCaret = false;
+							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText, tabPrefs);
+							command.text = delim + increasedIndent;
 							command.caretOffset = command.offset + (delim + increasedIndent).length();
 							break;
 						}
 						case Indent: {
 							// Indent once
-							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText, editor);
-							final String typeText = delim + increasedIndent;
-
-							command.text = typeText;
-							command.shiftsCaret = false;
+							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText, tabPrefs);
+							command.text = delim + increasedIndent;
 							command.caretOffset = command.offset + (delim + increasedIndent).length();
 							break;
 						}
 						case IndentOutdent: {
 							// Ultra special
-							final String normalIndent = normalizeIndentation(enterAction.indentation, editor);
-							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText, editor);
-							final String typeText = delim + increasedIndent + delim + normalIndent;
-
-							command.text = typeText;
-							command.shiftsCaret = false;
+							final String normalIndent = normalizeIndentation(enterAction.indentation, tabPrefs);
+							final String increasedIndent = normalizeIndentation(enterAction.indentation + enterAction.appendText, tabPrefs);
+							command.text = delim + increasedIndent + delim + normalIndent;
 							command.caretOffset = command.offset + (delim + increasedIndent).length();
 							break;
 						}
 						case Outdent:
-							final String indentation = TextUtils.getIndentationFromWhitespace(enterAction.indentation, getTabSize(editor),
-									isInsertSpaces(editor));
-							final String outdentedText = outdentString(normalizeIndentation(indentation + enterAction.appendText, editor),
+							final String indentation = getIndentationFromWhitespace(enterAction.indentation, tabPrefs);
+							final String outdentedText = outdentString(normalizeIndentation(indentation + enterAction.appendText, tabPrefs),
 									editor);
 
 							command.text = delim + outdentedText;
-							command.shiftsCaret = false;
 							command.caretOffset = command.offset + (delim + outdentedText).length();
 							break;
 					}
@@ -251,11 +246,12 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 	}
 
 	private String outdentString(final String str, final @Nullable ITextEditor editor) {
-		if (str.startsWith("\t")) { //$NON-NLS-1$
+		if (str.startsWith("\t")) {
 			return str.substring(1);
 		}
-		if (isInsertSpaces(editor)) {
-			final var chars = new char[getTabSize(editor)];
+		final var tabPrefs = TextEditorPrefs.getTabPrefs(editor);
+		if (tabPrefs.useSpacesForTabs) {
+			final var chars = new char[tabPrefs.tabWidth];
 			Arrays.fill(chars, ' ');
 			final var spaces = new String(chars);
 			if (str.startsWith(spaces)) {
@@ -263,30 +259,6 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 			}
 		}
 		return str;
-	}
-
-	private String normalizeIndentation(final String str, final @Nullable ITextEditor editor) {
-		final int tabSize = getTabSize(editor);
-		final boolean insertSpaces = isInsertSpaces(editor);
-		return TextUtils.normalizeIndentation(str, tabSize, insertSpaces);
-	}
-
-	private int getTabSize(final @Nullable ITextEditor editor) {
-		final String name = AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH;
-		return getPreferenceStoreFor(name, editor).getInt(name);
-	}
-
-	private boolean isInsertSpaces(final @Nullable ITextEditor editor) {
-		final String name = AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS;
-		return getPreferenceStoreFor(name, editor).getBoolean(name);
-	}
-
-	private IPreferenceStore getPreferenceStoreFor(final String name, final @Nullable ITextEditor editor) {
-		final IPreferenceStore editorPreferenceStore = editor != null ? editor.getAdapter(IPreferenceStore.class) : null;
-		if (editorPreferenceStore != null && editorPreferenceStore.contains(name)) {
-			return editorPreferenceStore;
-		}
-		return EditorsUI.getPreferenceStore();
 	}
 
 	private void installViewer() {
