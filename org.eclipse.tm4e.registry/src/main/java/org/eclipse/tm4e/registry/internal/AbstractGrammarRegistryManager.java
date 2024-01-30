@@ -134,7 +134,9 @@ public abstract class AbstractGrammarRegistryManager implements IGrammarRegistry
 			public @Nullable IGrammarSource getGrammarSource(final String scopeName) {
 				@Nullable
 				IGrammarDefinition definition = userDefinitions.getBestForScope(scopeName);
-				definition = definition == null ? pluginDefinitions.getBestForScope(scopeName) : definition;
+				if (definition == null) {
+					definition = pluginDefinitions.getBestForScope(scopeName);
+				}
 				if (definition == null)
 					return null;
 
@@ -238,12 +240,9 @@ public abstract class AbstractGrammarRegistryManager implements IGrammarRegistry
 				.concat(userDefinitions.stream(), pluginDefinitions.stream())
 				.map(definition -> {
 					final var grammarForScope = getGrammarForScope(definition.getScope());
-					if (grammarForScope != null) {
-						if (grammarForScope.getFileTypes().contains(desiredFileExtension)) {
-							return grammarForScope;
-						}
-					}
-					return null;
+					return grammarForScope != null && grammarForScope.getFileTypes().contains(desiredFileExtension)
+							? grammarForScope
+							: null;
 				})
 				.filter(Objects::nonNull)
 				.findFirst()
