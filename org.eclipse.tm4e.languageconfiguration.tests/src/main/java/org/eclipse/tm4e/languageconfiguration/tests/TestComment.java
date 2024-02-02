@@ -19,6 +19,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.tm4e.languageconfiguration.internal.ToggleLineCommentHandler;
+import org.eclipse.tm4e.ui.internal.utils.UI;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.ide.IDE;
@@ -30,7 +31,7 @@ public class TestComment {
 
 	@AfterEach
 	public void tearDown() throws Exception {
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
+		UI.getActivePage().closeAllEditors(false);
 		for (final IProject p : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			p.delete(true, null);
 		}
@@ -44,9 +45,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream("a\n\nb\n\nc".getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		String text = doc.get();
@@ -72,9 +71,7 @@ public class TestComment {
 		final var file = proj.getFile("whatever.noLineComment");
 		String text = "/* a */";
 		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(1, 5)); // [* a *]
@@ -99,8 +96,6 @@ public class TestComment {
 
 	/**
 	 * Test case for https://github.com/eclipse/wildwebdeveloper/issues/909
-	 *
-	 * @throws Exception
 	 */
 	@Test
 	public void testToggleLineCommentUseBlockCommentAndWindowsEOL() throws Exception {
@@ -110,9 +105,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream("a\r\n\r\nb\r\n\r\nc".getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(0, 0)); // No matter the selection length
@@ -126,7 +119,7 @@ public class TestComment {
 		assertEquals("a\r\n\r\nb\r\n\r\nc", doc.get());
 		checktTextSelection(editor.getSelectionProvider().getSelection(), 0, 0);
 	}
-	
+
 	@Test
 	public void testToggleLineComment() throws Exception {
 		final var now = System.currentTimeMillis();
@@ -138,9 +131,7 @@ public class TestComment {
 		String padding = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n";
 		String input = padding + "a\nb\nc\n" + padding;
 		file.create(new ByteArrayInputStream(input.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		String text = doc.get();
@@ -165,9 +156,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noBlockComment");
 		file.create(new ByteArrayInputStream("a\n\nb\n\nc".getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		String text = doc.get();
@@ -193,9 +182,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(0, text.length()));
@@ -213,9 +200,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(0, text.length()));
@@ -233,9 +218,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(1, text.length() - 2));
@@ -253,9 +236,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(5, 7)); // [*/ b /*]
@@ -273,9 +254,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(6, 5)); // [/ b /]
@@ -293,9 +272,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(2, 1)); // [b]
@@ -313,9 +290,7 @@ public class TestComment {
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
 		file.create(new ByteArrayInputStream(text.getBytes()), true, null);
-		final var editor = (ITextEditor) IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
 		editor.getSelectionProvider().setSelection(new TextSelection(4, 1)); // [b]

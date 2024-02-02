@@ -21,6 +21,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.tm4e.ui.TMUIPlugin;
+import org.eclipse.tm4e.ui.internal.utils.UI;
 import org.eclipse.tm4e.ui.tests.support.TestUtils;
 import org.eclipse.tm4e.ui.themes.ColorManager;
 import org.eclipse.tm4e.ui.themes.ITheme;
@@ -29,7 +30,6 @@ import org.eclipse.tm4e.ui.themes.ThemeIdConstants;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -61,11 +61,7 @@ class TMEditorColorTest implements ThemeIdConstants {
 	void systemDefaultEditorColorTest() throws IOException, PartInitException {
 		final var f = TestUtils.createTempFile(".ts");
 
-		editor = IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
-				f.toURI(),
-				genericEditorDescr.getId(),
-				true);
+		editor = IDE.openEditor(UI.getActivePage(), f.toURI(), genericEditorDescr.getId(), true);
 
 		final StyledText styledText = (StyledText) editor.getAdapter(Control.class);
 
@@ -80,7 +76,6 @@ class TMEditorColorTest implements ThemeIdConstants {
 		final Color lineHighlight = ColorManager.getInstance().getPreferenceEditorColor(EDITOR_CURRENTLINE_HIGHLIGHT);
 		assertNotNull(theme.getEditorCurrentLineHighlight(), "Highlight shouldn't be a null");
 		assertNotEquals(lineHighlight, theme.getEditorCurrentLineHighlight(), "Default Line highlight should be from TM theme");
-
 	}
 
 	@Test
@@ -96,11 +91,7 @@ class TMEditorColorTest implements ThemeIdConstants {
 
 		final var f = TestUtils.createTempFile(".ts");
 
-		editor = IDE.openEditor(
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
-				f.toURI(),
-				genericEditorDescr.getId(),
-				true);
+		editor = IDE.openEditor(UI.getActivePage(), f.toURI(), genericEditorDescr.getId(), true);
 
 		final StyledText styledText = (StyledText) editor.getAdapter(Control.class);
 

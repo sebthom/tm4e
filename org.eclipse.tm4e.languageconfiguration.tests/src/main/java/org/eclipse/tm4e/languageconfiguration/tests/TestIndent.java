@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.tm4e.ui.internal.utils.UI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.junit.jupiter.api.AfterEach;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class TestIndent {
 	@AfterEach
 	public void tearDown() throws Exception {
-		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
+		UI.getActivePage().closeAllEditors(false);
 		for (final IProject p : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			p.delete(true, null);
 		}
@@ -39,8 +39,7 @@ public class TestIndent {
 		p.open(null);
 		final IFile file = p.getFile("whatever.txt");
 		file.create(new ByteArrayInputStream(new byte[0]), true, null);
-		final ITextEditor editor = (ITextEditor) IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
-				"org.eclipse.ui.genericeditor.GenericEditor");
+		final ITextEditor editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		final StyledText text = (StyledText) editor.getAdapter(Control.class);
 		// Tab only
 		text.setText("\t");
