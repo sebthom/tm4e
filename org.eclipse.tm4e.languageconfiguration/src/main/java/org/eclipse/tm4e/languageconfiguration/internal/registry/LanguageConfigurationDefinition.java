@@ -11,7 +11,6 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal.registry;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
@@ -23,6 +22,7 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.languageconfiguration.LanguageConfigurationPlugin;
 import org.eclipse.tm4e.languageconfiguration.internal.model.LanguageConfiguration;
+import org.eclipse.tm4e.languageconfiguration.internal.preferences.PreferenceHelper;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPairSupport;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CommentSupport;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.IndentRulesSupport;
@@ -62,10 +62,13 @@ public final class LanguageConfigurationDefinition extends TMResource implements
 	}
 
 	/**
-	 * Constructor for user preferences (loaded from Json with Gson).
+	 * Constructor for user preferences loaded via {@link PreferenceHelper}.
 	 */
-	public LanguageConfigurationDefinition(final IContentType contentType, final String path, final @Nullable String pluginId,
-			final boolean onEnterEnabled, final boolean bracketAutoClosingEnabled, final boolean matchingPairsEnabled) {
+	public LanguageConfigurationDefinition(final IContentType contentType,
+			final String path, final @Nullable String pluginId,
+			final boolean onEnterEnabled,
+			final boolean bracketAutoClosingEnabled,
+			final boolean matchingPairsEnabled) {
 		super(path, pluginId);
 		this.contentType = contentType;
 		this.onEnterEnabled = onEnterEnabled;
@@ -148,7 +151,7 @@ public final class LanguageConfigurationDefinition extends TMResource implements
 	public @Nullable LanguageConfiguration getLanguageConfiguration() {
 		try (var in = getInputStream()) {
 			return LanguageConfiguration.load(new InputStreamReader(in, Charset.defaultCharset()));
-		} catch (final IOException ex) {
+		} catch (final Exception ex) {
 			LanguageConfigurationPlugin.logError(ex);
 			return null;
 		}

@@ -47,30 +47,37 @@ public final class PreferenceHelper {
 									null);
 							return null;
 						}
-						return new LanguageConfigurationDefinition(contentType, // $NON-NLS-1$
-								object.get("path").getAsString(), //$NON-NLS-1$
+						return new LanguageConfigurationDefinition(contentType,
+								object.get("path").getAsString(),
 								pluginId == null ? null : pluginId.getAsString(),
-								object.get("onEnterEnabled").getAsBoolean(), //$NON-NLS-1$
-								object.get("bracketAutoClosingEnabled").getAsBoolean(), //$NON-NLS-1$
-								object.get("matchingPairsEnabled").getAsBoolean()); //$NON-NLS-1$
+								getAsBoolean(object, "onEnterEnabled", true),
+								getAsBoolean(object, "bracketAutoClosingEnabled", true),
+								getAsBoolean(object, "matchingPairsEnabled", true));
 					})
 			.registerTypeAdapter(LanguageConfigurationDefinition.class,
 					(JsonSerializer<LanguageConfigurationDefinition>) (definition, typeOfT, context) -> {
 						final JsonObject object = new JsonObject();
-						object.addProperty("path", definition.getPath()); //$NON-NLS-1$
-						object.addProperty("pluginId", definition.getPluginId()); //$NON-NLS-1$
-						object.addProperty("contentTypeId", definition.getContentType().getId()); //$NON-NLS-1$
-						object.addProperty("onEnterEnabled", definition.isOnEnterEnabled()); //$NON-NLS-1$
-						object.addProperty("bracketAutoClosingEnabled", definition.isBracketAutoClosingEnabled()); //$NON-NLS-1$
-						object.addProperty("matchingPairsEnabled", definition.isMatchingPairsEnabled()); //$NON-NLS-1$
+						object.addProperty("path", definition.getPath());
+						object.addProperty("pluginId", definition.getPluginId());
+						object.addProperty("contentTypeId", definition.getContentType().getId());
+						object.addProperty("onEnterEnabled", definition.isOnEnterEnabled());
+						object.addProperty("bracketAutoClosingEnabled", definition.isBracketAutoClosingEnabled());
+						object.addProperty("matchingPairsEnabled", definition.isMatchingPairsEnabled());
 						return object;
 					})
 			.create();
 
+	private static boolean getAsBoolean(final JsonObject obj, final String property, final boolean defaultValue) {
+		var elem = obj.get(property);
+		if (elem == null)
+			return defaultValue;
+		return elem.getAsBoolean();
+	}
+
 	public static ILanguageConfigurationDefinition[] loadLanguageConfigurationDefinitions(final String json) {
 		return Arrays.stream(DEFAULT_GSON.fromJson(json, LanguageConfigurationDefinition[].class))
-				.filter(Objects::nonNull).toArray(
-						ILanguageConfigurationDefinition[]::new);
+				.filter(Objects::nonNull)
+				.toArray(ILanguageConfigurationDefinition[]::new);
 	}
 
 	public static String toJson(final Collection<ILanguageConfigurationDefinition> definitions) {

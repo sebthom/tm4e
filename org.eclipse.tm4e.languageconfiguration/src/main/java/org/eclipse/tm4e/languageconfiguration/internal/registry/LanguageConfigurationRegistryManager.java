@@ -36,8 +36,8 @@ import org.osgi.service.prefs.BackingStoreException;
 
 public final class LanguageConfigurationRegistryManager extends AbstractLanguageConfigurationRegistryManager {
 
-	private static final String EXTENSION_LANGUAGE_CONFIGURATIONS = "languageConfigurations"; //$NON-NLS-1$
-	private static final String LANGUAGE_CONFIGURATION_ELT = "languageConfiguration"; //$NON-NLS-1$
+	private static final String EXTENSION_LANGUAGE_CONFIGURATIONS = "languageConfigurations";
+	private static final String LANGUAGE_CONFIGURATION_ELT = "languageConfiguration";
 
 	/** see https://en.wikipedia.org/wiki/Double-checked_locking#Usage_in_Java */
 	private static final class InstanceHolder {
@@ -89,29 +89,17 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 
 	public boolean shouldSurroundingPairs(final IContentType contentType) {
 		final var definition = getDefinition(contentType);
-		if (definition == null || !definition.isMatchingPairsEnabled()) {
-			return false;
-		}
-		final var characterPairSupport = this._getCharacterPairSupport(contentType);
-		return characterPairSupport != null;
+		return definition != null && definition.isMatchingPairsEnabled();
 	}
 
 	public boolean shouldEnterAction(final IContentType contentType) {
 		final var definition = getDefinition(contentType);
-		if (definition == null || !definition.isOnEnterEnabled()) {
-			return false;
-		}
-		final var onEnterSupport = this._getOnEnterSupport(contentType);
-		return onEnterSupport != null;
+		return definition != null && definition.isOnEnterEnabled();
 	}
 
 	public boolean shouldComment(final IContentType contentType) {
 		final var definition = getDefinition(contentType);
-		if (definition == null || !definition.isOnEnterEnabled()) {
-			return false;
-		}
-		final var commentSupport = this.getCommentSupport(contentType);
-		return commentSupport != null;
+		return definition != null && definition.isOnEnterEnabled();
 	}
 
 	public List<AutoClosingPairConditional> getEnabledAutoClosingPairs(final IContentType contentType) {

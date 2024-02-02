@@ -11,13 +11,13 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal.widgets;
 
+import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.lazyNonNull;
 import static org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages.*;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
@@ -38,7 +38,6 @@ import org.eclipse.tm4e.languageconfiguration.internal.model.CommentRule;
 import org.eclipse.tm4e.languageconfiguration.internal.model.FoldingRules;
 import org.eclipse.tm4e.languageconfiguration.internal.model.LanguageConfiguration;
 
-@NonNullByDefault({})
 public class LanguageConfigurationInfoWidget extends Composite {
 
 	private final String[] tabs = {
@@ -54,35 +53,35 @@ public class LanguageConfigurationInfoWidget extends Composite {
 		LanguageConfigurationInfoWidget_colorizedBracketPairs_title,
 	};
 
-	private Text lineCommentText;
-	private Text blockCommentStartText;
-	private Text blockCommentEndText;
+	private Text lineCommentText = lazyNonNull();
+	private Text blockCommentStartText = lazyNonNull();
+	private Text blockCommentEndText = lazyNonNull();
 
-	private CharacterPairsTableWidget bracketsTable;
+	private CharacterPairsTableWidget bracketsTable = lazyNonNull();
 
-	protected TabItem autoClosingPairsTab;
-	private AutoClosingPairConditionalTableWidget autoClosingPairsTable;
+	protected TabItem autoClosingPairsTab = lazyNonNull();
+	private AutoClosingPairConditionalTableWidget autoClosingPairsTable = lazyNonNull();
 
-	private Text autoCloseBeforeText;
+	private Text autoCloseBeforeText = lazyNonNull();
 
-	protected TabItem surroundingPairsTab;
-	private CharacterPairsTableWidget surroundingPairsTable;
+	protected TabItem surroundingPairsTab = lazyNonNull();
+	private CharacterPairsTableWidget surroundingPairsTable = lazyNonNull();
 
-	private Text foldingOffsideText;
-	private Text foldingMarkersStartText;
-	private Text foldingMarkersEndText;
+	private Text foldingOffsideText = lazyNonNull();
+	private Text foldingMarkersStartText = lazyNonNull();
+	private Text foldingMarkersEndText = lazyNonNull();
 
-	private Text wordPatternText;
+	private Text wordPatternText = lazyNonNull();
 
-	protected TabItem onEnterRulesTab;
-	private OnEnterRuleTableWidget onEnterRuleTable;
+	protected TabItem onEnterRulesTab = lazyNonNull();
+	private OnEnterRuleTableWidget onEnterRuleTable = lazyNonNull();
 
-	private Text indentationDecreaseIndentPattern;
-	private Text indentationIncreaseIndentPattern;
-	private Text indentationIndentNextLinePattern;
-	private Text indentationUnIndentedLinePattern;
+	private Text indentationDecreaseIndentPattern = lazyNonNull();
+	private Text indentationIncreaseIndentPattern = lazyNonNull();
+	private Text indentationIndentNextLinePattern = lazyNonNull();
+	private Text indentationUnIndentedLinePattern = lazyNonNull();
 
-	private CharacterPairsTableWidget colorizedBracketPairsTable;
+	private CharacterPairsTableWidget colorizedBracketPairsTable = lazyNonNull();
 
 	public LanguageConfigurationInfoWidget(final Composite parent, final int style) {
 		super(parent, style);
@@ -155,7 +154,7 @@ public class LanguageConfigurationInfoWidget extends Composite {
 		tableViewer.setSelection(new StructuredSelection(tabs[0]));
 	}
 
-	public void refresh(@Nullable final LanguageConfiguration configuration) {
+	public void refresh(final @Nullable LanguageConfiguration configuration) {
 		lineCommentText.setText("");
 		blockCommentStartText.setText("");
 		blockCommentEndText.setText("");
@@ -261,7 +260,7 @@ public class LanguageConfigurationInfoWidget extends Composite {
 		onEnterRuleTable = new OnEnterRuleTableWidget(parent);
 	}
 
-	private void createIndentationRulesInfo(final Composite parent) {
+	protected void createIndentationRulesInfo(final Composite parent) {
 		indentationDecreaseIndentPattern = createText(parent, LanguageConfigurationInfoWidget_indentationRules_decreaseIndentPattern);
 		indentationIncreaseIndentPattern = createText(parent, LanguageConfigurationInfoWidget_indentationRules_increaseIndentPattern);
 		indentationIndentNextLinePattern = createText(parent, LanguageConfigurationInfoWidget_indentationRules_indentNextLinePattern);

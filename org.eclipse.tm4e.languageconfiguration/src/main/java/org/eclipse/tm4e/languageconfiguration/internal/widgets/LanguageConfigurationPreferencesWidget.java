@@ -12,9 +12,9 @@
 package org.eclipse.tm4e.languageconfiguration.internal.widgets;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.lazyNonNull;
 import static org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages.*;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -23,23 +23,22 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.tm4e.languageconfiguration.internal.registry.ILanguageConfigurationDefinition;
 import org.eclipse.tm4e.languageconfiguration.internal.registry.ILanguageConfigurationRegistryManager;
 
-@NonNullByDefault({})
 public final class LanguageConfigurationPreferencesWidget extends LanguageConfigurationInfoWidget {
 
-	private Button toggleOnEnterButton;
-	private Button toggleBracketAutoClosingButton;
-	private Button toggleMatchingPairsButton;
+	private Button toggleOnEnterButton = lazyNonNull();
+	private Button toggleBracketAutoClosingButton = lazyNonNull();
+	private Button toggleMatchingPairsButton = lazyNonNull();
 
-	private ILanguageConfigurationDefinition definition;
-	private ILanguageConfigurationRegistryManager manager;
+	private ILanguageConfigurationDefinition definition = lazyNonNull();
+	private ILanguageConfigurationRegistryManager manager = lazyNonNull();
 
 	public LanguageConfigurationPreferencesWidget(final Composite parent, final int style) {
 		super(parent, style);
 	}
 
-	public void refresh(@Nullable final ILanguageConfigurationDefinition definition,
-			final ILanguageConfigurationRegistryManager manager) {
-		super.refresh(definition == null ? null : definition.getLanguageConfiguration());
+	public void refresh(final @Nullable ILanguageConfigurationDefinition definition, final ILanguageConfigurationRegistryManager manager) {
+		final var langcfg = definition == null ? null : definition.getLanguageConfiguration();
+		super.refresh(langcfg);
 		if (definition == null) {
 			toggleOnEnterButton.setEnabled(false);
 			toggleOnEnterButton.setSelection(false);
@@ -50,11 +49,11 @@ public final class LanguageConfigurationPreferencesWidget extends LanguageConfig
 			return;
 		}
 		toggleOnEnterButton.setSelection(definition.isOnEnterEnabled());
-		toggleOnEnterButton.setEnabled(true);
+		toggleOnEnterButton.setEnabled(langcfg != null && !langcfg.getOnEnterRules().isEmpty());
 		toggleBracketAutoClosingButton.setSelection(definition.isBracketAutoClosingEnabled());
-		toggleBracketAutoClosingButton.setEnabled(true);
+		toggleBracketAutoClosingButton.setEnabled(langcfg != null && !langcfg.getAutoClosingPairs().isEmpty());
 		toggleMatchingPairsButton.setSelection(definition.isMatchingPairsEnabled());
-		toggleMatchingPairsButton.setEnabled(true);
+		toggleMatchingPairsButton.setEnabled(langcfg != null && !langcfg.getSurroundingPairs().isEmpty());
 		this.definition = definition;
 		this.manager = manager;
 	}

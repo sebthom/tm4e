@@ -72,7 +72,7 @@ public class LanguageConfiguration {
 	public static @Nullable LanguageConfiguration load(final @NonNull Reader reader) {
 		// GSON does not support trailing commas so we have to manually remove them -> maybe better switch to jackson json parser?
 		final var jsonString = removeTrailingCommas(new BufferedReader(reader).lines().collect(Collectors.joining("\n")));
-		final LanguageConfiguration langCfg = new GsonBuilder()
+		final var gsonBuilder = new GsonBuilder()
 				.registerTypeAdapter(String.class, (JsonDeserializer<String>) (json, typeOfT, context) -> {
 					if (json.isJsonObject()) {
 						/* for example:
@@ -264,39 +264,44 @@ public class LanguageConfiguration {
 							getAsPattern(jsonObj.get("indentNextLinePattern")),
 							getAsPattern(jsonObj.get("unIndentedLinePattern")));
 				})
-				.create()
-				.fromJson(jsonString, LanguageConfiguration.class);
+				.create();
 
-		if (castNullable(langCfg.autoClosingPairs) == null) {
-			langCfg.autoClosingPairs = Collections.emptyList();
-		} else {
-			langCfg.autoClosingPairs.removeIf(Objects::isNull);
-		}
+		try {
+			final var langCfg = gsonBuilder.fromJson(jsonString, LanguageConfiguration.class);
+			if (castNullable(langCfg.autoClosingPairs) == null) {
+				langCfg.autoClosingPairs = Collections.emptyList();
+			} else {
+				langCfg.autoClosingPairs.removeIf(Objects::isNull);
+			}
 
-		if (castNullable(langCfg.brackets) == null) {
-			langCfg.brackets = Collections.emptyList();
-		} else {
-			langCfg.brackets.removeIf(Objects::isNull);
-		}
+			if (castNullable(langCfg.brackets) == null) {
+				langCfg.brackets = Collections.emptyList();
+			} else {
+				langCfg.brackets.removeIf(Objects::isNull);
+			}
 
-		if (castNullable(langCfg.onEnterRules) == null) {
-			langCfg.onEnterRules = Collections.emptyList();
-		} else {
-			langCfg.onEnterRules.removeIf(Objects::isNull);
-		}
+			if (castNullable(langCfg.onEnterRules) == null) {
+				langCfg.onEnterRules = Collections.emptyList();
+			} else {
+				langCfg.onEnterRules.removeIf(Objects::isNull);
+			}
 
-		if (castNullable(langCfg.surroundingPairs) == null) {
-			langCfg.surroundingPairs = Collections.emptyList();
-		} else {
-			langCfg.surroundingPairs.removeIf(Objects::isNull);
-		}
+			if (castNullable(langCfg.surroundingPairs) == null) {
+				langCfg.surroundingPairs = Collections.emptyList();
+			} else {
+				langCfg.surroundingPairs.removeIf(Objects::isNull);
+			}
 
-		if (castNullable(langCfg.colorizedBracketPairs) == null) {
-			langCfg.colorizedBracketPairs = Collections.emptyList();
-		} else {
-			langCfg.colorizedBracketPairs.removeIf(Objects::isNull);
+			if (castNullable(langCfg.colorizedBracketPairs) == null) {
+				langCfg.colorizedBracketPairs = Collections.emptyList();
+			} else {
+				langCfg.colorizedBracketPairs.removeIf(Objects::isNull);
+			}
+			return langCfg;
+		} catch (final Exception ex) {
+			LanguageConfigurationPlugin.logError("Failed to load language configuration: " + ex, ex);
+			return null;
 		}
-		return langCfg;
 	}
 
 	private static @Nullable RegExPattern getAsPattern(final @Nullable JsonElement element) {
