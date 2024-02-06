@@ -116,7 +116,7 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 		data.heightHint = convertHeightInCharsToPixels(10);
 		tableComposite.setLayoutData(data);
 
-		definitionsTable = new TableWidget<>(tableComposite) {
+		definitionsTable = new TableWidget<>(tableComposite, false) {
 
 			@Override
 			protected void createColumns() {

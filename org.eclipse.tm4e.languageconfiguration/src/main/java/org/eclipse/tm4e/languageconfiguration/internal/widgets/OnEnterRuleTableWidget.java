@@ -23,7 +23,7 @@ import org.eclipse.tm4e.ui.internal.widgets.TableWidget;
 final class OnEnterRuleTableWidget extends TableWidget<OnEnterRule> {
 
 	OnEnterRuleTableWidget(final Composite parent) {
-		super(parent);
+		super(parent, false);
 	}
 
 	@Override

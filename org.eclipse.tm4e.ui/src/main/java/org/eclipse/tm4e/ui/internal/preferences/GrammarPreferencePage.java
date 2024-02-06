@@ -172,7 +172,7 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 		data.heightHint = convertHeightInCharsToPixels(10);
 		tableComposite.setLayoutData(data);
 
-		grammarsTable = new TableWidget<>(tableComposite) {
+		grammarsTable = new TableWidget<>(tableComposite, false) {
 
 			@Override
 			protected void createColumns() {

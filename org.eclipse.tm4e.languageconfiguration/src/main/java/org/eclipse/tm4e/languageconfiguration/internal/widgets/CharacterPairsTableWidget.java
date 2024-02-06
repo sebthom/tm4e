@@ -22,7 +22,7 @@ import org.eclipse.tm4e.ui.internal.widgets.TableWidget;
 class CharacterPairsTableWidget extends TableWidget<CharacterPair> {
 
 	CharacterPairsTableWidget(final Composite parent) {
-		super(parent);
+		super(parent, false);
 	}
 
 	@Override

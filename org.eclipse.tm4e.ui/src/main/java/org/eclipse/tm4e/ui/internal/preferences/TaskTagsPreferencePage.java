@@ -191,7 +191,7 @@ public final class TaskTagsPreferencePage extends PreferencePage implements IWor
 		layout.marginWidth = 0;
 		parent.setLayout(layout);
 
-		markerConfigsTable = new TableWidget<>(parent) {
+		markerConfigsTable = new TableWidget<>(parent, false) {
 
 			@Override
 			protected void createColumns() {

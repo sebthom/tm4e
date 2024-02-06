@@ -13,6 +13,7 @@
 package org.eclipse.tm4e.ui.internal.widgets;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,7 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.BidiUtils;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -65,8 +67,8 @@ public abstract class TableWidget<T> extends TableViewer {
 	private final Set<TableColumn> autoResizeColumns = new HashSet<>();
 	private final ColumnViewerComparator viewerComparator = new ColumnViewerComparator();
 
-	protected TableWidget(Composite parent) {
-		this(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SINGLE);
+	protected TableWidget(Composite parent, boolean allowMultiSelection) {
+		this(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | (allowMultiSelection ? SWT.MULTI : SWT.SINGLE));
 	}
 
 	protected TableWidget(Composite parent, int style) {
@@ -150,13 +152,28 @@ public abstract class TableWidget<T> extends TableViewer {
 
 	@SuppressWarnings("unchecked")
 	public @Nullable T getFirstSelectedElement() {
-		if (getSelection() instanceof final IStructuredSelection selection)
+		if (super.getSelection() instanceof final IStructuredSelection selection)
 			return (T) selection.getFirstElement();
 		return null;
 	}
 
+	public List<T> getTypedSelection() {
+		if (super.getSelection() instanceof final IStructuredSelection selection)
+			return selection.toList();
+		return Collections.emptyList();
+	}
+
 	public void setSelection(@SuppressWarnings("unchecked") T... selection) {
 		setSelection(new StructuredSelection(selection));
+	}
+
+	/**
+	 * @deprecated use {@link #getTypedSelection()}
+	 */
+	@Deprecated
+	@Override
+	public ISelection getSelection() {
+		return super.getSelection();
 	}
 
 	public void selectFirstRow() {

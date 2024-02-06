@@ -25,7 +25,6 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -144,7 +143,7 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 		tableComposite.setLayoutData(data);
 		tableComposite.setLayout(new FillLayout());
 
-		themesTable = new TableWidget<>(tableComposite) {
+		themesTable = new TableWidget<>(tableComposite, false) {
 			@Override
 			protected void createColumns() {
 				createAutoResizeColumn(TMUIMessages.ThemePreferencePage_column_name);
@@ -321,13 +320,12 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 	}
 
 	private void preview() {
-		var selection = (IStructuredSelection) themesTable.getSelection();
-		if (selection.isEmpty()) {
+		final @Nullable ITheme theme = themesTable.getFirstSelectedElement();
+		if(theme == null) {
 			return;
 		}
-		final ITheme theme = (ITheme) selection.getFirstElement();
 
-		selection = (IStructuredSelection) grammarsCombo.getSelection();
+		var selection = grammarsCombo.getStructuredSelection();
 		if (selection.isEmpty()) {
 			return;
 		}
