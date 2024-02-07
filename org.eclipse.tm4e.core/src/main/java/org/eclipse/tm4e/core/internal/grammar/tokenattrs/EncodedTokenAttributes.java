@@ -57,6 +57,11 @@ public final class EncodedTokenAttributes {
 		return (metadata & EncodedTokenDataConsts.BALANCED_BRACKETS_MASK) != 0;
 	}
 
+	/**
+	 * Return value can be tested like: <code>if(getFontStyle(...) & FontStyle.Italic) { ... }</code>
+	 *
+	 * @return {@link FontStyle}
+	 */
 	public static int getFontStyle(final int metadata) {
 		return (metadata & EncodedTokenDataConsts.FONT_STYLE_MASK) >>> EncodedTokenDataConsts.FONT_STYLE_OFFSET;
 	}
