@@ -109,7 +109,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return null;
 	}
 
-	private final ModelTokensChangedEvent.Listener modelsTokensChangedListener = (ModelTokensChangedEvent event) -> {
+	private final ModelTokensChangedEvent.Listener modelsTokensChangedListener = (final ModelTokensChangedEvent event) -> {
 		final var colorizer = TMPresentationReconciler.this.colorizer;
 		if (colorizer != null) {
 			final Control control = colorizer.getTextViewer().getTextWidget();
@@ -123,30 +123,27 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Listener to recolorize editors when E4 Theme from "General > Appearance" preferences changed or TextMate theme changed.
 	 */
-	private final IPreferenceChangeListener themeChangeListener = new IPreferenceChangeListener() {
-		@Override
-		public void preferenceChange(final @Nullable PreferenceChangeEvent event) {
-			if (event == null)
-				return;
+	private final IPreferenceChangeListener themeChangeListener = (final @Nullable PreferenceChangeEvent event) -> {
+		if (event == null)
+			return;
 
-			switch (event.getKey()) {
-				case PreferenceConstants.E4_THEME_ID, //
-						PreferenceConstants.THEME_ASSOCIATIONS, //
-						PreferenceConstants.DEFAULT_DARK_THEME, //
-						PreferenceConstants.DEFAULT_LIGHT_THEME:
-					final IDocument doc = getViewerDocument();
-					if (doc == null)
-						return;
+		switch (event.getKey()) {
+			case PreferenceConstants.E4_THEME_ID, //
+					PreferenceConstants.THEME_ASSOCIATIONS, //
+					PreferenceConstants.DEFAULT_DARK_THEME, //
+					PreferenceConstants.DEFAULT_LIGHT_THEME:
+				final IDocument doc = getViewerDocument();
+				if (doc == null)
+					return;
 
-					final var grammar = TMPresentationReconciler.this.grammar;
-					if (grammar == null)
-						return;
+				final var grammar = this.grammar;
+				if (grammar == null)
+					return;
 
-					// select the best TextMate theme from the current Eclipse UI theme
-					final ITheme newTheme = TMUIPlugin.getThemeManager().getThemeForScope(grammar.getScopeName());
-					setTheme(newTheme);
-					break;
-			}
+				// select the best TextMate theme from the current Eclipse UI theme
+				final ITheme newTheme = TMUIPlugin.getThemeManager().getThemeForScope(grammar.getScopeName());
+				setTheme(newTheme);
+				break;
 		}
 	};
 
@@ -178,7 +175,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				viewer.removeTextListener(TMPresentationReconciler.this.viewerListener);
 			}
 			TMModelManager.INSTANCE.disconnect(oldDoc);
-			listeners.forEach(l -> l.onUninstalled());
+			listeners.forEach(ITMPresentationReconcilerListener::onUninstalled);
 		}
 
 		@Override
@@ -394,7 +391,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	@Override
-	public void install(@NonNullByDefault({}) ITextViewer viewer) {
+	public void install(@NonNullByDefault({}) final ITextViewer viewer) {
 		this.viewer = viewer;
 		viewer.addTextInputListener(viewerListener);
 

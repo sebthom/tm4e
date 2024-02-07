@@ -32,7 +32,7 @@ public final class EnterActionHelper {
 
 	public static @Nullable CompleteEnterAction getEnterAction(
 			// TODO autoIndent: EditorAutoIndentStrategy,
-			final IDocument doc, final int offset, OnEnterSupport onEnterSupport) {
+			final IDocument doc, final int offset, final OnEnterSupport onEnterSupport) {
 		// let scopedLineTokens = this.getScopedLineTokens(model, range.startLineNumber, range.startColumn);
 
 		try {

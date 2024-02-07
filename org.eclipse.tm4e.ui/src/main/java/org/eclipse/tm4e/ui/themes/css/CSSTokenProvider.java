@@ -34,14 +34,14 @@ import org.eclipse.tm4e.ui.themes.ITokenProvider;
 
 public class CSSTokenProvider implements ITokenProvider {
 
-	private static class NoopCSSParser extends CSSParser {
+	private static final class NoopCSSParser extends CSSParser {
 		@Override
 		public List<IStyle> getStyles() {
 			return Collections.emptyList();
 		}
 
 		@Override
-		public @Nullable IStyle getBestStyle(String... names) {
+		public @Nullable IStyle getBestStyle(final String... names) {
 			return null;
 		}
 	}
@@ -83,7 +83,7 @@ public class CSSTokenProvider implements ITokenProvider {
 	}
 
 	@Override
-	public IToken getToken(@Nullable final String type) {
+	public IToken getToken(final @Nullable String type) {
 		if (type == null || type.isEmpty())
 			return DEFAULT_TOKEN;
 
@@ -98,8 +98,7 @@ public class CSSTokenProvider implements ITokenProvider {
 		return token == null ? DEFAULT_TOKEN : token;
 	}
 
-	@Nullable
-	private Color getColor(final boolean isForeground, final String... styles) {
+	private @Nullable Color getColor(final boolean isForeground, final String... styles) {
 		final var style = parser.getBestStyle(styles);
 		if (style == null)
 			return null;
@@ -111,33 +110,30 @@ public class CSSTokenProvider implements ITokenProvider {
 		return ColorManager.getInstance().getColor(rgb);
 	}
 
-	@Nullable
 	@Override
-	public Color getEditorForeground() {
+	public @Nullable Color getEditorForeground() {
 		return getColor(true, "editor");
 	}
 
-	@Nullable
 	@Override
-	public Color getEditorBackground() {
+	public @Nullable Color getEditorBackground() {
 		return getColor(false, "editor");
 	}
 
-	@Nullable
 	@Override
-	public Color getEditorSelectionForeground() {
+	public @Nullable Color getEditorSelectionForeground() {
 		return getColor(true, "editor", "selection");
 	}
 
-	@Nullable
+
 	@Override
-	public Color getEditorSelectionBackground() {
+	public @Nullable Color getEditorSelectionBackground() {
 		return getColor(false, "editor", "selection");
 	}
 
-	@Nullable
+
 	@Override
-	public Color getEditorCurrentLineHighlight() {
+	public @Nullable Color getEditorCurrentLineHighlight() {
 		return getColor(false, "editor", "lineHighlight");
 	}
 }

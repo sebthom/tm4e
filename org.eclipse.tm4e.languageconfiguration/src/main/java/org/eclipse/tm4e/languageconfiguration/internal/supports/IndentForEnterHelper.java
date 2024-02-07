@@ -40,7 +40,7 @@ public final class IndentForEnterHelper {
 	}
 
 	public interface IIndentConverter {
-		public static IIndentConverter of(final CursorConfiguration cursorCfg) {
+		static IIndentConverter of(final CursorConfiguration cursorCfg) {
 			return new IIndentConverter() {
 				@Override
 				public String shiftIndent(final String indentation) {
@@ -73,7 +73,7 @@ public final class IndentForEnterHelper {
 	 * <li>0: every line above are invalid
 	 * <li>else: nearest preceding line of the same language
 	 */
-	private static int getPrecedingValidLine(final IVirtualModel model, int lineIndex, final IndentRulesSupport indentRulesSupport)
+	private static int getPrecedingValidLine(final IVirtualModel model, final int lineIndex, final IndentRulesSupport indentRulesSupport)
 			throws BadLocationException {
 		//const languageId = model.tokenization.getLanguageIdAtPosition(lineNumber, 0);
 		if (lineIndex > 0) {

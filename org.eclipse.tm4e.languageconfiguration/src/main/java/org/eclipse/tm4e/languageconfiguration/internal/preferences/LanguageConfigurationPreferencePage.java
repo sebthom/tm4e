@@ -127,7 +127,7 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 			}
 
 			@Override
-			protected @Nullable String getColumnText(ILanguageConfigurationDefinition definition, int columnIndex) {
+			protected @Nullable String getColumnText(final ILanguageConfigurationDefinition definition, final int columnIndex) {
 				return switch (columnIndex) {
 					case 0 -> definition.getContentType().getName();
 					case 1 -> definition.getContentType().getId();
@@ -138,8 +138,8 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 			}
 
 			@Override
-			protected Object[] getElements(@Nullable Object input) {
-				if (input instanceof ILanguageConfigurationRegistryManager manager)
+			protected Object[] getElements(@Nullable final Object input) {
+				if (input instanceof final ILanguageConfigurationRegistryManager manager)
 					return manager.getDefinitions();
 				return super.getElements(input);
 			}

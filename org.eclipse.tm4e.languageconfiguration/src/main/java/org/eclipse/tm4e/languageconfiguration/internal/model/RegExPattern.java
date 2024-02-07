@@ -86,7 +86,7 @@ public abstract class RegExPattern {
 	public static RegExPattern of(final String pattern, final @Nullable String flags) {
 		try {
 			return new JavaRegExPattern(pattern, flags);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			// try onigurama as fallback
 			return new OnigRegExPattern(pattern, flags);
 		}
@@ -110,11 +110,11 @@ public abstract class RegExPattern {
 		if (pattern != null) {
 			try {
 				return new JavaRegExPattern(pattern, flags);
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				try {
 					// try onigurama as fallback
 					return new OnigRegExPattern(pattern, flags);
-				} catch (Exception ex1) {
+				} catch (final Exception ex1) {
 					ex1.printStackTrace();
 				}
 			}

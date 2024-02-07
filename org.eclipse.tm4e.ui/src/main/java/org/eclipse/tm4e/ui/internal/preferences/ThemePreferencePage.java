@@ -88,7 +88,7 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 	}
 
 	@Override
-	protected Control createContents(@Nullable final Composite ancestor) {
+	protected Control createContents(final @Nullable Composite ancestor) {
 		final var parent = new SashForm(ancestor, SWT.VERTICAL | SWT.SMOOTH);
 		parent.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_GRAY));
 		parent.setLayout(new FillLayout());
@@ -116,7 +116,7 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 		return parent;
 	}
 
-	protected void createColumn(TableColumnLayout tableColumnLayout, String label, int columnWeight, int minColWidth, boolean resizable) {
+	protected void createColumn(final TableColumnLayout tableColumnLayout, final String label, final int columnWeight, final int minColWidth, final boolean resizable) {
 		final var col = new TableColumn(themesTable.getTable(), SWT.NONE);
 		col.setText(label);
 		final GC gc = new GC(themesTable.getTable().getShell());
@@ -153,7 +153,7 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 			}
 
 			@Override
-			protected @Nullable String getColumnText(ITheme theme, int columnIndex) {
+			protected @Nullable String getColumnText(final ITheme theme, final int columnIndex) {
 				return switch (columnIndex) {
 					case 0 -> theme.getName();
 					case 1 -> theme.isDark() ? "dark" : "light";
@@ -164,8 +164,8 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 			}
 
 			@Override
-			protected Object[] getElements(@Nullable Object input) {
-				if (input instanceof IThemeManager themeManager)
+			protected Object[] getElements(final @Nullable Object input) {
+				if (input instanceof final IThemeManager themeManager)
 					return themeManager.getThemes();
 				return super.getElements(input);
 			}
@@ -191,7 +191,7 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 		themeNewButton.setLayoutData(getButtonGridData(themeNewButton));
 		themeNewButton.addListener(SWT.Selection, new Listener() {
 			@Override
-			public void handleEvent(@Nullable final Event e) {
+			public void handleEvent(final @Nullable Event e) {
 				final ITheme newTheme = addTheme();
 				if (newTheme != null) {
 					themeManager.registerTheme(newTheme);
@@ -316,7 +316,7 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 	}
 
 	@Override
-	public void init(@Nullable final IWorkbench workbench) {
+	public void init(final @Nullable IWorkbench workbench) {
 	}
 
 	private void preview() {
@@ -325,7 +325,7 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 			return;
 		}
 
-		var selection = grammarsCombo.getStructuredSelection();
+		final var selection = grammarsCombo.getStructuredSelection();
 		if (selection.isEmpty()) {
 			return;
 		}

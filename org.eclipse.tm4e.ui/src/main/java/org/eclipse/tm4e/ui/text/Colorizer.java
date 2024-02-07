@@ -54,7 +54,7 @@ class Colorizer {
 	private boolean isViewerStyleColorsInitialized;
 	private boolean isViewerHighlightColorInitialized;
 
-	Colorizer(ITextViewer viewer, ITokenProvider theme, Set<ITMPresentationReconcilerListener> listeners) {
+	Colorizer(final ITextViewer viewer, final ITokenProvider theme, final Set<ITMPresentationReconcilerListener> listeners) {
 		this.viewer = viewer;
 		this.theme = theme;
 		this.listeners = listeners;

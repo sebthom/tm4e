@@ -95,7 +95,7 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 		browseFileSystemButton.setText(TMUIMessages.Button_browse_FileSystem);
 		browseFileSystemButton.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(@Nullable final SelectionEvent e) {
+			public void widgetSelected(final @Nullable SelectionEvent e) {
 				final var dialog = new FileDialog(parent.getShell());
 				dialog.setFilterExtensions(TEXTMATE_GRAMMAR_FILE_FILTERS);
 				dialog.setFilterPath(grammarFileText.getText());
@@ -110,8 +110,8 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 		browseWorkspaceButton.setText(TMUIMessages.Button_browse_Workspace);
 		browseWorkspaceButton.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(@Nullable final SelectionEvent e) {
-				var dialog = new ElementTreeSelectionDialog(parent.getShell(), new WorkbenchLabelProvider(),
+			public void widgetSelected(final @Nullable SelectionEvent e) {
+				final var dialog = new ElementTreeSelectionDialog(parent.getShell(), new WorkbenchLabelProvider(),
 						new WorkbenchContentProvider());
 				dialog.setTitle("TextMate grammar selection");
 				dialog.setMessage("Select a TextMate grammar file:");
@@ -123,7 +123,7 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 						if (ext == null)
 							return false;
 						ext = "*." + ext.toLowerCase();
-						for (var pattern : TEXTMATE_GRAMMAR_FILE_FILTERS) {
+						for (final var pattern : TEXTMATE_GRAMMAR_FILE_FILTERS) {
 							if (pattern.equals(ext))
 								return true;
 						}
@@ -133,15 +133,15 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 					private boolean containsGrammarFile(final IContainer container) {
 						try {
 							for (final var member : container.members()) {
-								if (member instanceof IFile file) {
+								if (member instanceof final IFile file) {
 									if (isGrammarFile(file))
 										return true;
 									continue;
 								}
-								if (member instanceof IContainer subContainer && containsGrammarFile(subContainer))
+								if (member instanceof final IContainer subContainer && containsGrammarFile(subContainer))
 									return true;
 							}
-						} catch (Exception ex) {
+						} catch (final Exception ex) {
 							// ignore
 						}
 						return false;
@@ -149,16 +149,16 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 
 					@Override
 					@NonNullByDefault({})
-					public boolean select(Viewer viewer, Object parentElement, Object element) {
-						if (element instanceof IContainer container)
+					public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+						if (element instanceof final IContainer container)
 							return containsGrammarFile(container);
-						if (element instanceof IFile file)
+						if (element instanceof final IFile file)
 							return isGrammarFile(file);
 						return true;
 					}
 				});
 
-				if (dialog.open() == ElementTreeSelectionDialog.OK && dialog.getFirstResult() instanceof IFile file) {
+				if (dialog.open() == ElementTreeSelectionDialog.OK && dialog.getFirstResult() instanceof final IFile file) {
 					grammarFileText.setText(file.getLocation().toOSString());
 				}
 			}

@@ -29,17 +29,17 @@ public final class ColumnSelectionAdapter extends SelectionAdapter {
 	private final int[] secondarySortColumns;
 
 	public ColumnSelectionAdapter(final TableViewer tableViewer,
-			final ColumnViewerComparator vc, int... secondarySortColumns) {
+			final ColumnViewerComparator vc, final int... secondarySortColumns) {
 		this.tableViewer = tableViewer;
 		viewerComparator = vc;
 		this.secondarySortColumns = secondarySortColumns;
 	}
 
 	@Override
-	public void widgetSelected(@Nullable final SelectionEvent e) {
-		if (e != null && e.getSource() instanceof TableColumn tableColumn) {
+	public void widgetSelected(final @Nullable SelectionEvent e) {
+		if (e != null && e.getSource() instanceof final TableColumn tableColumn) {
 			int columnIndex = -1;
-			TableColumn[] columns = tableViewer.getTable().getColumns();
+			final TableColumn[] columns = tableViewer.getTable().getColumns();
 			for (int i = 0; i < columns.length; i++) {
 				if (columns[i].equals(tableColumn)) {
 					columnIndex = i;

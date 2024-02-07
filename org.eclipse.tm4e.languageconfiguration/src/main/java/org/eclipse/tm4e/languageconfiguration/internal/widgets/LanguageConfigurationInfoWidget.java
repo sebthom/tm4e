@@ -100,7 +100,7 @@ public class LanguageConfigurationInfoWidget extends Composite {
 		final GC gc = new GC(table.getShell());
 		gc.setFont(JFaceResources.getDialogFont());
 		int maxLabelWidth = 0;
-		for (String tab : tabs) {
+		for (final String tab : tabs) {
 			final int width = gc.stringExtent(tab).x;
 			if (width > maxLabelWidth)
 				maxLabelWidth = width;

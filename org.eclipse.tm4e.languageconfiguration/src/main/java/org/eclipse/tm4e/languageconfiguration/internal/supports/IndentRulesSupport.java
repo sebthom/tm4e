@@ -38,7 +38,7 @@ public class IndentRulesSupport {
 
 	private final IndentationRules _indentationRules;
 
-	public IndentRulesSupport(IndentationRules indentationRules) {
+	public IndentRulesSupport(final IndentationRules indentationRules) {
 		this._indentationRules = indentationRules;
 	}
 

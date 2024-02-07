@@ -45,7 +45,7 @@ public final class TMModelManager implements ITMModelManager {
 	}
 
 	@Override
-	public boolean isConnected(IDocument document) {
+	public boolean isConnected(final IDocument document) {
 		return models.containsKey(document);
 	}
 }

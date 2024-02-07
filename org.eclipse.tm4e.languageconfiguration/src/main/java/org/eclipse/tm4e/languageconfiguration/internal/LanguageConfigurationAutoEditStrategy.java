@@ -127,7 +127,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 								cursorCfg.normalizeIndentation(newIndent)).toString();
 						command.shiftsCaret = true;
 					}
-				} catch (BadLocationException ex) {
+				} catch (final BadLocationException ex) {
 					LanguageConfigurationPlugin.logError(ex);
 				}
 			}

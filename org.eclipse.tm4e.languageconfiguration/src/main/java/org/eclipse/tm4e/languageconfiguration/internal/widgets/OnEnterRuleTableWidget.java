@@ -37,7 +37,7 @@ final class OnEnterRuleTableWidget extends TableWidget<OnEnterRule> {
 	}
 
 	@Override
-	protected @Nullable Object getColumnText(OnEnterRule rule, int columnIndex) {
+	protected @Nullable Object getColumnText(final OnEnterRule rule, final int columnIndex) {
 		final EnterAction action = rule.action;
 
 		return switch (columnIndex) {

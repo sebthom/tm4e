@@ -46,7 +46,7 @@ public abstract class MarkerConfig {
 		public boolean equals(final @Nullable Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof ProblemMarkerConfig other)
+			if (obj instanceof final ProblemMarkerConfig other)
 				return type == other.type
 						&& severity == other.severity
 						&& tag.equals(other.tag);
@@ -91,7 +91,7 @@ public abstract class MarkerConfig {
 		public boolean equals(final @Nullable Object obj) {
 			if (this == obj)
 				return true;
-			if (obj instanceof TaskMarkerConfig other)
+			if (obj instanceof final TaskMarkerConfig other)
 				return type == other.type
 						&& priority == other.priority
 						&& tag.equals(other.tag);

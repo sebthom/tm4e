@@ -88,10 +88,10 @@ public final class ThemeAssociation implements IThemeAssociation {
 	}
 
 	@Override
-	public boolean equals(@Nullable final Object obj) {
+	public boolean equals(final @Nullable Object obj) {
 		if (this == obj)
 			return true;
-		if (obj instanceof ThemeAssociation other)
+		if (obj instanceof final ThemeAssociation other)
 			return whenDark == other.whenDark
 					&& Objects.equals(pluginId, other.pluginId)
 					&& Objects.equals(scopeName, other.scopeName)

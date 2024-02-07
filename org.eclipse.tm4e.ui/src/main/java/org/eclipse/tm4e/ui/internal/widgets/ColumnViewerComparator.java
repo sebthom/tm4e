@@ -45,7 +45,7 @@ public final class ColumnViewerComparator extends ViewerComparator {
 	 * @param primaryColumn
 	 *            New sort column
 	 */
-	public void setColumns(final int primaryColumn, int... secondaryColumns) {
+	public void setColumns(final int primaryColumn, final int... secondaryColumns) {
 		if (primaryColumn == sortColumns[0]) {
 			sortOrder *= -1;
 		} else {
@@ -61,10 +61,10 @@ public final class ColumnViewerComparator extends ViewerComparator {
 	}
 
 	@Override
-	public int compare(@Nullable final Viewer viewer, @Nullable final Object e1, @Nullable final Object e2) {
+	public int compare(final @Nullable Viewer viewer, final @Nullable Object e1, final @Nullable Object e2) {
 		if (viewer instanceof final TableViewer tableViewer
-				&& tableViewer.getLabelProvider() instanceof ITableLabelProvider labelProvider) {
-			for (var column : sortColumns) {
+				&& tableViewer.getLabelProvider() instanceof final ITableLabelProvider labelProvider) {
+			for (final var column : sortColumns) {
 				final String left = labelProvider.getColumnText(e1, column);
 				final String right = labelProvider.getColumnText(e2, column);
 				final int sortResult = getComparator().compare(nullToEmpty(left), nullToEmpty(right));

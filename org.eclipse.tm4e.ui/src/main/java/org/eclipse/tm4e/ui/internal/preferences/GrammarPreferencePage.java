@@ -129,7 +129,7 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 	}
 
 	@Override
-	protected Control createContents(@Nullable final Composite ancestor) {
+	protected Control createContents(final @Nullable Composite ancestor) {
 		final var parent = new Composite(ancestor, SWT.NONE);
 		final var layout = new GridLayout();
 		layout.numColumns = 2;
@@ -182,7 +182,7 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 			}
 
 			@Override
-			protected @Nullable String getColumnText(IGrammarDefinition definition, int columnIndex) {
+			protected @Nullable String getColumnText(final IGrammarDefinition definition, final int columnIndex) {
 				return switch (columnIndex) {
 					case 0 -> definition.getScope().getName();
 					case 1 -> definition.getPath();
@@ -192,8 +192,8 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 			}
 
 			@Override
-			protected Object[] getElements(@Nullable Object input) {
-				if (input instanceof IGrammarRegistryManager manager)
+			protected Object[] getElements(final @Nullable Object input) {
+				if (input instanceof final IGrammarRegistryManager manager)
 					return manager.getDefinitions();
 				return super.getElements(input);
 			}
@@ -220,7 +220,7 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 		final var grammarNewButton = new Button(buttons, SWT.PUSH);
 		grammarNewButton.setText(TMUIMessages.Button_new);
 		grammarNewButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grammarNewButton.addListener(SWT.Selection, (@Nullable final Event e) -> {
+		grammarNewButton.addListener(SWT.Selection, (final @Nullable Event e) -> {
 			// Open import wizard for TextMate grammar.
 			final var wizard = new TextMateGrammarImportWizard(false);
 			wizard.setGrammarRegistryManager(grammarRegistryManager);
@@ -236,7 +236,7 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 		grammarRemoveButton = new Button(buttons, SWT.PUSH);
 		grammarRemoveButton.setText(TMUIMessages.Button_remove);
 		grammarRemoveButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grammarRemoveButton.addListener(SWT.Selection, (@Nullable final Event e) -> {
+		grammarRemoveButton.addListener(SWT.Selection, (final @Nullable Event e) -> {
 			final var definition = grammarsTable.getFirstSelectedElement();
 			if (definition != null) {
 				grammarRegistryManager.unregisterGrammarDefinition(definition);
@@ -313,14 +313,14 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 		themeAssociationsWidget.addSelectionChangedListener(new ISelectionChangedListener() {
 
 			@Override
-			public void selectionChanged(@Nullable final SelectionChangedEvent e) {
+			public void selectionChanged(final @Nullable SelectionChangedEvent e) {
 				if (e == null)
 					return;
 				final var association = (IThemeAssociation) ((IStructuredSelection) e.getSelection()).getFirstElement();
 				selectTheme(association);
 			}
 
-			private void selectTheme(@Nullable final IThemeAssociation association) {
+			private void selectTheme(final @Nullable IThemeAssociation association) {
 				themeAssociationsWidget.getNewButton()
 						.setEnabled(association != null /* && association.getPluginId() == null */);
 				themeAssociationsWidget.getRemoveButton()
@@ -398,7 +398,7 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 		return selectedAssociation;
 	}
 
-	private void fillPreview(final IGrammarDefinition definition, @Nullable final IThemeAssociation selectedAssociation) {
+	private void fillPreview(final IGrammarDefinition definition, final @Nullable IThemeAssociation selectedAssociation) {
 		// Preview the grammar
 		final IGrammar grammar = grammarRegistryManager.getGrammarForScope(definition.getScope());
 		if (selectedAssociation != null) {
@@ -427,7 +427,7 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 	}
 
 	@Override
-	public void init(@Nullable final IWorkbench workbench) {
+	public void init(final @Nullable IWorkbench workbench) {
 
 	}
 

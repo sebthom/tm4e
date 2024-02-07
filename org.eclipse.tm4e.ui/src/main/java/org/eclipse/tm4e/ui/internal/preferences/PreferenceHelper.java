@@ -89,7 +89,7 @@ public final class PreferenceHelper {
 		Set<MarkerConfig> result = null;
 		try {
 			result = loadMarkerConfigs(json);
-		} catch (JsonSyntaxException ex) {
+		} catch (final JsonSyntaxException ex) {
 			TMUIPlugin.logError(ex);
 		}
 		return result == null ? MarkerConfig.getDefaults() : result;

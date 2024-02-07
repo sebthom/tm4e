@@ -93,7 +93,7 @@ final class WorkingCopyThemeManager extends AbstractThemeManager implements IThe
 	}
 
 	@Override
-	public void setDefaultTheme(String themeId, boolean dark) {
+	public void setDefaultTheme(final String themeId, final boolean dark) {
 		super.setDefaultTheme(themeId, dark);
 		if (dark)
 			isDefaultDarkThemeModified = true;

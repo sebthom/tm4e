@@ -94,7 +94,7 @@ public final class TaskTagsPreferencePage extends PreferencePage implements IWor
 		}
 
 		void validateInput(@SuppressWarnings("unused") final @Nullable Event e) {
-			var btn = getButton(IDialogConstants.OK_ID);
+			final var btn = getButton(IDialogConstants.OK_ID);
 			if (btn == null)
 				return;
 			btn.setEnabled(!txtTag.getText().isBlank() && cmbType.getSelectionIndex() > -1 && cmbLevel.getSelectionIndex() > -1);

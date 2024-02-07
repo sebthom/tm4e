@@ -67,11 +67,11 @@ public abstract class TableWidget<T> extends TableViewer {
 	private final Set<TableColumn> autoResizeColumns = new HashSet<>();
 	private final ColumnViewerComparator viewerComparator = new ColumnViewerComparator();
 
-	protected TableWidget(Composite parent, boolean allowMultiSelection) {
+	protected TableWidget(final Composite parent, final boolean allowMultiSelection) {
 		this(parent, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | (allowMultiSelection ? SWT.MULTI : SWT.SINGLE));
 	}
 
-	protected TableWidget(Composite parent, int style) {
+	protected TableWidget(final Composite parent, final int style) {
 		super(new Composite(parent, SWT.NONE), style);
 
 		setContentProvider((IStructuredContentProvider) TableWidget.this::getElements);
@@ -127,7 +127,7 @@ public abstract class TableWidget<T> extends TableViewer {
 	protected Object[] getElements(final @Nullable Object input) {
 		if (input == null)
 			return new Object[0];
-		if (input instanceof Collection<?> coll)
+		if (input instanceof final Collection<?> coll)
 			return coll.toArray(Object[]::new);
 		return (Object[]) input;
 	}
@@ -163,7 +163,7 @@ public abstract class TableWidget<T> extends TableViewer {
 		return Collections.emptyList();
 	}
 
-	public void setSelection(@SuppressWarnings("unchecked") T... selection) {
+	public void setSelection(@SuppressWarnings("unchecked") final T... selection) {
 		setSelection(new StructuredSelection(selection));
 	}
 

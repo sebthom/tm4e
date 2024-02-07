@@ -102,7 +102,7 @@ public final class TextUtils {
 		return endAt;
 	}
 
-	public static String getLeadingWhitespace(final IDocument doc, int lineIndex) throws BadLocationException {
+	public static String getLeadingWhitespace(final IDocument doc, final int lineIndex) throws BadLocationException {
 		final int lineStartOffset = doc.getLineOffset(lineIndex);
 		final int lineLength = doc.getLineLength(lineIndex);
 		return doc.get(lineStartOffset, findEndOfWhiteSpace(doc, lineStartOffset, lineStartOffset + lineLength) - lineStartOffset);
@@ -158,7 +158,7 @@ public final class TextUtils {
 
 			@Override
 			public void accept(final int value) {
-				char ch = (char) value;
+				final char ch = (char) value;
 				onChar(ch);
 				prevChar = ch;
 			}

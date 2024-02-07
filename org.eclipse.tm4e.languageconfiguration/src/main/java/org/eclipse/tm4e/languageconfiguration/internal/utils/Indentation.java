@@ -24,7 +24,7 @@ package org.eclipse.tm4e.languageconfiguration.internal.utils;
  */
 public final class Indentation {
 
-	private static String normalizeIndentationFromWhitespace(final String text, final int indentSize, boolean insertSpaces) {
+	private static String normalizeIndentationFromWhitespace(final String text, final int indentSize, final boolean insertSpaces) {
 		int spacesCnt = 0;
 		for (int i = 0; i < text.length(); i++) {
 			if (text.charAt(i) == '\t') {
@@ -50,7 +50,7 @@ public final class Indentation {
 		return result.toString();
 	}
 
-	public static String normalizeIndentation(final String text, final int indentSize, boolean insertSpaces) {
+	public static String normalizeIndentation(final String text, final int indentSize, final boolean insertSpaces) {
 		int firstNonWhitespaceIdx = Strings.firstNonWhitespaceIndex(text);
 		if (firstNonWhitespaceIdx == -1) {
 			firstNonWhitespaceIdx = text.length();
@@ -64,7 +64,7 @@ public final class Indentation {
 	 *      "https://github.com/microsoft/vscode/blob/ba2cf46e20df3edf77bdd905acde3e175d985f70/src/vs/editor/common/core/cursorColumns.ts#L130">
 	 *      github.com/microsoft/vscode/src/vs/editor/common/core/cursorColumns.ts</a>
 	 */
-	private static int nextIndentTabStop(int visibleColumn, int indentSize) {
+	private static int nextIndentTabStop(final int visibleColumn, final int indentSize) {
 		return visibleColumn + indentSize - visibleColumn % indentSize;
 	}
 

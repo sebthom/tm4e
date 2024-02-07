@@ -120,7 +120,7 @@ public final class LanguageConfigurationDefinition extends TMResource implements
 			if (conf == null)
 				return null;
 
-			var indentRules = conf.getIndentationRules();
+			final var indentRules = conf.getIndentationRules();
 			if (indentRules != null) {
 				this.indentRules = new IndentRulesSupport(indentRules);
 			}
@@ -176,7 +176,7 @@ public final class LanguageConfigurationDefinition extends TMResource implements
 	}
 
 	@Override
-	public void setIndentRulesEnabled(boolean indentRulesEnabled) {
+	public void setIndentRulesEnabled(final boolean indentRulesEnabled) {
 		this.indentRulesEnabled = indentRulesEnabled;
 	}
 

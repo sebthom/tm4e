@@ -54,11 +54,11 @@ public final class UI {
 			return null;
 		}
 		final var editorPart = activePage.getActiveEditor();
-		if (editorPart instanceof ITextEditor textEditor) {
+		if (editorPart instanceof final ITextEditor textEditor) {
 			return textEditor;
-		} else if (editorPart instanceof MultiPageEditorPart multiPageEditorPart) {
+		} else if (editorPart instanceof final MultiPageEditorPart multiPageEditorPart) {
 			final Object page = multiPageEditorPart.getSelectedPage();
-			if (page instanceof ITextEditor textEditor) {
+			if (page instanceof final ITextEditor textEditor) {
 				return textEditor;
 			}
 		}

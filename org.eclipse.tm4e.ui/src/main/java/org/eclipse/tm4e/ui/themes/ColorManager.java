@@ -30,7 +30,7 @@ public final class ColorManager {
 		return INSTANCE;
 	}
 
-	private static Color rgbToColor(RGB rgb) {
+	private static Color rgbToColor(final RGB rgb) {
 		return new Color(UI.getDisplay(), rgb.red, rgb.green, rgb.blue);
 	}
 
@@ -54,8 +54,7 @@ public final class ColorManager {
 	 *
 	 * @return Color matching token
 	 */
-	@Nullable
-	public Color getPreferenceEditorColor(final String tokenId) {
+	public @Nullable Color getPreferenceEditorColor(final String tokenId) {
 		final var prefStore = PreferenceUtils.getEditorsPreferenceStore();
 		if (prefStore == null)
 			return null;
@@ -90,8 +89,7 @@ public final class ColorManager {
 	 *
 	 * @return Highest priority color
 	 */
-	@Nullable
-	public Color getPriorityColor(@Nullable final Color themeColor, final String tokenId) {
+	public @Nullable Color getPriorityColor(final @Nullable Color themeColor, final String tokenId) {
 		if (isColorUserDefined(tokenId)) {
 			return getPreferenceEditorColor(tokenId);
 		}
