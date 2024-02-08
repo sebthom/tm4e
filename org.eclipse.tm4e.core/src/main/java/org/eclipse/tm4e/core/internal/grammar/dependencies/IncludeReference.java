@@ -17,6 +17,8 @@
  */
 package org.eclipse.tm4e.core.internal.grammar.dependencies;
 
+import org.eclipse.tm4e.core.internal.grammar.raw.RawRepository;
+
 /**
  * @see <a href=
  *      "https://github.com/microsoft/vscode-textmate/blob/09effd8b7429b71010e0fa34ea2e16e622692946/src/grammar/grammarDependencies.ts#L240">
@@ -31,13 +33,13 @@ public final class IncludeReference {
 		TopLevelRepositoryReference
 	}
 
-	public static final IncludeReference BASE = new IncludeReference(Kind.Base, "$base", "");
-	public static final IncludeReference SELF = new IncludeReference(Kind.Base, "$self", "");
+	private static final IncludeReference BASE = new IncludeReference(Kind.Base, RawRepository.DOLLAR_BASE, "");
+	private static final IncludeReference SELF = new IncludeReference(Kind.Base, RawRepository.DOLLAR_SELF, "");
 
 	public static IncludeReference parseInclude(final String include) {
 		return switch (include) {
-			case "$base" -> BASE;
-			case "$self" -> SELF;
+			case RawRepository.DOLLAR_BASE -> BASE;
+			case RawRepository.DOLLAR_SELF -> SELF;
 			default -> {
 				final var indexOfSharp = include.indexOf('#');
 				yield switch (indexOfSharp) {

@@ -22,19 +22,19 @@ public class RawRule extends PropertySettable.HashMap<@Nullable Object> implemen
 
 	private static final String APPLY_END_PATTERN_LAST = "applyEndPatternLast";
 	private static final String BEGIN = "begin";
-	public static final String BEGIN_CAPTURES = "beginCaptures";
-	public static final String CAPTURES = "captures";
+	static final String BEGIN_CAPTURES = "beginCaptures";
+	static final String CAPTURES = "captures";
 	private static final String CONTENT_NAME = "contentName";
 	private static final String END = "end";
-	public static final String END_CAPTURES = "endCaptures";
+	static final String END_CAPTURES = "endCaptures";
 	private static final String ID = "id";
 	private static final String INCLUDE = "include";
 	private static final String MATCH = "match";
 	private static final String NAME = "name";
 	private static final String PATTERNS = "patterns";
-	public static final String REPOSITORY = "repository";
+	static final String REPOSITORY = "repository";
 	private static final String WHILE = "while";
-	public static final String WHILE_CAPTURES = "whileCaptures";
+	static final String WHILE_CAPTURES = "whileCaptures";
 
 	private static final long serialVersionUID = 1L;
 

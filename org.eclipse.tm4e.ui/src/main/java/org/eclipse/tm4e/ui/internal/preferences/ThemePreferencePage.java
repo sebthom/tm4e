@@ -20,15 +20,11 @@ import java.io.File;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.preference.PreferencePage;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -39,7 +35,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarRegistryManager;
@@ -114,19 +109,6 @@ public final class ThemePreferencePage extends PreferencePage implements IWorkbe
 		innerParent.layout();
 
 		return parent;
-	}
-
-	protected void createColumn(final TableColumnLayout tableColumnLayout, final String label, final int columnWeight, final int minColWidth, final boolean resizable) {
-		final var col = new TableColumn(themesTable.getTable(), SWT.NONE);
-		col.setText(label);
-		final GC gc = new GC(themesTable.getTable().getShell());
-		try {
-			gc.setFont(JFaceResources.getDialogFont());
-			final int labelWidth = gc.stringExtent(label).x + 15;
-			tableColumnLayout.setColumnData(col, new ColumnWeightData(columnWeight, Math.max(labelWidth, minColWidth), resizable));
-		} finally {
-			gc.dispose();
-		}
 	}
 
 	/**

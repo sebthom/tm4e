@@ -93,41 +93,6 @@ public final class GrammarPreferencePage extends PreferencePage implements IWork
 		setDescription(TMUIMessages.GrammarPreferencePage_description);
 	}
 
-	/**
-	 * Returns the grammar registry manager.
-	 *
-	 * @return the grammar registry manager.
-	 */
-	IGrammarRegistryManager getGrammarRegistryManager() {
-		return grammarRegistryManager;
-	}
-
-	/**
-	 * Set the grammar registry manager.
-	 *
-	 * @param grammarRegistryManager
-	 */
-	void setGrammarRegistryManager(final IGrammarRegistryManager grammarRegistryManager) {
-		this.grammarRegistryManager = grammarRegistryManager;
-	}
-
-	/**
-	 * Returns the theme manager.
-	 *
-	 * @return the theme manager.
-	 */
-	IThemeManager getThemeManager() {
-		return themeManager;
-	}
-
-	ISnippetManager getSnippetManager() {
-		return snippetManager;
-	}
-
-	void setSnippetManager(final ISnippetManager snippetManager) {
-		this.snippetManager = snippetManager;
-	}
-
 	@Override
 	protected Control createContents(final @Nullable Composite ancestor) {
 		final var parent = new Composite(ancestor, SWT.NONE);

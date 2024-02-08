@@ -30,7 +30,7 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  *      "https://github.com/microsoft/vscode-textmate/blob/09effd8b7429b71010e0fa34ea2e16e622692946/src/grammar/grammar.ts#L418">
  *      github.com/microsoft/vscode-textmate/blob/main/src/grammar/grammar.ts</a>
  */
-public final class AttributedScopeStack {
+final class AttributedScopeStack {
 
 	@NonNullByDefault({}) // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/233
 	record Frame(int encodedTokenAttributes, List<String> scopeNames) {
@@ -49,12 +49,12 @@ public final class AttributedScopeStack {
 		return current;
 	}
 
-	public static AttributedScopeStack createRoot(final String scopeName,
+	static AttributedScopeStack createRoot(final String scopeName,
 			final int /*EncodedTokenAttributes*/ tokenAttributes) {
 		return new AttributedScopeStack(null, new ScopeStack(null, scopeName), tokenAttributes);
 	}
 
-	public static AttributedScopeStack createRootAndLookUpScopeName(final String scopeName, final int encodedTokenAttributes,
+	static AttributedScopeStack createRootAndLookUpScopeName(final String scopeName, final int encodedTokenAttributes,
 			final Grammar grammar) {
 		final var rawRootMetadata = grammar.getMetadataForScope(scopeName);
 		final var scopePath = new ScopeStack(null, scopeName);
@@ -68,7 +68,7 @@ public final class AttributedScopeStack {
 		return new AttributedScopeStack(null, scopePath, resolvedTokenAttributes);
 	}
 
-	public String scopeName() {
+	String scopeName() {
 		return this.scopePath.scopeName;
 	}
 
@@ -76,7 +76,7 @@ public final class AttributedScopeStack {
 	private final ScopeStack scopePath;
 	final int tokenAttributes;
 
-	public AttributedScopeStack(
+	private AttributedScopeStack(
 			final @Nullable AttributedScopeStack parent,
 			final ScopeStack scopePath,
 			final int tokenAttributes) {
@@ -90,11 +90,11 @@ public final class AttributedScopeStack {
 		return String.join(" ", this.getScopeNames());
 	}
 
-	public boolean equals(final AttributedScopeStack other) {
+	boolean equals(final AttributedScopeStack other) {
 		return equals(this, other);
 	}
 
-	public static boolean equals(
+	static boolean equals(
 			@Nullable AttributedScopeStack a,
 			@Nullable AttributedScopeStack b) {
 		do {
@@ -123,7 +123,7 @@ public final class AttributedScopeStack {
 		} while (true);
 	}
 
-	public static int mergeAttributes(
+	static int mergeAttributes(
 			final int existingTokenAttributes,
 			final BasicScopeAttributes basicScopeAttributes,
 			final @Nullable StyleAttributes styleAttributes) {
@@ -184,7 +184,7 @@ public final class AttributedScopeStack {
 		return this.scopePath.getSegments();
 	}
 
-	public List<AttributedScopeStack.Frame> getExtensionIfDefined(final @Nullable AttributedScopeStack base) {
+	List<AttributedScopeStack.Frame> getExtensionIfDefined(final @Nullable AttributedScopeStack base) {
 		final var result = new ArrayList<AttributedScopeStack.Frame>();
 		var self = this;
 

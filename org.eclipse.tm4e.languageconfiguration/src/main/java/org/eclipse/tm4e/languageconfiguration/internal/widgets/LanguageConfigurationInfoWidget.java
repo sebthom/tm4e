@@ -30,7 +30,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.tm4e.languageconfiguration.internal.model.CharacterPair;
@@ -59,12 +58,10 @@ public class LanguageConfigurationInfoWidget extends Composite {
 
 	private CharacterPairsTableWidget bracketsTable = lazyNonNull();
 
-	protected TabItem autoClosingPairsTab = lazyNonNull();
 	private AutoClosingPairConditionalTableWidget autoClosingPairsTable = lazyNonNull();
 
 	private Text autoCloseBeforeText = lazyNonNull();
 
-	protected TabItem surroundingPairsTab = lazyNonNull();
 	private CharacterPairsTableWidget surroundingPairsTable = lazyNonNull();
 
 	private Text foldingOffsideText = lazyNonNull();
@@ -73,7 +70,6 @@ public class LanguageConfigurationInfoWidget extends Composite {
 
 	private Text wordPatternText = lazyNonNull();
 
-	protected TabItem onEnterRulesTab = lazyNonNull();
 	private OnEnterRuleTableWidget onEnterRuleTable = lazyNonNull();
 
 	private Text indentationDecreaseIndentPattern = lazyNonNull();

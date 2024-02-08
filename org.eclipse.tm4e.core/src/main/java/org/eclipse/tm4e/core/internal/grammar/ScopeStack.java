@@ -51,24 +51,15 @@ public final class ScopeStack {
 	}
 
 	@Nullable
-	public static ScopeStack from(final List<String> segments) {
-		ScopeStack result = null;
-		for (var i = 0; i < segments.size(); i++) {
-			result = new ScopeStack(result, segments.get(i));
-		}
-		return result;
-	}
-
-	@Nullable
 	public final ScopeStack parent;
 	public final String scopeName;
 
-	public ScopeStack(@Nullable final ScopeStack parent, final String scopeName) {
+	ScopeStack(@Nullable final ScopeStack parent, final String scopeName) {
 		this.parent = parent;
 		this.scopeName = scopeName;
 	}
 
-	public ScopeStack push(final String scopeName) {
+	ScopeStack push(final String scopeName) {
 		return new ScopeStack(this, scopeName);
 	}
 
@@ -101,7 +92,7 @@ public final class ScopeStack {
 		return parent.isExtending(other);
 	}
 
-	public List<String> getExtensionIfDefined(@Nullable final ScopeStack base) {
+	List<String> getExtensionIfDefined(@Nullable final ScopeStack base) {
 		final var result = new ArrayList<String>();
 		@Nullable
 		ScopeStack item = this;

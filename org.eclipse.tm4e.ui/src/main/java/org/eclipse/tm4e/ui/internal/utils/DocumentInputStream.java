@@ -23,17 +23,13 @@ import org.eclipse.jface.text.IDocument;
 /**
  * Input stream which reads from a document
  */
-public final class DocumentInputStream extends InputStream {
+final class DocumentInputStream extends InputStream {
 
 	private final IDocument doc;
 	private int pos = 0;
 
-	public DocumentInputStream(final IDocument document) {
+	DocumentInputStream(final IDocument document) {
 		doc = document;
-	}
-
-	public IDocument getDocument() {
-		return doc;
 	}
 
 	@Override

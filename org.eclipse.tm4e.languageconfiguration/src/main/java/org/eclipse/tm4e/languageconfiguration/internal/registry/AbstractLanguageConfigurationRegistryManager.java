@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.languageconfiguration.internal.model.LanguageConfiguration;
 
-public abstract class AbstractLanguageConfigurationRegistryManager implements ILanguageConfigurationRegistryManager {
+abstract class AbstractLanguageConfigurationRegistryManager implements ILanguageConfigurationRegistryManager {
 
 	protected final Map<IContentType, ILanguageConfigurationDefinition> pluginDefinitions = new HashMap<>();
 	protected final Map<IContentType, ILanguageConfigurationDefinition> userDefinitions = new HashMap<>();

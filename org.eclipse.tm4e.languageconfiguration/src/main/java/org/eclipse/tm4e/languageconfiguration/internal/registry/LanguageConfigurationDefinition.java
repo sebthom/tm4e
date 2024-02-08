@@ -52,7 +52,7 @@ public final class LanguageConfigurationDefinition extends TMResource implements
 		this.contentType = contentType;
 	}
 
-	public LanguageConfigurationDefinition(final IConfigurationElement ce) throws CoreException {
+	LanguageConfigurationDefinition(final IConfigurationElement ce) throws CoreException {
 		super(ce);
 		final var contentTypeId = ce.getAttribute(XMLConstants.CONTENT_TYPE_ID_ATTR);
 		final var contentType = ContentTypeHelper.getContentTypeById(contentTypeId);

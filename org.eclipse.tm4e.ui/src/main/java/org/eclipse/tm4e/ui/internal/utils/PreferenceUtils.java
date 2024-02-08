@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 
@@ -70,17 +69,6 @@ public final class PreferenceUtils {
 	@Nullable
 	public static IEclipsePreferences getEditorsPreferenceStore() {
 		return InstanceScope.INSTANCE.getNode(EDITORS_PREFERENCE_NAME);
-	}
-
-	/**
-	 * Get TM4E preferences store
-	 *
-	 * @return preferences store
-	 */
-	@Nullable
-	public static IPreferenceStore getTM4EPreferencesStore() {
-		final var plugin = TMUIPlugin.getDefault();
-		return plugin == null ? null : plugin.getPreferenceStore();
 	}
 
 	private PreferenceUtils() {

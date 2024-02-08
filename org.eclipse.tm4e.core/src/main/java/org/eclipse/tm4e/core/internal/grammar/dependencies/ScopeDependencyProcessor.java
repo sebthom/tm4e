@@ -58,12 +58,12 @@ public final class ScopeDependencyProcessor {
 		}
 	}
 
-	public final Set<String /*ScopeName*/> seenFullScopeRequests = new HashSet<>();
-	final Set<String> seenPartialScopeRequests = new HashSet<>();
+	private final Set<String /*ScopeName*/> seenFullScopeRequests = new HashSet<>();
+	private final Set<String> seenPartialScopeRequests = new HashSet<>();
 	public Deque<AbsoluteRuleReference> Q = new ArrayDeque<>();
 
-	public final IGrammarRepository repo;
-	public final String initialScopeName;
+	private final IGrammarRepository repo;
+	private final String initialScopeName;
 
 	public ScopeDependencyProcessor(final IGrammarRepository repo, final String initialScopeName) {
 		this.repo = repo;

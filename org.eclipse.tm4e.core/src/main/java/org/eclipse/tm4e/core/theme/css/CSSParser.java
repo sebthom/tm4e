@@ -34,6 +34,12 @@ import org.w3c.css.sac.SelectorList;
  */
 public class CSSParser {
 
+	private static InputSource toSource(final InputStream source) {
+		final var in = new InputSource();
+		in.setByteStream(source);
+		return in;
+	}
+
 	protected final CSSDocumentHandler handler = new CSSDocumentHandler();
 
 	protected CSSParser() {
@@ -41,12 +47,6 @@ public class CSSParser {
 
 	public CSSParser(final InputStream source) throws Exception {
 		this(toSource(source));
-	}
-
-	private static InputSource toSource(final InputStream source) {
-		final var in = new InputSource();
-		in.setByteStream(source);
-		return in;
 	}
 
 	public CSSParser(final InputSource source) throws Exception {

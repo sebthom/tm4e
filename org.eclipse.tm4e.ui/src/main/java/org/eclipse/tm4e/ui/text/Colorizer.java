@@ -195,7 +195,7 @@ class Colorizer {
 	/**
 	 * Initialize foreground, background color, current line highlight from the current theme.
 	 */
-	void applyThemeToViewer() {
+	private void applyThemeToViewer() {
 		this.isViewerStyleColorsInitialized = false;
 		this.isViewerHighlightColorInitialized = false;
 		applyThemeToViewerIfNeeded();
