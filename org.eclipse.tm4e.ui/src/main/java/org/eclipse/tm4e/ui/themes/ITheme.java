@@ -50,14 +50,6 @@ public interface ITheme extends ITokenProvider {
 	@Nullable
 	String getPluginId();
 
-	/**
-	 * Returns the theme content as CSS style sheet.
-	 *
-	 * @return the theme content as CSS style sheet.
-	 */
-	@Nullable
-	String toCSSStyleSheet();
-
 	boolean isDark();
 
 	boolean isDefault();

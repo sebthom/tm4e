@@ -161,12 +161,6 @@ public class Theme extends TMResource implements ITheme {
 		return false;
 	}
 
-	@Nullable
-	@Override
-	public String toCSSStyleSheet() {
-		return super.getResourceContent();
-	}
-
 	@Override
 	public boolean isDark() {
 		return dark;
