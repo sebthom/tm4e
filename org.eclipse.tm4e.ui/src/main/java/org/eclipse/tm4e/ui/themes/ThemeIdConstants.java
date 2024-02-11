@@ -13,13 +13,23 @@ package org.eclipse.tm4e.ui.themes;
 
 /**
  * Default TextMate theme ID constants.
- *
  */
 public interface ThemeIdConstants {
 
+	/*
+	 * "Light" themes
+	 */
+
 	String Light = "org.eclipse.tm4e.ui.themes.Light";
-	String Monokai = "org.eclipse.tm4e.ui.themes.Monokai";
+	String EclipseLight = "org.eclipse.tm4e.ui.themes.EclipseLight";
 	String SolarizedLight = "org.eclipse.tm4e.ui.themes.SolarizedLight";
+	String WtpXmlClassic = "org.eclipse.tm4e.ui.themes.WtpXmlClassic";
+
+	/*
+	 * "Dark" themes
+	 */
+
 	String Dark = "org.eclipse.tm4e.ui.themes.Dark";
+	String Monokai = "org.eclipse.tm4e.ui.themes.Monokai";
 
 }
