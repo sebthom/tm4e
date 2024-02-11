@@ -25,18 +25,9 @@ import org.w3c.css.sac.PositionalCondition;
 @NonNullByDefault({})
 public final class CSSConditionFactory implements ConditionFactory {
 
+	private static final String NOT_IMPLEMENTED_IN_CSS2 = "Not implemented in CSS2";
+
 	public static final ConditionFactory INSTANCE = new CSSConditionFactory();
-
-	@Override
-	public AttributeCondition createClassCondition(final String namespaceURI, final String value) throws CSSException {
-		return new CSSClassCondition(null, "class", value);
-	}
-
-	@Override
-	public AttributeCondition createAttributeCondition(final String localName, final String namespaceURI,
-			final boolean specified, final String value) throws CSSException {
-		return new CSSAttributeCondition(localName, namespaceURI, specified, value);
-	}
 
 	@Override
 	public CombinatorCondition createAndCondition(final Condition first, final Condition second) throws CSSException {
@@ -44,60 +35,71 @@ public final class CSSConditionFactory implements ConditionFactory {
 	}
 
 	@Override
-	public AttributeCondition createBeginHyphenAttributeCondition(final String arg0, final String arg1,
-			final boolean arg2, final String arg3) throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+	public AttributeCondition createAttributeCondition(final String localName, final String namespaceURI, final boolean specified,
+			final String value) throws CSSException {
+		return new CSSAttributeCondition(localName, namespaceURI, specified, value);
+	}
+
+	@Override
+	public AttributeCondition createBeginHyphenAttributeCondition(final String arg0, final String arg1, final boolean arg2,
+			final String arg3) throws CSSException {
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
+	}
+
+	@Override
+	public AttributeCondition createClassCondition(final String namespaceURI, final String value) throws CSSException {
+		return new CSSClassCondition(null, "class", value);
 	}
 
 	@Override
 	public ContentCondition createContentCondition(final String arg0) throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
 	public AttributeCondition createIdCondition(final String arg0) throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
 	public LangCondition createLangCondition(final String arg0) throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
 	public NegativeCondition createNegativeCondition(final Condition arg0) throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
-	public AttributeCondition createOneOfAttributeCondition(final String arg0, final String arg1, final boolean arg2,
-			final String arg3) throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+	public AttributeCondition createOneOfAttributeCondition(final String arg0, final String arg1, final boolean arg2, final String arg3)
+			throws CSSException {
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
 	public Condition createOnlyChildCondition() throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
 	public Condition createOnlyTypeCondition() throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
 	public CombinatorCondition createOrCondition(final Condition arg0, final Condition arg1) throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
 	public PositionalCondition createPositionalCondition(final int arg0, final boolean arg1, final boolean arg2)
 			throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 
 	@Override
 	public AttributeCondition createPseudoClassCondition(final String arg0, final String arg1) throws CSSException {
-		throw new CSSException("Not implemented in CSS2");
+		throw new CSSException(NOT_IMPLEMENTED_IN_CSS2);
 	}
 }

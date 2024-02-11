@@ -16,6 +16,10 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.RGBColor;
 
+/**
+ * <a href=
+ * "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/dom/RGBColorImpl.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/dom/RGBColorImpl.java</a>
+ */
 final class RGBColorImpl extends AbstractCSSValue implements RGBColor {
 
 	private final CSSPrimitiveValue red;

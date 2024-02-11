@@ -14,38 +14,33 @@ package org.eclipse.tm4e.core.internal.theme.css;
 import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.css.sac.ElementSelector;
 
-public abstract class AbstractElementSelector implements ElementSelector, ExtendedSelector {
+/**
+ * @see <a href=
+ *      "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/sac/AbstractElementSelector.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/sac/AbstractElementSelector.java</a>
+ */
+abstract class AbstractElementSelector implements ElementSelector, ExtendedSelector {
 
-	/**
-	 * The namespace URI.
-	 */
-	@Nullable
-	private final String namespaceURI;
+	/** The namespace URI */
+	private final @Nullable String namespaceURI;
 
-	/**
-	 * The local name.
-	 */
-	@Nullable
-	private final String localName;
+	/** The local name */
+	private final @Nullable String localName;
 
 	/**
 	 * Creates a new ElementSelector object.
 	 */
-	protected AbstractElementSelector(@Nullable final String uri, @Nullable final String name) {
+	AbstractElementSelector(final @Nullable String uri, final @Nullable String name) {
 		namespaceURI = uri;
 		localName = name;
 	}
 
-	@Nullable
 	@Override
-	public String getNamespaceURI() {
+	public @Nullable String getNamespaceURI() {
 		return namespaceURI;
 	}
 
-	@Nullable
 	@Override
-	public String getLocalName() {
+	public @Nullable String getLocalName() {
 		return localName;
 	}
-
 }

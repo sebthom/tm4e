@@ -20,6 +20,11 @@ final class CSSClassCondition extends CSSAttributeCondition {
 	}
 
 	@Override
+	public int nbClass() {
+		return 1;
+	}
+
+	@Override
 	public int nbMatch(final String... names) {
 		final String value = getValue();
 		for (final String name : names) {
@@ -29,10 +34,4 @@ final class CSSClassCondition extends CSSAttributeCondition {
 		}
 		return 0;
 	}
-
-	@Override
-	public int nbClass() {
-		return 1;
-	}
-
 }

@@ -18,14 +18,19 @@ import org.w3c.dom.css.Counter;
 import org.w3c.dom.css.RGBColor;
 import org.w3c.dom.css.Rect;
 
-abstract class AbstractCSSValue implements CSSPrimitiveValue { // FIXME rename
+/**
+ * @see <a href=
+ *      "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/dom/CSSValueImpl.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/dom/CSSValueImpl.java</a>
+ */
+abstract class AbstractCSSValue implements CSSPrimitiveValue {
+
+	private static final String NOT_YET_IMPLEMENTED = "NOT YET IMPLEMENTED"; //$NON-NLS-1$
 
 	// W3C CSSValue API methods
 
 	@Override
 	public String getCssText() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NOT YET IMPLEMENTED");
+		throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED);
 	}
 
 	@Override
@@ -34,17 +39,15 @@ abstract class AbstractCSSValue implements CSSPrimitiveValue { // FIXME rename
 	}
 
 	@Override
-	public void setCssText(@Nullable final String cssText) throws DOMException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NOT YET IMPLEMENTED");
+	public void setCssText(final @Nullable String cssText) throws DOMException {
+		throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED);
 	}
 
 	// W3C CSSPrimitiveValue API methods
 
 	@Override
 	public short getPrimitiveType() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NOT YET IMPLEMENTED");
+		throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED);
 	}
 
 	@Override
@@ -64,27 +67,23 @@ abstract class AbstractCSSValue implements CSSPrimitiveValue { // FIXME rename
 
 	@Override
 	public String getStringValue() throws DOMException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NOT YET IMPLEMENTED");
+		throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED);
 	}
 
 	@Override
 	public void setFloatValue(final short arg0, final float arg1) throws DOMException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NOT YET IMPLEMENTED");
+		throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED);
 	}
 
 	@Override
-	public void setStringValue(final short arg0, @Nullable final String arg1) throws DOMException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NOT YET IMPLEMENTED");
+	public void setStringValue(final short arg0, final @Nullable String arg1) throws DOMException {
+		throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED);
 	}
 
 	// Additional methods
 
 	@Override
 	public float getFloatValue(final short valueType) throws DOMException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NOT YET IMPLEMENTED");
+		throw new UnsupportedOperationException(NOT_YET_IMPLEMENTED);
 	}
 }

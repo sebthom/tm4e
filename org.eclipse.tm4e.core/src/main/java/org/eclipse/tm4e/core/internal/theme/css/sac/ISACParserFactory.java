@@ -15,6 +15,9 @@ import org.w3c.css.sac.Parser;
 
 /**
  * SAC parser factory interface to get instance of SAC {@link Parser}.
+ *
+ * @see <a href=
+ *      "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/sac/ISACParserFactory.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/sac/ISACParserFactory.java</a>
  */
 public interface ISACParserFactory {
 
@@ -37,15 +40,11 @@ public interface ISACParserFactory {
 	 * <code>org.w3c.css.sac.parser</code>.
 	 */
 	Parser makeParser()
-			throws ClassNotFoundException, IllegalAccessException, InstantiationException, ClassCastException;
+			throws ClassNotFoundException, IllegalAccessException, InstantiationException;
 
 	/**
 	 * Return instance of SAC Parser registered into the factory with name <code>name</code>.
-	 *
-	 * @param name
-	 *
-	 * @see SACConstants
 	 */
 	Parser makeParser(String name)
-			throws ClassNotFoundException, IllegalAccessException, InstantiationException, ClassCastException;
+			throws ClassNotFoundException, IllegalAccessException, InstantiationException;
 }

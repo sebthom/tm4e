@@ -18,8 +18,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.css.sac.Parser;
 
 /**
- * SAC Parser factory implementation. By default, this SAC FActory support
- * Flute, SteadyState and Batik SAC Parser.
+ * SAC Parser factory implementation.
+ *
+ * By default, this SAC FActory support Flute, SteadyState and Batik SAC Parser.
+ *
+ * @see <a href=
+ *      "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/sac/SACParserFactoryImpl.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/sac/SACParserFactoryImpl.java</a>
  */
 public final class SACParserFactory extends AbstractSACParserFactory {
 

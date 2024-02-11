@@ -42,8 +42,7 @@ public final class CSSSelectorFactory implements SelectorFactory {
 	}
 
 	@Override
-	public DescendantSelector createChildSelector(final Selector arg0, final SimpleSelector arg1)
-			throws CSSException {
+	public DescendantSelector createChildSelector(final Selector arg0, final SimpleSelector arg1) throws CSSException {
 		throw new UnsupportedOperationException("CSS child selector is not supported");
 	}
 
@@ -53,20 +52,17 @@ public final class CSSSelectorFactory implements SelectorFactory {
 	}
 
 	@Override
-	public ConditionalSelector createConditionalSelector(final SimpleSelector selector, final Condition condition)
-			throws CSSException {
+	public ConditionalSelector createConditionalSelector(final SimpleSelector selector, final Condition condition) throws CSSException {
 		return new CSSConditionalSelector((ExtendedSelector) selector, (ExtendedCondition) condition);
 	}
 
 	@Override
-	public DescendantSelector createDescendantSelector(final Selector arg0,
-			final SimpleSelector arg1) throws CSSException {
+	public DescendantSelector createDescendantSelector(final Selector arg0, final SimpleSelector arg1) throws CSSException {
 		throw new UnsupportedOperationException("CSS descendant selector is not supported");
 	}
 
 	@Override
-	public SiblingSelector createDirectAdjacentSelector(final short arg0, final Selector arg1,
-			final SimpleSelector arg2)
+	public SiblingSelector createDirectAdjacentSelector(final short arg0, final Selector arg1, final SimpleSelector arg2)
 			throws CSSException {
 		throw new UnsupportedOperationException("CSS direct adjacent selector is not supported");
 	}
@@ -82,9 +78,7 @@ public final class CSSSelectorFactory implements SelectorFactory {
 	}
 
 	@Override
-	public ProcessingInstructionSelector createProcessingInstructionSelector(final String arg0,
-			final String arg1)
-			throws CSSException {
+	public ProcessingInstructionSelector createProcessingInstructionSelector(final String arg0, final String arg1) throws CSSException {
 		throw new UnsupportedOperationException("CSS processing instruction is not supported");
 	}
 
@@ -103,5 +97,4 @@ public final class CSSSelectorFactory implements SelectorFactory {
 	public CharacterDataSelector createTextNodeSelector(final String arg0) throws CSSException {
 		throw new UnsupportedOperationException("CSS text node selector is not supported");
 	}
-
 }

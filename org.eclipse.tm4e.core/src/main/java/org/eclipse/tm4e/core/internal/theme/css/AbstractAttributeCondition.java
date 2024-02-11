@@ -13,18 +13,25 @@ package org.eclipse.tm4e.core.internal.theme.css;
 
 import org.w3c.css.sac.AttributeCondition;
 
-public abstract class AbstractAttributeCondition implements AttributeCondition, ExtendedCondition {
+/**
+ * @see <a href=
+ *      "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/sac/AbstractAttributeCondition.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/sac/AbstractAttributeCondition.java</a>
+ */
+abstract class AbstractAttributeCondition implements AttributeCondition, ExtendedCondition {
 
-	/**
-	 * The attribute value.
-	 */
+	/** The attribute value */
 	private final String value;
 
 	/**
 	 * Creates a new AbstractAttributeCondition object.
 	 */
-	protected AbstractAttributeCondition(final String value) {
+	AbstractAttributeCondition(final String value) {
 		this.value = value;
+	}
+
+	@Override
+	public int getSpecificity() {
+		return 1 << 8;
 	}
 
 	@Override
@@ -32,8 +39,4 @@ public abstract class AbstractAttributeCondition implements AttributeCondition, 
 		return value;
 	}
 
-	@Override
-	public int getSpecificity() {
-		return 1 << 8;
-	}
 }

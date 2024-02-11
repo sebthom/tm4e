@@ -24,8 +24,8 @@ import org.eclipse.tm4e.registry.XMLConstants;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.utils.UI;
 import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 /**
  * {@link ITheme} implementation.
@@ -83,9 +83,9 @@ public class Theme extends TMResource implements ITheme {
 	}
 
 	@Override
-	public IToken getToken(final String type) {
+	public IToken getToken(final String textMateTokenType) {
 		final ITokenProvider provider = getTokenProvider();
-		return provider == null ? ITokenProvider.DEFAULT_TOKEN : provider.getToken(type);
+		return provider == null ? ITokenProvider.DEFAULT_TOKEN : provider.getToken(textMateTokenType);
 	}
 
 	private @Nullable Color getPriorityColor(final @Nullable Color themeColor, final String prefStoreKey) {
@@ -145,7 +145,7 @@ public class Theme extends TMResource implements ITheme {
 	@Nullable
 	private ITokenProvider getTokenProvider() {
 		if (tokenProvider == null || isModified()) {
-			try (InputStream in = super.getInputStream()) {
+			try (InputStream in = getInputStream()) {
 				tokenProvider = new CSSTokenProvider(in);
 			} catch (final Exception ex) {
 				TMUIPlugin.logError(ex);

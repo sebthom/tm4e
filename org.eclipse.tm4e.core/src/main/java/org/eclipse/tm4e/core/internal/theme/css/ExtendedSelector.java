@@ -20,7 +20,7 @@ public interface ExtendedSelector extends SimpleSelector {
 	 */
 	int getSpecificity();
 
-	int nbMatch(String... names);
-
 	int nbClass();
+
+	int nbMatch(String... names);
 }

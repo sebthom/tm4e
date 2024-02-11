@@ -69,12 +69,13 @@ public class CSSParser {
 		int bestSpecificity = 0;
 		IStyle bestStyle = null;
 		for (final IStyle style : handler.getList()) {
-			final SelectorList list = ((CSSStyle) style).getSelectorList();
+			final SelectorList list = ((CSSStyle) style).selectorList;
 			for (int i = 0, l = list.getLength(); i < l; i++) {
 				final var selector = (ExtendedSelector) list.item(i);
 				final int nbMatch = selector.nbMatch(names);
-				if ((nbMatch >= bestSpecificity || bestStyle == null)
-						&& nbMatch > 0 && nbMatch == selector.nbClass()) {
+				if (nbMatch > 0 //
+						&& (nbMatch >= bestSpecificity || bestStyle == null)
+						&& nbMatch == selector.nbClass()) {
 					bestStyle = style;
 					bestSpecificity = nbMatch;
 				}

@@ -46,12 +46,12 @@ final class CSSConditionalSelector implements ConditionalSelector, ExtendedSelec
 	}
 
 	@Override
-	public int nbMatch(final String... names) {
-		return selector.nbMatch(names) + condition.nbMatch(names);
+	public int nbClass() {
+		return selector.nbClass() + condition.nbClass();
 	}
 
 	@Override
-	public int nbClass() {
-		return selector.nbClass() + condition.nbClass();
+	public int nbMatch(final String... names) {
+		return selector.nbMatch(names) + condition.nbMatch(names);
 	}
 }

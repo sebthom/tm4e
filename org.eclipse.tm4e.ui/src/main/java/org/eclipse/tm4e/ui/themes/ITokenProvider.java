@@ -25,13 +25,9 @@ public interface ITokenProvider {
 	IToken DEFAULT_TOKEN = new Token(null);
 
 	/**
-	 * Returns the Eclipse {@link IToken} from the given type and {@link #DEFAULT_TOKEN} otherwise.
-	 *
-	 * @param type
-	 *
-	 * @return the Eclipse {@link IToken} from the given type and {@link #DEFAULT_TOKEN} otherwise.
+	 * @return the Eclipse JFace Text {@link IToken} for the given TexMate token type or {@link #DEFAULT_TOKEN} if the given type is empty.
 	 */
-	IToken getToken(String type);
+	IToken getToken(String tmTokenType);
 
 	@Nullable
 	Color getEditorBackground();

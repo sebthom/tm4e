@@ -20,13 +20,15 @@ import org.w3c.css.sac.helpers.ParserFactory;
 
 /**
  * SAC Parser Factory.
+ *
+ * @see <a href=
+ *      "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/sac/SACParserFactory.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/sac/SACParserFactory.java</a>
  */
 public abstract class AbstractSACParserFactory extends ParserFactory implements ISACParserFactory {
 
 	private static final Logger LOGGER = System.getLogger(AbstractSACParserFactory.class.getName());
 
-	@Nullable
-	private String preferredParserName;
+	private @Nullable String preferredParserName;
 
 	/**
 	 * Return default instance of SAC Parser. If preferredParserName is filled,
@@ -35,8 +37,7 @@ public abstract class AbstractSACParserFactory extends ParserFactory implements 
 	 * property with key org.w3c.css.sac.parser.
 	 */
 	@Override
-	public Parser makeParser() throws ClassNotFoundException, IllegalAccessException, InstantiationException,
-			NullPointerException, ClassCastException {
+	public Parser makeParser() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 		try {
 			if (preferredParserName != null) {
 				return makeParser(preferredParserName);
@@ -47,14 +48,13 @@ public abstract class AbstractSACParserFactory extends ParserFactory implements 
 		return super.makeParser();
 	}
 
-	@Nullable
 	@Override
-	public String getPreferredParserName() {
+	public @Nullable String getPreferredParserName() {
 		return preferredParserName;
 	}
 
 	@Override
-	public void setPreferredParserName(@Nullable final String preferredParserName) {
+	public void setPreferredParserName(final @Nullable String preferredParserName) {
 		this.preferredParserName = preferredParserName;
 	}
 }

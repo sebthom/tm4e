@@ -14,15 +14,19 @@ package org.eclipse.tm4e.core.internal.theme.css;
 import org.w3c.css.sac.CombinatorCondition;
 import org.w3c.css.sac.Condition;
 
-public abstract class AbstractCombinatorCondition implements CombinatorCondition, ExtendedCondition {
+/**
+ * @see <a href=
+ *      "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/sac/AbstractCombinatorCondition.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/impl/sac/AbstractCombinatorCondition.java</a>
+ */
+abstract class AbstractCombinatorCondition implements CombinatorCondition, ExtendedCondition {
 
-	protected final ExtendedCondition firstCondition;
-	protected final ExtendedCondition secondCondition;
+	final ExtendedCondition firstCondition;
+	final ExtendedCondition secondCondition;
 
 	/**
 	 * Creates a new CombinatorCondition object.
 	 */
-	protected AbstractCombinatorCondition(final ExtendedCondition c1, final ExtendedCondition c2) {
+	AbstractCombinatorCondition(final ExtendedCondition c1, final ExtendedCondition c2) {
 		firstCondition = c1;
 		secondCondition = c2;
 	}

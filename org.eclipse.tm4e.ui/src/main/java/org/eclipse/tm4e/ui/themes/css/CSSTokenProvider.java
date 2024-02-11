@@ -76,11 +76,11 @@ public class CSSTokenProvider implements ITokenProvider {
 	}
 
 	@Override
-	public IToken getToken(final @Nullable String type) {
-		if (type == null || type.isEmpty())
+	public IToken getToken(final String textMateTokenType) {
+		if (textMateTokenType.isEmpty())
 			return DEFAULT_TOKEN;
 
-		return getTokenReturnValueCache.computeIfAbsent(type, this::getTokenInternal);
+		return getTokenReturnValueCache.computeIfAbsent(textMateTokenType, this::getTokenInternal);
 	}
 
 	private IToken getTokenInternal(final String type) {

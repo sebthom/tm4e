@@ -16,13 +16,9 @@ import org.w3c.css.sac.SelectorList;
 
 public class CSSStyle extends Style {
 
-	private final SelectorList selector;
+	public final SelectorList selectorList;
 
-	public CSSStyle(final SelectorList selector) {
-		this.selector = selector;
-	}
-
-	public SelectorList getSelectorList() {
-		return selector;
+	CSSStyle(final SelectorList selectorList) {
+		this.selectorList = selectorList;
 	}
 }

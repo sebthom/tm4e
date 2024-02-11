@@ -13,31 +13,34 @@ package org.eclipse.tm4e.core.internal.theme.css.sac;
 /**
  * SAC Constants Parsers.
  *
+ * @see <a href=
+ *      "https://github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/SACConstants.java">github.com/eclipse-platform/eclipse.platform.ui/blob/master/bundles/org.eclipse.e4.ui.css.core/src/org/eclipse/e4/ui/css/core/SACConstants.java</a>
+ *
  * @author <a href="mailto:angelo.zerr@gmail.com">Angelo ZERR</a>
  *
  * @version 1.0.0
  */
-public final class SACConstants {
+final class SACConstants {
 
 	/**
 	 * org.w3c.flute.parser.Parser SAC Parser.
 	 */
-	public static final String SACPARSER_FLUTE = "org.w3c.flute.parser.Parser";
+	static final String SACPARSER_FLUTE = "org.w3c.flute.parser.Parser";
 
 	/**
 	 * org.w3c.flute.parser.Parser SAC Parser.
 	 */
-	public static final String SACPARSER_FLUTE_CSS3 = "org.w3c.flute.parser.CSS3Parser";
+	static final String SACPARSER_FLUTE_CSS3 = "org.w3c.flute.parser.CSS3Parser";
 
 	/**
 	 * com.steadystate.css.parser.SACParser SAC Parser
 	 */
-	public static final String SACPARSER_STEADYSTATE = "com.steadystate.css.parser.SACParser";
+	static final String SACPARSER_STEADYSTATE = "com.steadystate.css.parser.SACParser";
 
 	/**
 	 * org.apache.batik.css.parser.Parser SAC Parser.
 	 */
-	public static final String SACPARSER_BATIK = "org.apache.batik.css.parser.Parser";
+	static final String SACPARSER_BATIK = "org.apache.batik.css.parser.Parser";
 
 	private SACConstants() {
 	}
