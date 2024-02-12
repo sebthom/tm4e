@@ -7,51 +7,51 @@
 }
 
 .header {
-	color: rgba(0, 0, 128, 1);
+	color: rgb(0, 0, 128);
 }
 
 .comment {
-	color: rgba(0, 128, 0, 1);
+	color: rgb(0, 128, 0);
 }
 
 .constant.language {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .constant.numeric {
-	color: rgba(9, 136, 90, 1);
+	color: rgb(9, 136, 90);
 }
 
 .constant.regexp {
-	color: rgba(129, 31, 63, 1);
+	color: rgb(129, 31, 63);
 }
 
 .constant.rgb-value {
-	color: rgba(4, 81, 165, 1);
+	color: rgb(4, 81, 165);
 }
 
 .entity.name.tag {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .entity.name.selector {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .entity.other.attribute-name {
-	color: rgba(255, 0, 0, 1);
+	color: rgb(255, 0, 0);
 }
 
 .entity.other.attribute-name.css {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .entity.other.attribute-name.scss {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .invalid {
-	color: rgba(205, 49, 49, 1);
+	color: rgb(205, 49, 49);
 }
 
 .markup.underline {
@@ -60,12 +60,12 @@
 
 .markup.bold {
 	font-weight: bold;
-	color: rgba(0, 0, 128, 1);
+	color: rgb(0, 0, 128);
 }
 
 .markup.heading {
 	font-weight: bold;
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .markup.italic {
@@ -73,221 +73,221 @@
 }
 
 .markup.inserted {
-	color: rgba(9, 136, 90, 1);
+	color: rgb(9, 136, 90);
 }
 
 .markup.deleted {
-	color: rgba(163, 21, 21, 1);
+	color: rgb(163, 21, 21);
 }
 
 .markup.changed {
-	color: rgba(4, 81, 165, 1);
+	color: rgb(4, 81, 165);
 }
 
 .markup.punctuation.quote.beginning {
-	color: rgba(4, 81, 165, 1);
+	color: rgb(4, 81, 165);
 }
 
 .markup.punctuation.list.beginning {
-	color: rgba(4, 81, 165, 1);
+	color: rgb(4, 81, 165);
 }
 
 .markup.inline.raw {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .meta.selector {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .meta.tag {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .meta.preprocessor {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .meta.preprocessor.string {
-	color: rgba(163, 21, 21, 1);
+	color: rgb(163, 21, 21);
 }
 
 .meta.preprocessor.numeric {
-	color: rgba(9, 136, 90, 1);
+	color: rgb(9, 136, 90);
 }
 
 .meta.structure.dictionary.key.python {
-	color: rgba(4, 81, 165, 1);
+	color: rgb(4, 81, 165);
 }
 
 .storage {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .storage.type {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .storage.modifier {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .string {
-	color: rgba(163, 21, 21, 1);
+	color: rgb(163, 21, 21);
 }
 
 .string.xml {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .string.jade {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .string.yaml {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .string.html {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .string.regexp {
-	color: rgba(129, 31, 63, 1);
+	color: rgb(129, 31, 63);
 }
 
 .support.property-value {
-	color: rgba(4, 81, 165, 1);
+	color: rgb(4, 81, 165);
 }
 
 .support.type.property-name.css {
-	color: rgba(255, 0, 0, 1);
+	color: rgb(255, 0, 0);
 }
 
 .support.type.property-name.less {
-	color: rgba(255, 0, 0, 1);
+	color: rgb(255, 0, 0);
 }
 
 .support.type.property-name.scss {
-	color: rgba(255, 0, 0, 1);
+	color: rgb(255, 0, 0);
 }
 
 .support.type.property-name {
-	color: rgba(4, 81, 165, 1);
+	color: rgb(4, 81, 165);
 }
 
 .keyword {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .keyword.control {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .keyword.operator {
-	color: rgba(0, 0, 0, 1);
+	color: rgb(0, 0, 0);
 }
 
 .keyword.operator.new {
-	color: rgba(0, 0, 255, 1);
+	color: rgb(0, 0, 255);
 }
 
 .keyword.other.unit {
-	color: rgba(9, 136, 90, 1);
+	color: rgb(9, 136, 90);
 }
 
 .keyword.control.less {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .metatag.php {
-	color: rgba(128, 0, 0, 1);
+	color: rgb(128, 0, 0);
 }
 
 .support.function.git-rebase {
-	color: rgba(4, 81, 165, 1);
+	color: rgb(4, 81, 165);
 }
 
 .constant.sha.git-rebase {
-	color: rgba(9, 136, 90, 1);
+	color: rgb(9, 136, 90);
 }
 
 .storage.modifier.import.java {
-	color: rgba(0, 0, 0, 1);
+	color: rgb(0, 0, 0);
 }
 
 .storage.modifier.package.java {
-	color: rgba(0, 0, 0, 1);
+	color: rgb(0, 0, 0);
 }
 
 .meta.type.name {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .meta.return.type {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .meta.return-type {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .meta.cast {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .meta.type.annotation {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .support.type {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .entity.name.class {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .entity.name.type {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .storage.type.cs {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .storage.type.java {
-	color: rgba(38, 127, 153, 1);
+	color: rgb(38, 127, 153);
 }
 
 .entity.name.function {
-	color: rgba(121, 94, 38, 1);
+	color: rgb(121, 94, 38);
 }
 
 .entity.name.method {
-	color: rgba(121, 94, 38, 1);
+	color: rgb(121, 94, 38);
 }
 
 .keyword.control {
-	color: rgba(175, 0, 219, 1);
+	color: rgb(175, 0, 219);
 }
 
 .meta.parameter.type.variable {
-	color: rgba(0, 16, 128, 1);
+	color: rgb(0, 16, 128);
 }
 
 .variable.parameter {
-	color: rgba(0, 16, 128, 1);
+	color: rgb(0, 16, 128);
 }
 
 .variable {
-	color: rgba(0, 16, 128, 1);
+	color: rgb(0, 16, 128);
 }
 
 .variable.name {
-	color: rgba(0, 16, 128, 1);
+	color: rgb(0, 16, 128);
 }
 
-.editor { background-color: rgba(255, 255, 255, 1); color: rgba(0, 0, 0, 1); }
-.editor.lineHighlight  {background-color:  rgba(238, 238, 238, 1); }
+.editor { background-color: rgb(255, 255, 255); color: rgb(0, 0, 0); }
+.editor.lineHighlight  {background-color:  rgb(238, 238, 238); }
 .editor.selection {}
