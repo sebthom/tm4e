@@ -86,11 +86,11 @@ public final class TestUtils {
 	}
 
 	public static boolean isCI() {
-		return Boolean.getBoolean("CI");
+		return "true".equals(System.getenv("CI"));
 	}
 
 	public static boolean isGitHubActions() {
-		return Boolean.getBoolean("GITHUB_ACTIONS");
+		return "true".equals(System.getenv("GITHUB_ACTIONS"));
 	}
 
 	public static void waitForAndAssertCondition(int timeout_ms, Condition condition) {

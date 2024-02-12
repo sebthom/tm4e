@@ -18,17 +18,17 @@ import java.util.List;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.registry.IGrammarSource;
 import org.eclipse.tm4e.core.registry.Registry;
+import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.tests.support.TMEditor;
 import org.eclipse.tm4e.ui.tests.support.TestUtils;
 import org.eclipse.tm4e.ui.tests.support.command.ICommand;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
-import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
+import org.eclipse.tm4e.ui.themes.ThemeIdConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
 class TMPresentationReconcilerTypeScriptTest {
 
 	private IGrammar grammar;
@@ -43,9 +43,7 @@ class TMPresentationReconcilerTypeScriptTest {
 		TestUtils.assertNoTM4EThreadsRunning();
 
 		grammar = new Registry().addGrammar(IGrammarSource.fromResource(getClass(), "/grammars/TypeScript.tmLanguage.json"));
-		try (final var is = getClass().getResourceAsStream("/themes/Solarized-light.css")) {
-			theme = new CSSTokenProvider(is);
-		}
+		theme =  TMUIPlugin.getThemeManager().getThemeById(ThemeIdConstants.SolarizedLight);
 	}
 
 	@AfterEach
