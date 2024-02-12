@@ -31,6 +31,9 @@ public final class TMParserYAML extends TMParserJSON {
 			.setDefaultSet(HashSet::new)
 			.build();
 
+	protected TMParserYAML() {
+	}
+
 	@Override
 	@SuppressWarnings({ "null", "unchecked" })
 	protected Map<String, Object> loadRaw(final Reader source) {

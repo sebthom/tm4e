@@ -57,6 +57,9 @@ public final class TMParserPList implements TMParser {
 		}
 	}
 
+	protected TMParserPList() {
+	}
+
 	@Override
 	public <T extends PropertySettable<?>> T parse(final Reader source, final ObjectFactory<T> factory)
 			throws Exception {

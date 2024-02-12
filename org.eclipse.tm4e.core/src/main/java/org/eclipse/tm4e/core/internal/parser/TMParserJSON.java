@@ -26,6 +26,9 @@ public class TMParserJSON implements TMParser {
 
 	private static final Gson LOADER = new Gson();
 
+	protected TMParserJSON() {
+	}
+
 	protected Map<String, Object> loadRaw(final Reader source) {
 		return LOADER.fromJson(source, Map.class);
 	}
