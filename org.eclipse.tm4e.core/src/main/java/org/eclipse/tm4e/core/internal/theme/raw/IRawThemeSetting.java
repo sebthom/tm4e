@@ -12,7 +12,6 @@
 package org.eclipse.tm4e.core.internal.theme.raw;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.tm4e.core.internal.theme.IThemeSetting;
 
 /**
  * A single theme setting.
@@ -25,6 +24,9 @@ public interface IRawThemeSetting {
 	@Nullable
 	String getName();
 
+	/**
+	 * @return String || List<String>
+	 */
 	@Nullable
 	Object getScope();
 

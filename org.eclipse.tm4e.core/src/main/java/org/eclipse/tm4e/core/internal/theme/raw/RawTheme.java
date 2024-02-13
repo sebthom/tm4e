@@ -15,13 +15,15 @@ import java.util.Collection;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.internal.parser.PropertySettable;
-import org.eclipse.tm4e.core.internal.theme.IThemeSetting;
 
 public final class RawTheme extends PropertySettable.HashMap<@Nullable Object>
 		implements IRawTheme, IRawThemeSetting, IThemeSetting {
 
 	private static final long serialVersionUID = 1L;
 
+	/*
+	 * IRawTheme
+	 */
 	@Nullable
 	@Override
 	public String getName() {
@@ -35,6 +37,9 @@ public final class RawTheme extends PropertySettable.HashMap<@Nullable Object>
 		return (Collection<IRawThemeSetting>) super.get("settings");
 	}
 
+	/*
+	 * IRawThemeSetting
+	 */
 	@Nullable
 	@Override
 	public Object getScope() {
@@ -47,10 +52,13 @@ public final class RawTheme extends PropertySettable.HashMap<@Nullable Object>
 		return (IThemeSetting) super.get("settings");
 	}
 
+	/*
+	 * IThemeSetting
+	 */
 	@Nullable
 	@Override
-	public Object getFontStyle() {
-		return super.get("fontStyle");
+	public String getFontStyle() {
+		return (String) super.get("fontStyle");
 	}
 
 	@Nullable
