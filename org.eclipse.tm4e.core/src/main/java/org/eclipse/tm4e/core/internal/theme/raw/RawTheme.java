@@ -24,52 +24,45 @@ public final class RawTheme extends PropertySettable.HashMap<@Nullable Object>
 	/*
 	 * IRawTheme
 	 */
-	@Nullable
 	@Override
-	public String getName() {
-		return (String) super.get("name");
+	public @Nullable String getName() {
+		return (String) get("name");
 	}
 
-	@SuppressWarnings("unchecked")
-	@Nullable
 	@Override
-	public Collection<IRawThemeSetting> getSettings() {
+	@SuppressWarnings("unchecked")
+	public @Nullable Collection<IRawThemeSetting> getSettings() {
 		return (Collection<IRawThemeSetting>) super.get("settings");
 	}
 
 	/*
 	 * IRawThemeSetting
 	 */
-	@Nullable
 	@Override
-	public Object getScope() {
-		return super.get("scope");
+	public @Nullable Object getScope() {
+		return get("scope");
 	}
 
-	@Nullable
 	@Override
-	public IThemeSetting getSetting() {
-		return (IThemeSetting) super.get("settings");
+	public @Nullable IThemeSetting getSetting() {
+		return (IThemeSetting) get("settings");
 	}
 
 	/*
 	 * IThemeSetting
 	 */
-	@Nullable
 	@Override
-	public String getFontStyle() {
-		return (String) super.get("fontStyle");
+	public @Nullable String getFontStyle() {
+		return (String) get("fontStyle");
 	}
 
-	@Nullable
 	@Override
-	public String getBackground() {
-		return (String) super.get("background");
+	public @Nullable String getBackground() {
+		return (String) get("background");
 	}
 
-	@Nullable
 	@Override
-	public String getForeground() {
-		return (String) super.get("foreground");
+	public @Nullable String getForeground() {
+		return (String) get("foreground");
 	}
 }

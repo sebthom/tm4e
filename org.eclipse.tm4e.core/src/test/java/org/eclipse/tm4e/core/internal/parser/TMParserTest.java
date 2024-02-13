@@ -12,6 +12,7 @@
  */
 package org.eclipse.tm4e.core.internal.parser;
 
+import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.castNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.tm4e.core.Data;
 import org.eclipse.tm4e.core.internal.grammar.raw.RawGrammar;
 import org.eclipse.tm4e.core.internal.grammar.raw.RawGrammarReader;
@@ -198,19 +199,19 @@ class TMParserTest {
 	}
 
 	@Test
+	@NonNullByDefault({})
 	void testLanguagePackGrammars() throws IOException {
 		final var count = new AtomicInteger();
 		Files.walkFileTree(Paths.get("../org.eclipse.tm4e.language_pack"), new SimpleFileVisitor<Path>() {
 			@Override
-			@SuppressWarnings("null")
-			public FileVisitResult visitFile(final Path file, final @Nullable BasicFileAttributes attrs) throws IOException {
+			public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
 				if (file.getFileName().toString().endsWith("tmLanguage.json")) {
 					try (var input = Files.newBufferedReader(file)) {
 						System.out.println("Parsing [" + file + "]...");
 						final var grammar = TMParserJSON.INSTANCE.parse(input, RawGrammarReader.OBJECT_FACTORY);
 						count.incrementAndGet();
 						assertFalse(grammar.getScopeName().isBlank());
-						assertFalse(grammar.getPatterns().isEmpty());
+						assertFalse(castNonNull(grammar.getPatterns()).isEmpty());
 						assertNotNull(grammar.getFileTypes());
 						assertNotNull(grammar.getRepository());
 					} catch (final Exception ex) {

@@ -18,22 +18,22 @@ import java.util.Objects;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * @see <a href=
- *      "https://github.com/microsoft/vscode-textmate/blob/09effd8b7429b71010e0fa34ea2e16e622692946/src/theme.ts#L430">
- *      github.com/microsoft/vscode-textmate/blob/main/src/theme.ts</a>
+ * Based on <a href="https://github.com/microsoft/vscode-textmate/blob/09effd8b7429b71010e0fa34ea2e16e622692946/src/theme.ts#L430">
+ * github.com/microsoft/vscode-textmate/blob/main/src/theme.ts#ThemeTrieElementRule</a>.
+ * <p>
+ * See also <a href=
+ * "https://github.com/microsoft/vscode/blob/ba2cf46e20df3edf77bdd905acde3e175d985f70/src/vs/editor/common/languages/supports/tokenization.ts#L276">
+ * github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/tokenization.ts#ThemeTrieElementRule</a>
  */
 public class ThemeTrieElementRule {
 
 	public int scopeDepth;
-
-	@Nullable
-	public final List<String> parentScopes;
-
+	public final @Nullable List<String> parentScopes;
 	public int fontStyle;
 	public int foreground;
 	public int background;
 
-	public ThemeTrieElementRule(final int scopeDepth, @Nullable final List<String> parentScopes, final int fontStyle, final int foreground,
+	public ThemeTrieElementRule(final int scopeDepth, final @Nullable List<String> parentScopes, final int fontStyle, final int foreground,
 			final int background) {
 		this.scopeDepth = scopeDepth;
 		this.parentScopes = parentScopes;
@@ -84,7 +84,7 @@ public class ThemeTrieElementRule {
 	}
 
 	@Override
-	public boolean equals(@Nullable final Object obj) {
+	public boolean equals(final @Nullable Object obj) {
 		if (this == obj)
 			return true;
 		if (obj instanceof final ThemeTrieElementRule other)

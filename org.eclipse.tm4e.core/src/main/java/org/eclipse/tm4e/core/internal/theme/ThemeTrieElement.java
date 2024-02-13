@@ -22,9 +22,12 @@ import java.util.Map;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
- * @see <a href=
- *      "https://github.com/microsoft/vscode-textmate/blob/09effd8b7429b71010e0fa34ea2e16e622692946/src/theme.ts#L481">
- *      github.com/microsoft/vscode-textmate/blob/main/src/theme.ts</a>
+ * Based on <a href="https://github.com/microsoft/vscode-textmate/blob/09effd8b7429b71010e0fa34ea2e16e622692946/src/theme.ts#L481">
+ * github.com/microsoft/vscode-textmate/blob/main/src/theme.ts#ThemeTrieElement</a>.
+ * <p>
+ * See also <a href=
+ * "https://github.com/microsoft/vscode/blob/ba2cf46e20df3edf77bdd905acde3e175d985f70/src/vs/editor/common/languages/supports/tokenization.ts#L338">
+ * github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/tokenization.ts#ThemeTrieElement</a>
  */
 public final class ThemeTrieElement {
 

@@ -11,13 +11,14 @@
  */
 package org.eclipse.tm4e.ui.tests.themes;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.eclipse.tm4e.ui.internal.themes.AbstractThemeManager;
+import java.util.stream.Stream;
+
+import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.themes.ITheme;
-import org.eclipse.tm4e.ui.themes.Theme;
+import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.tm4e.ui.themes.ThemeIdConstants;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,47 +26,7 @@ import org.junit.jupiter.api.Test;
  */
 class ThemeManagerTest implements ThemeIdConstants {
 
-	private static final class MockThemeManager extends AbstractThemeManager {
-
-		@Override
-		protected void registerTheme(ITheme theme) {
-			super.registerTheme(theme);
-		}
-
-		@Override
-		public EditSession newEditSession() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	private MockThemeManager manager;
-
-	@BeforeEach
-	public void setup() {
-		manager = new MockThemeManager();
-
-		// Register theme
-		manager.registerTheme(new Theme(SolarizedLight, "./themes/SolarizedLight.css", "SolarizedLight", false) {
-			@Override
-			public boolean isDefault() {
-				return true;
-			}
-		});
-		manager.registerTheme(new Theme(Light, "./themes/Light.css", "Light", false));
-		manager.registerTheme(new Theme(Dark, "./themes/Dark.css", "Dark", true) {
-			@Override
-			public boolean isDefault() {
-				return true;
-			}
-		});
-		manager.registerTheme(new Theme(Monokai, "./themes/Monokai.css", "Monokai", true));
-	}
-
-	@Test
-	void testGetAllThemes() {
-		final ITheme[] themes = manager.getThemes();
-		assertEquals(4, themes.length);
-	}
+	private final IThemeManager manager = TMUIPlugin.getThemeManager();
 
 	@Test
 	void testDefaultThemeAssociation() {
@@ -74,17 +35,17 @@ class ThemeManagerTest implements ThemeIdConstants {
 	}
 
 	@Test
-	void testDarkThemes() {
-		// All themes for Dark E4 CSS Theme
+	void testAllThemesAreRegistered() {
+		// All Dark themes
 		final ITheme[] darkThemes = manager.getThemes(true);
-		assertEquals(2, darkThemes.length);
-		assertEquals(Dark, darkThemes[0].getId());
-		assertEquals(Monokai, darkThemes[1].getId());
+		assertTrue(Stream.of(darkThemes).anyMatch(t -> t.getId().equals(Dark)));
+		assertTrue(Stream.of(darkThemes).anyMatch(t -> t.getId().equals(Monokai)));
 
 		// All themes for Other E4 CSS Theme
-		final ITheme[] otherThemes = manager.getThemes(false);
-		assertEquals(2, otherThemes.length);
-		assertEquals(SolarizedLight, otherThemes[0].getId());
-		assertEquals(Light, otherThemes[1].getId());
+		final ITheme[] lightThemes = manager.getThemes(false);
+		assertTrue(Stream.of(lightThemes).anyMatch(t -> t.getId().equals(Light)));
+		assertTrue(Stream.of(lightThemes).anyMatch(t -> t.getId().equals(EclipseLight)));
+		assertTrue(Stream.of(lightThemes).anyMatch(t -> t.getId().equals(SolarizedLight)));
+		assertTrue(Stream.of(lightThemes).anyMatch(t -> t.getId().equals(WtpXmlClassic)));
 	}
 }

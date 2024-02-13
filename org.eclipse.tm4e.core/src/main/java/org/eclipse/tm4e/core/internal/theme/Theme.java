@@ -30,9 +30,12 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
 /**
  * TextMate theme.
  *
- * @see <a href=
- *      "https://github.com/microsoft/vscode-textmate/blob/09effd8b7429b71010e0fa34ea2e16e622692946/src/theme.ts#L7">
- *      github.com/microsoft/vscode-textmate/blob/main/src/theme.ts</a>
+ * Based on <a href="https://github.com/microsoft/vscode-textmate/blob/09effd8b7429b71010e0fa34ea2e16e622692946/src/theme.ts#L7">
+ * github.com/microsoft/vscode-textmate/blob/main/src/theme.ts#Theme</a>.
+ * <p>
+ * See also <a href=
+ * "https://github.com/microsoft/vscode/blob/ba2cf46e20df3edf77bdd905acde3e175d985f70/src/vs/editor/common/languages/supports/tokenization.ts#L192">
+ * github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/tokenization.ts#TokenTheme</a>
  */
 public final class Theme {
 
@@ -64,13 +67,11 @@ public final class Theme {
 		return this._defaults;
 	}
 
-	@Nullable
-	public StyleAttributes match(@Nullable final ScopeStack scopePath) {
+	public @Nullable StyleAttributes match(@Nullable final ScopeStack scopePath) {
 		if (scopePath == null) {
 			return this._defaults;
 		}
 		final var scopeName = scopePath.scopeName;
-
 		final var matchingTrieElements = this._cachedMatchRoot.computeIfAbsent(scopeName, _root::match);
 
 		final var effectiveRule = findFirstMatching(matchingTrieElements,
@@ -116,14 +117,12 @@ public final class Theme {
 	 * Parse a raw theme into rules.
 	 */
 	public static List<ParsedThemeRule> parseTheme(@Nullable final IRawTheme source) {
-		if (source == null) {
+		if (source == null)
 			return Collections.emptyList();
-		}
 
 		final var settings = source.getSettings();
-		if (settings == null) {
+		if (settings == null)
 			return Collections.emptyList();
-		}
 
 		final var result = new ArrayList<ParsedThemeRule>();
 		int i = -1;

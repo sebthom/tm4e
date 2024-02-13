@@ -24,25 +24,17 @@ import org.eclipse.jdt.annotation.Nullable;
 public class ParsedThemeRule {
 
 	public final String scope;
-
-	@Nullable
-	public final List<String> parentScopes;
-
+	public final @Nullable List<String> parentScopes;
 	public final int index;
 
-	/**
-	 * -1 if not set. An or mask of `FontStyle` otherwise.
-	 */
+	/** -1 if not set. An or mask of `FontStyle` otherwise. */
 	public final int fontStyle;
 
-	@Nullable
-	public final String foreground;
+	public final @Nullable String foreground;
+	public final @Nullable String background;
 
-	@Nullable
-	public final String background;
-
-	public ParsedThemeRule(final String scope, @Nullable final List<String> parentScopes, final int index, final int fontStyle,
-			@Nullable final String foreground, @Nullable final String background) {
+	public ParsedThemeRule(final String scope, final @Nullable List<String> parentScopes, final int index, final int fontStyle,
+			final @Nullable String foreground, final @Nullable String background) {
 		this.scope = scope;
 		this.parentScopes = parentScopes;
 		this.index = index;
@@ -62,7 +54,7 @@ public class ParsedThemeRule {
 	}
 
 	@Override
-	public boolean equals(@Nullable final Object obj) {
+	public boolean equals(final @Nullable Object obj) {
 		if (this == obj)
 			return true;
 		if (obj instanceof final ParsedThemeRule other)
@@ -73,7 +65,6 @@ public class ParsedThemeRule {
 					&& Objects.equals(parentScopes, other.parentScopes)
 					&& Objects.equals(scope, other.scope);
 		return false;
-
 	}
 
 	@Override

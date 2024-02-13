@@ -17,8 +17,7 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
 /**
- * Provider to retrieve Eclipse {@link IToken} from the TextMate token type.
- *
+ * Provider to retrieve Eclipse JFace Text {@link IToken}s for TextMate token types.
  */
 public interface ITokenProvider {
 

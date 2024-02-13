@@ -118,12 +118,10 @@ public class CSSTokenProvider implements ITokenProvider {
 		return getColor(true, "editor", "selection");
 	}
 
-
 	@Override
 	public @Nullable Color getEditorSelectionBackground() {
 		return getColor(false, "editor", "selection");
 	}
-
 
 	@Override
 	public @Nullable Color getEditorCurrentLineHighlight() {

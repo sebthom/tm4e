@@ -26,14 +26,15 @@ import org.eclipse.jdt.annotation.Nullable;
 public class StyleAttributes {
 	private static final StyleAttributes NO_STYLE = new StyleAttributes(-1, 0, 0);
 
+	/** @see FontStyle */
 	public final int fontStyle;
 	public final int foregroundId;
 	public final int backgroundId;
 
 	public static StyleAttributes of(final int fontStyle, final int foregroundId, final int backgroundId) {
-		if (fontStyle == -1 && foregroundId == 0 && backgroundId == 0) {
+		if (fontStyle == -1 && foregroundId == 0 && backgroundId == 0)
 			return NO_STYLE;
-		}
+
 		return new StyleAttributes(fontStyle, foregroundId, backgroundId);
 	}
 

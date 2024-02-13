@@ -147,7 +147,7 @@ public class TMTokenizationSupport implements ITokenizationSupport {
 		final var scopeTokensMaps = new HashMap<Integer /* level */, Map<Integer, Boolean>>();
 		Map<Integer, Boolean> prevScopeTokensMaps = new HashMap<>();
 		boolean sameAsPrev = true;
-		for (int level = 1/* deliberately skip scope 0 */; level < scopes.size(); level++) {
+		for (int level = 1/* deliberately skip scope 0 */, scopeLength = scopes.size(); level < scopeLength; level++) {
 			final String scope = scopes.get(level);
 
 			if (sameAsPrev) {
