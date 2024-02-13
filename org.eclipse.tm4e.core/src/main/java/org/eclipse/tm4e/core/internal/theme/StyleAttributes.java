@@ -60,4 +60,9 @@ public class StyleAttributes {
 		result = 31 * result + fontStyle;
 		return 31 * result + foregroundId;
 	}
+
+	@Override
+	public String toString() {
+		return "StyleAttributes [fontStyle=" + fontStyle + ", foregroundId=" + foregroundId + ", backgroundId=" + backgroundId + "]";
+	}
 }

@@ -78,4 +78,10 @@ public class Style implements IStyle {
 	public void setStrikeThrough(final boolean enabled) {
 		strikeThrough = enabled;
 	}
+
+	@Override
+	public String toString() {
+		return "Style [color=" + color + ", backgroundColor=" + backgroundColor + ", bold=" + bold + ", italic=" + italic + ", underline="
+				+ underline + ", strikeThrough=" + strikeThrough + "]";
+	}
 }

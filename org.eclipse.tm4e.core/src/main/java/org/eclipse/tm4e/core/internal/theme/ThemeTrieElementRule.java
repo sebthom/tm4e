@@ -95,4 +95,10 @@ public class ThemeTrieElementRule {
 					&& Objects.equals(parentScopes, other.parentScopes);
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "ThemeTrieElementRule [fontStyle=" + fontStyle + ", foreground=" + foreground + ", background=" + background
+				+ ", scopeDepth=" + scopeDepth + ", parentScopes=" + parentScopes + "]";
+	}
 }
