@@ -196,8 +196,8 @@ public class LanguageConfigurationInfoWidget extends Composite {
 		final FoldingRules folding = configuration.getFolding();
 		if (folding != null) {
 			foldingOffsideText.setText(Boolean.toString(folding.offSide));
-			foldingMarkersStartText.setText(folding.markersStart.pattern());
-			foldingMarkersEndText.setText(folding.markersEnd.pattern());
+			foldingMarkersStartText.setText(folding.markers.start.pattern());
+			foldingMarkersEndText.setText(folding.markers.end.pattern());
 		}
 
 		final String wordPattern = configuration.getWordPattern();
