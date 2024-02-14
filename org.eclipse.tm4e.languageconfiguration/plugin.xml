@@ -16,6 +16,17 @@
 
    <extension-point id="languageConfigurations" name="%LanguageConfigurations.extension.name" schema="schema/languageConfigurations.exsd" />
 
+   <extension
+         point="org.eclipse.ui.genericeditor.foldingReconcilers">
+      <foldingReconcilingStrategy
+            class="org.eclipse.tm4e.languageconfiguration.internal.TMFoldingStrategy"
+            contentType="org.eclipse.core.runtime.text">
+         <enabledWhen>
+            <reference definitionId="org.eclipse.tm4e.languageconfiguration.editorHasLanguageConfiguration" />
+         </enabledWhen>
+      </foldingReconcilingStrategy>
+   </extension>
+
    <!-- Preference Pages -->
    <extension point="org.eclipse.ui.preferencePages">
       <page name="%LanguageConfigurationPage.name"
@@ -177,6 +188,16 @@
          <with variable="activeEditor">
             <test property="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration" forcePluginActivation="true" />
          </with>
+      </definition>
+      <definition id="org.eclipse.tm4e.languageconfiguration.editorHasLanguageConfiguration">
+         <or>
+            <with variable="editorInput">
+               <test property="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration" forcePluginActivation="true" />
+            </with>
+            <with variable="viewer">
+               <test property="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration" forcePluginActivation="true" />
+            </with>
+         </or>
       </definition>
    </extension>
 </plugin>
