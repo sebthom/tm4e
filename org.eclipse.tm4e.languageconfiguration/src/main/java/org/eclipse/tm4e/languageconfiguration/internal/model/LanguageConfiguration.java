@@ -311,7 +311,7 @@ public final class LanguageConfiguration {
 		if (element.isJsonObject()) {
 			// ex : { "pattern": "^<\\/([_:\\w][_:\\w-.\\d]*)\\s*>", "flags": "i" }
 			final var pattern = getAsString(((JsonObject) element).get("pattern"));
-			if (pattern == null) {
+			if (pattern == null || pattern.isEmpty()) {
 				return null;
 			}
 			final var flags = getAsString(((JsonObject) element).get("flags"));

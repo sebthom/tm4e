@@ -49,7 +49,7 @@ class ParsingTest {
 			  "folding": {
 			    "markers": {
 			      "start": "{%\\\\s*(block|filter|for|if|macro|raw)",
-			      "end": ""
+			      "end": "{%\\\\s*end(block|filter|for|if|macro|raw)\\\\s*%}"
 			    }
 			  }
 			}"""));
@@ -59,7 +59,7 @@ class ParsingTest {
 
 		final var folding = languageConfiguration.getFolding();
 		assert folding != null;
-		assertTrue(folding.markersStart.getClass().getSimpleName().endsWith("OnigRegExPattern"));
+		assertTrue(folding.markers.start.getClass().getSimpleName().endsWith("OnigRegExPattern"));
 	}
 
 	@Test

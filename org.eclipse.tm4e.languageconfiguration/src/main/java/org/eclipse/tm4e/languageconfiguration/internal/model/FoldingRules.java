@@ -23,6 +23,29 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
 public final class FoldingRules {
 
 	/**
+	 * Describes language specific folding markers such as '#region' and '#endregion'.
+	 * The start and end regexes will be tested against the contents of all lines and must be designed efficiently:
+	 * - the regex should start with '^'
+	 * - regexp flags (i, g) are ignored
+	 */
+	public final class FoldingMarkers {
+		public final RegExPattern start;
+		public final RegExPattern end;
+
+		public FoldingMarkers(RegExPattern start, RegExPattern end) {
+			this.start = start;
+			this.end = end;
+		}
+
+		@Override
+		public String toString() {
+			return StringUtils.toString(this, sb -> sb
+					.append("start=").append(start).append(", ")
+					.append("end=").append(end));
+		}
+	}
+
+	/**
 	 * Used by the indentation based strategy to decide whether empty lines belong to the previous or the next block.
 	 * A language adheres to the off-side rule if blocks in that language are expressed by their indentation.
 	 * See [wikipedia](https://en.wikipedia.org/wiki/Off-side_rule) for more information.
@@ -30,20 +53,17 @@ public final class FoldingRules {
 	 * If not set, `false` is used and empty lines belong to the previous block.
 	 */
 	public final boolean offSide;
-	public final RegExPattern markersStart;
-	public final RegExPattern markersEnd;
+	public final FoldingMarkers markers;
 
 	public FoldingRules(final boolean offSide, final RegExPattern markersStart, final RegExPattern markersEnd) {
 		this.offSide = offSide;
-		this.markersStart = markersStart;
-		this.markersEnd = markersEnd;
+		this.markers = new FoldingMarkers(markersStart, markersEnd);
 	}
 
 	@Override
 	public String toString() {
 		return StringUtils.toString(this, sb -> sb
-				.append("markersStart=").append(markersStart).append(", ")
-				.append("markersEnd=").append(markersEnd).append(", ")
+				.append("markers=").append(", ")
 				.append("offSide=").append(offSide));
 	}
 }
