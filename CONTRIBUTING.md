@@ -126,4 +126,6 @@ GitHub provides additional documentation on [forking a repository](https://help.
 1. Upon completion of the build, run https://ci.eclipse.org/tm4e/job/promote-snapshot-to-release/ with version `x.y.z`
 1. Create a new `x.y.z` release entry on GitHub, from the `x.y.z` tag.
 1. Create a new `x.y.z` release entry on https://projects.eclipse.org/projects/technology.tm4e
+1. Create a PR to update https://github.com/eclipse-simrel/simrel.build/blob/main/tm4e.aggrcon
 1. (Optionally) Announce on mailing-lists. social media...
+1. Run `python bump-version.py patch` and commit all changed pom.xml/feature.xml/MANIFEST.MF files to `main` branch
