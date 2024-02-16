@@ -127,5 +127,6 @@ GitHub provides additional documentation on [forking a repository](https://help.
 1. Create a new `x.y.z` release entry on GitHub, from the `x.y.z` tag.
 1. Create a new `x.y.z` release entry on https://projects.eclipse.org/projects/technology.tm4e
 1. Create a PR to update https://github.com/eclipse-simrel/simrel.build/blob/main/tm4e.aggrcon
+   - For SimRel release dates see https://github.com/eclipse-simrel/.github/blob/main/wiki/Simultaneous_Release.md
 1. (Optionally) Announce on mailing-lists. social media...
 1. Run `python bump-version.py patch` and commit all changed pom.xml/feature.xml/MANIFEST.MF files to `main` branch
