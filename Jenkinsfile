@@ -21,7 +21,8 @@ pipeline {
 		}
 		stage('Build') {
 			steps {
-				withMaven(maven:'apache-maven-latest', mavenLocalRepo: '$WORKSPACE/.m2/repository') {
+				// https://wiki.eclipse.org/Jenkins#Apache_Maven
+				withMaven(maven:'apache-maven-3.9.5', mavenLocalRepo: '$WORKSPACE/.m2/repository') {
 				withCredentials([string(credentialsId: 'gpg-passphrase', variable: 'KEYRING_PASSPHRASE')]) {
 				wrap([$class: 'Xvnc', useXauthority: true]) {
 					sh '''mvn clean verify \

@@ -8,17 +8,14 @@
 	<version>0.10.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<prerequisites>
-		<maven>3.9.6</maven>
-	</prerequisites>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-version>4.0.5</tycho-version>
 		<sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/tm4e.git</tycho.scmUrl>
+		<tycho-surefire-plugin.vmargs></tycho-surefire-plugin.vmargs>
 		<jgit.dirtyWorkingTree>error</jgit.dirtyWorkingTree>
-		<tycho-surefire-plugin.platformArgs></tycho-surefire-plugin.platformArgs>
+		<maven-enforcer-rule.version>3.9.5</maven-enforcer-rule.version>
 		<tm4e.target-platform>oldest</tm4e.target-platform>
 	</properties>
 	<organization>
@@ -34,6 +31,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
 	<modules>
 		<module>org.eclipse.tm4e.core</module>
 		<module>org.eclipse.tm4e.core.tests</module>
@@ -49,26 +47,41 @@
 		<module>org.eclipse.tm4e.language_pack.feature</module>
 		<module>org.eclipse.tm4e.repository</module>
 	</modules>
+
+	<scm>
+		<url>https://github.com/eclipse/tm4e</url>
+		<connection>scm:git:https://github.com/eclipse/tm4e</connection>
+		<developerConnection>scm:git:https://github.com/eclipse/tm4e</developerConnection>
+	</scm>
+
 	<build>
-		<defaultGoal>clean install</defaultGoal>
+		<defaultGoal>clean verify</defaultGoal>
+
 		<!-- plain surefire tests without tycho -->
 		<testSourceDirectory>src/test/java</testSourceDirectory>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-surefire-plugin</artifactId>
-					<version>${tycho-version}</version>
-					<configuration>
-						<!-- https://wiki.eclipse.org/Tycho/FAQ#How_to_use_SWTBot_or_some_UI_tool_for_testing.3F -->
-						<useUIHarness>true</useUIHarness>
-						<useUIThread>true</useUIThread>
-						<argLine>-Xms512m -Xmx512m ${tycho-surefire-plugin.platformArgs}</argLine>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.4.1</version>
+				<executions>
+					<execution>
+						<id>enforce</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<fail>true</fail>
+							<rules>
+								<requireMavenVersion>
+									<version>${maven-enforcer-rule.version}</version>
+								</requireMavenVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
@@ -79,12 +92,27 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
-				<inherited>true</inherited>
 				<configuration>
-					<pomDependencies>consider</pomDependencies>
 					<target>
 						<file>${maven.multiModuleProjectDirectory}/target-platforms/${tm4e.target-platform}.target</file>
 					</target>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
 				</configuration>
 			</plugin>
 			<!-- see: http://mukis.de/pages/simple-junit-tests-with-tycho-and-surefire/ -->
@@ -167,7 +195,7 @@
 				<configuration>
 					<baselineRepositories>
 						<repository>
-							<url>http://download.eclipse.org/tm4e/snapshots</url>
+						<url>https://download.eclipse.org/tm4e/snapshots</url>
 						</repository>
 					</baselineRepositories>
 					<defaultP2Metadata>false</defaultP2Metadata>
@@ -177,6 +205,14 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
 				<version>${tycho-version}</version>
+				<configuration>
+					<sourceReferences>
+						<generate>true</generate>
+					</sourceReferences>
+					<timestampProvider>jgit</timestampProvider>
+					<jgit.ignore>pom.xml</jgit.ignore>
+					<jgit.dirtyWorkingTree>${jgit.dirtyWorkingTree}</jgit.dirtyWorkingTree>
+				</configuration>
 				<dependencies>
 					<dependency>
 						<groupId>org.eclipse.tycho</groupId>
@@ -189,41 +225,25 @@
 						<version>${tycho-version}</version>
 					</dependency>
 				</dependencies>
-				<configuration>
-					<sourceReferences>
-						<generate>true</generate>
-					</sourceReferences>
-					<timestampProvider>jgit</timestampProvider>
-					<jgit.ignore>pom.xml</jgit.ignore>
-					<jgit.dirtyWorkingTree>${jgit.dirtyWorkingTree}</jgit.dirtyWorkingTree>
-				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>com.mycila.maven-license-plugin</groupId>
-				<artifactId>maven-license-plugin</artifactId>
-				<version>1.9.0</version>
-				<configuration>
-					<basedir>${basedir}</basedir>
-					<header>license.txt</header>
-					<includes>
-						<include>src/**/*.java</include>
-					</includes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-release-plugin</artifactId>
-				<configuration>
-					<autoVersionSubmodules>true</autoVersionSubmodules>
-					<releaseProfiles>lax</releaseProfiles>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.6.3</version>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<!-- Make sure we don't forget to bump version -->
+					<execution>
+						<id>compare-version-with-baseline</id>
+						<goals>
+							<goal>compare-version-with-baselines</goal>
+						</goals>
+						<configuration>
+							<baselines>
+								<url>https://download.eclipse.org/tm4e/releases/latest</url>
+							</baselines>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -242,35 +262,35 @@
 					</includes>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-p2-extras-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<id>compare-version-with-baseline</id>
-						<goals>
-							<goal>compare-version-with-baselines</goal>
-						</goals>
-						<configuration>
-							<baselines>
-								<url>http://download.eclipse.org/tm4e/releases/latest</url>
-							</baselines>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<!-- https://wiki.eclipse.org/Tycho/FAQ#How_to_use_SWTBot_or_some_UI_tool_for_testing.3F -->
+						<useUIHarness>true</useUIHarness>
+						<useUIThread>true</useUIThread>
+						<argLine>-Xms512m -Xmx512m ${tycho-surefire-plugin.vmargs}</argLine>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.6.3</version>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
-	<scm>
-		<url>https://github.com/eclipse/tm4e</url>
-		<connection>scm:git:https://github.com/eclipse/tm4e</connection>
-		<developerConnection>scm:git:https://github.com/eclipse/tm4e</developerConnection>
-	</scm>
 	<profiles>
 		<profile>
-			<!-- This profile prevents local maven builds from failing if uncomitted changes are present -->
+			<!-- This profile prevents local maven builds from failing if uncommitted changes are present -->
 			<id>local-dev</id>
 			<activation>
 				<property>
@@ -282,21 +302,6 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>lax</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>tycho-packaging-plugin</artifactId>
-						<version>${tycho-version}</version>
-						<configuration>
-							<strictVersions>false</strictVersions>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
 			<id>sign</id>
 			<build>
 				<plugins>
@@ -306,7 +311,7 @@
 						<version>1.4.3</version>
 						<executions>
 							<execution>
-								<id>jarsigner</id>
+								<id>sign-jars</id>
 								<phase>package</phase>
 								<goals>
 									<goal>sign</goal>
@@ -317,15 +322,16 @@
 				</plugins>
 			</build>
 		</profile>
+		<!-- Automatic profile for Mac-specific settings -->
 		<profile>
-			<id>macosx</id>
+			<id>macos</id>
 			<activation>
 				<os>
 					<family>mac</family>
 				</os>
 			</activation>
 			<properties>
-				<tycho-surefire-plugin.platformArgs>-XstartOnFirstThread</tycho-surefire-plugin.platformArgs>
+				<tycho-surefire-plugin.vmargs>-XstartOnFirstThread</tycho-surefire-plugin.vmargs>
 			</properties>
 		</profile>
 	</profiles>
@@ -350,17 +356,17 @@
 			<releases><enabled>true</enabled></releases>
 		</pluginRepository>
 		<pluginRepository>
+			<id>tycho-snapshots</id>
+			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
+			<snapshots><enabled>true</enabled></snapshots>
+			<releases><enabled>false</enabled></releases>
+		</pluginRepository>
+		<pluginRepository>
 		  	<id>dash-licenses-snapshots</id>
 		  	<url>https://repo.eclipse.org/content/repositories/dash-licenses-snapshots/</url>
 			<snapshots><enabled>true</enabled></snapshots>
 			<releases><enabled>false</enabled></releases>
   		</pluginRepository>
-		<pluginRepository>
-			<id>tycho-snapshots</id>
-			<url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
-			<snapshots><enabled>false</enabled></snapshots>
-			<releases><enabled>true</enabled></releases>
-		</pluginRepository>
 	</pluginRepositories>
 
 </project>
