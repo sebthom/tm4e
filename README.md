@@ -13,7 +13,10 @@ TM4E is an [official Eclipse.org project](https://projects.eclipse.org/projects/
 
 ### in Eclipse IDE or RCP applications
 
-You can install TM4E with the update site [https://download.eclipse.org/tm4e/snapshots/](https://download.eclipse.org/tm4e/snapshots/). TM4E is usually installed together with its consumers, so end-user should usually not need to directly install it.
+You can install TM4E from the update site [https://download.eclipse.org/tm4e/releases/latest/](https://download.eclipse.org/tm4e/releases/latest/).
+TM4E is usually installed together with its consumers, so end-user should usually not need to directly install it.
+
+The latest snapshot build can be installed from the update site [https://download.eclipse.org/tm4e/snapshots/](https://download.eclipse.org/tm4e/snapshots/).
 
 ### as a Java API with Maven
 
