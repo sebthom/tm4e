@@ -63,7 +63,7 @@ jobs:
         key: ${{ runner.os }}-repo-tycho-${{ hashFiles('target-platforms/oldest.target') }}
 
     - name: "Install: Maven"
-      uses: stCarolas/setup-maven@v4.5 # https://github.com/stCarolas/setup-maven
+      uses: stCarolas/setup-maven@v5 # https://github.com/stCarolas/setup-maven
       with:
         maven-version: 3.9.6
 
