@@ -10,14 +10,15 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.minimum.version>3.9.5</maven.minimum.version>
 		<tycho-version>4.0.7</tycho-version>
 		<sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
 		<tycho.scmUrl>scm:git:https://github.com/eclipse/tm4e.git</tycho.scmUrl>
 		<tycho-surefire-plugin.vmargs></tycho-surefire-plugin.vmargs>
 		<jgit.dirtyWorkingTree>error</jgit.dirtyWorkingTree>
-		<maven-enforcer-rule.version>3.9.5</maven-enforcer-rule.version>
 		<tm4e.target-platform>oldest</tm4e.target-platform>
 	</properties>
+
 	<organization>
 		<name>Eclipse TM4E project</name>
 		<url>https://projects.eclipse.org/projects/technology.tm4e</url>
@@ -75,7 +76,7 @@
 							<fail>true</fail>
 							<rules>
 								<requireMavenVersion>
-									<version>${maven-enforcer-rule.version}</version>
+									<version>${maven.minimum.version}</version>
 								</requireMavenVersion>
 							</rules>
 						</configuration>
