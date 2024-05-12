@@ -8,6 +8,7 @@
  *
  * Contributors:
  * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Sebastian Thomschke (Vegard IT) - major refactoring, type safe elements, addition of optional filter bar
  */
 package org.eclipse.tm4e.ui.internal.widgets;
 
@@ -25,7 +26,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * Widget which display a table on the left and buttons on the right.
+ * Widget which display a table on the left and buttons on the right
+ * and an optional filter bar on top.
  */
 public abstract class TableWithControlsWidget<T> extends Composite {
 
