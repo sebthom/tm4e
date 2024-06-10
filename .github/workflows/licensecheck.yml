@@ -108,7 +108,7 @@ jobs:
            maven_args="--no-transfer-progress"
         fi
 
-        mvn \
+        (set -x; mvn \
           --errors \
           --update-snapshots \
           --batch-mode \
@@ -132,7 +132,7 @@ jobs:
         org.eclipse.tm4e.registry,\
         org.eclipse.tm4e.samples,\
         org.eclipse.tm4e.ui,\
-        org.eclipse.ui.tests.harness
+        org.eclipse.ui.tests.harness)
 
 
     - name: Dash Summary
