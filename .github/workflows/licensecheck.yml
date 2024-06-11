@@ -108,6 +108,10 @@ jobs:
            maven_args="--no-transfer-progress"
         fi
 
+        if [[ -n $DASH_IPLAB_TOKEN ]]; then
+          dash_iplab_token_arg="-Ddash.iplab.token=$DASH_IPLAB_TOKEN"
+        fi
+
         (set -x; mvn \
           --errors \
           --update-snapshots \
@@ -118,7 +122,7 @@ jobs:
           org.eclipse.dash:license-tool-plugin:license-check \
           -Dtycho.target.eager=true \
           -Ddash.projectId=technology.tm4e \
-          -Ddash.iplab.token="$DASH_IPLAB_TOKEN" \
+          ${dash_iplab_token_arg:-} \
           -Ddash.fail=true \
           -Ddash.summary=DEPENDENCIES \
           -DexcludeArtifactIds=\
