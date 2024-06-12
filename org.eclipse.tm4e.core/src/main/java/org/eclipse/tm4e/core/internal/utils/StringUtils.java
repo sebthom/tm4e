@@ -79,6 +79,7 @@ public final class StringUtils {
 	 *
 	 * 7.5 times faster than {@link String#split(String)} and 2.5 times faster than {@link com.google.common.base.Splitter}.
 	 */
+	@SuppressWarnings("javadoc")
 	public static String[] splitToArray(final String line, final char separator) {
 		return splitToArray(line, separator, -1);
 	}
@@ -88,6 +89,7 @@ public final class StringUtils {
 	 *
 	 * 7.5 times faster than {@link String#split(String)} and 2.5 times faster than {@link com.google.common.base.Splitter}.
 	 */
+	@SuppressWarnings("javadoc")
 	public static String[] splitToArray(final String line, final char separator, final int limit) {
 		if (line.isEmpty())
 			return new String[] { "" };
