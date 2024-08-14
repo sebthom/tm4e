@@ -11,18 +11,14 @@ TM4E is an [official Eclipse.org project](https://projects.eclipse.org/projects/
 
 ## 📥 Install
 
-### in Eclipse IDE or RCP applications
+### 1) in Eclipse IDE or RCP applications
 
 You can install TM4E from the update site [https://download.eclipse.org/tm4e/releases/latest/](https://download.eclipse.org/tm4e/releases/latest/).
 TM4E is usually installed together with its consumers, so end-user should usually not need to directly install it.
 
 The latest snapshot build can be installed from the update site [https://download.eclipse.org/tm4e/snapshots/](https://download.eclipse.org/tm4e/snapshots/).
 
-### as a Java API with Maven
-
-[more information coming soon]
-
-### Eclipse IDE compatibility
+#### Eclipse IDE compatibility
 
 TM4E version | Min. Eclipse version
 -------------|--------------------
@@ -33,6 +29,47 @@ TM4E version | Min. Eclipse version
 [0.6.3](https://download.eclipse.org/tm4e/releases/0.6.3/)+  | [2022-12](https://projects.eclipse.org/releases/2022-12) ([4.26](https://projects.eclipse.org/projects/eclipse/releases/4.26.0))
 [0.6.2](https://download.eclipse.org/tm4e/releases/0.6.2/)+  | [2022-09](https://projects.eclipse.org/releases/2022-09) ([4.25](https://projects.eclipse.org/projects/eclipse/releases/4.25.0))
 [0.6.0](https://download.eclipse.org/tm4e/releases/0.6.0/)+  | [2022-03](https://projects.eclipse.org/releases/2022-03) ([4.23](https://projects.eclipse.org/projects/eclipse/releases/4.23.0))
+
+
+### 2) as a Java API with Maven
+
+**Snapshot** binaries of `org.eclipse.tm4e.core` are available at https://repo.eclipse.org/content/repositories/tm4e-snapshots/org/eclipse/org.eclipse.tm4e.core/.
+You need to add the following repository configuration to your Maven `settings.xml`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<settings>
+  <profiles>
+    <profile>
+      <repositories>
+        <repository>
+          <id>tm4e-snapshots</id>
+          <name>tm4e-snapshots</name>
+          <url>https://repo.eclipse.org/content/repositories/tm4e-snapshots/</url>
+          <releases><enabled>false</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>tm4e-snapshots</activeProfile>
+  </activeProfiles>
+</settings>
+```
+
+Then you can reference the dependency in your pom.xml like so:
+```xml
+<dependencies>
+  <dependency>
+    <groupId>org.eclipse</groupId>
+    <artifactId>org.eclipse.tm4e.core</artifactId>
+    <version>[VERSION]-SNAPSHOT</version>
+  </dependency>
+</dependencies>
+```
+
+[more information coming ...]
 
 
 ## ⌨️ Code
