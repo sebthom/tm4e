@@ -15,26 +15,45 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.IntSupplier;
 
-import org.eclipse.jdt.annotation.Nullable;
+public class CharsInputStream extends InputStream {
 
-class CharsInputStream extends InputStream {
+	/**
+	 * Functional interface for supplying characters at a specified index.
+	 * Implementations can define how characters are fetched.
+	 */
 	@FunctionalInterface
 	public interface CharsSupplier {
 		char charAt(int index) throws Exception;
 	}
 
 	private enum EncoderState {
-		ENCODING,
-		FLUSHING,
+		/**
+		 * The {@link #encoder} is actively encoding characters into bytes. This is the
+		 * initial state of the encoder.
+		 */
+		ENCODING, //
+
+		/**
+		 * The {@link #encoder} has finished processing all characters and is now
+		 * flushing any remaining bytes in its internal buffer.
+		 */
+		FLUSHING, //
+
+		/**
+		 * The {@link #encoder} has completed both the encoding and flushing processes.
+		 * No more data is left to be read from the encoder.
+		 */
 		DONE
 	}
+
+	public static final char UNICODE_REPLACEMENT_CHAR = '\uFFFD';
 
 	/** 512 surrogate character pairs */
 	private static final int DEFAULT_BUFFER_SIZE = 512;
@@ -50,27 +69,27 @@ class CharsInputStream extends InputStream {
 	private final CharsSupplier chars;
 	private final IntSupplier charsLength;
 
-	CharsInputStream(final CharSequence chars) {
-		this(chars, null);
+	public CharsInputStream(final CharSequence chars) {
+		this(chars, Charset.defaultCharset());
 	}
 
-	CharsInputStream(final CharSequence chars, final @Nullable Charset charset) {
+	public CharsInputStream(final CharSequence chars, final Charset charset) {
 		this(chars, charset, DEFAULT_BUFFER_SIZE);
 	}
 
-	CharsInputStream(final CharSequence chars, final @Nullable Charset charset, final int bufferSize) {
+	public CharsInputStream(final CharSequence chars, final Charset charset, final int bufferSize) {
 		this(chars::charAt, chars::length, charset, bufferSize);
 	}
 
-	CharsInputStream(final CharsSupplier chars, final IntSupplier charsLength) {
-		this(chars, charsLength, null);
+	public CharsInputStream(final CharsSupplier chars, final IntSupplier charsLength) {
+		this(chars, charsLength, Charset.defaultCharset());
 	}
 
 	/**
 	 * @param chars function to access indexed chars.
 	 * @param charsLength function to get the number of indexed chars provided by the <code>chars</code> parameter.
 	 */
-	CharsInputStream(final CharsSupplier chars, final IntSupplier charsLength, final @Nullable Charset charset) {
+	CharsInputStream(final CharsSupplier chars, final IntSupplier charsLength, final Charset charset) {
 		this(chars, charsLength, charset, DEFAULT_BUFFER_SIZE);
 	}
 
@@ -79,10 +98,10 @@ class CharsInputStream extends InputStream {
 	 * @param charsLength function to get the number of indexed chars provided by the <code>chars</code> parameter.
 	 * @param bufferSize number of surrogate character pairs to encode at once.
 	 */
-	CharsInputStream(final CharsSupplier chars, final IntSupplier charsLength, final @Nullable Charset charset, final int bufferSize) {
+	public CharsInputStream(final CharsSupplier chars, final IntSupplier charsLength, final Charset charset, final int bufferSize) {
 		if (bufferSize < 1)
 			throw new IllegalArgumentException("[bufferSize] must be 1 or larger");
-		encoder = (charset == null ? StandardCharsets.UTF_8 : charset).newEncoder();
+		encoder = charset.newEncoder();
 
 		this.bufferSize = bufferSize;
 		charBuffer = CharBuffer.allocate(bufferSize * 2); // buffer for 2 chars (high/low surrogate)
@@ -100,10 +119,47 @@ class CharsInputStream extends InputStream {
 		return remaining == 0 ? charsLength.getAsInt() - charIndex : remaining;
 	}
 
-	public Charset getCharset() {
-		return encoder.charset();
+	/**
+	 * This method is called by {@link #refillByteBuffer()} to encode characters
+	 * from the given {@link CharBuffer} into bytes and stores them in the
+	 * {@link #byteBuffer}.
+	 *
+	 * <p>
+	 * The method can be used either to encode characters in the middle of input
+	 * (with {@code isEndOfInput=false}) or to finalize the encoding process at the
+	 * end of input (with {@code isEndOfInput=true}).
+	 * </p>
+	 *
+	 * @param in
+	 *            the {@link CharBuffer} containing characters to encode.
+	 * @param isEndOfInput
+	 *            if {@code true}, signals that no more input will be provided,
+	 *            allowing the encoder to complete its final encoding steps.
+	 */
+	private void encodeChars(final CharBuffer in, final boolean isEndOfInput) throws CharacterCodingException {
+		byteBuffer.clear();
+		final CoderResult result = encoder.encode(in, byteBuffer, isEndOfInput);
+		byteBuffer.flip();
+		if (result.isError()) {
+			result.throwException();
+		}
 	}
 
+	/**
+	 * Flushes the remaining bytes from the encoder to the {@link #byteBuffer}.
+	 *
+	 * <p>
+	 * This method is called by {@link #refillByteBuffer()} when all characters have
+	 * been processed, and the encoder needs to output any remaining bytes. It
+	 * transitions the encoder state from {@link EncoderState#ENCODING} to
+	 * {@link EncoderState#FLUSHING}, and eventually to {@link EncoderState#DONE}
+	 * once all bytes have been flushed.
+	 * </p>
+	 *
+	 * @return {@code true} if there are still bytes left in the {@link #byteBuffer}
+	 *         after flushing, or if the encoder still has more bytes to flush;
+	 *         {@code false} if the flush is complete and no bytes remain.
+	 */
 	private boolean flushEncoder() throws IOException {
 		if (encoderState == EncoderState.DONE)
 			return false;
@@ -117,8 +173,12 @@ class CharsInputStream extends InputStream {
 		final CoderResult result = encoder.flush(byteBuffer);
 		byteBuffer.flip();
 
-		if (result.isOverflow()) // byteBuffer too small
+		if (result.isOverflow()) {
+			// the byteBuffer has been filled, but there are more bytes to be flushed.
+			// after reading all available bytes from byteBuffer, flushEncoder() needs to
+			// be called again to process the remaining data.
 			return true;
+		}
 
 		if (result.isError()) {
 			result.throwException();
@@ -128,9 +188,13 @@ class CharsInputStream extends InputStream {
 		return byteBuffer.hasRemaining();
 	}
 
+	public Charset getCharset() {
+		return encoder.charset();
+	}
+
 	@Override
 	public int read() throws IOException {
-		if (!byteBuffer.hasRemaining() && !refillBuffer())
+		if (!byteBuffer.hasRemaining() && !refillByteBuffer())
 			return EOF;
 		return byteBuffer.get() & 0xFF; // next byte as an unsigned integer (0 to 255)
 	}
@@ -146,7 +210,7 @@ class CharsInputStream extends InputStream {
 
 		while (bytesRead < bytesToRead) {
 			if (bytesReadable == 0) {
-				if (refillBuffer()) {
+				if (refillByteBuffer()) {
 					bytesReadable = byteBuffer.remaining();
 				} else
 					return bytesRead == 0 ? EOF : bytesRead;
@@ -161,7 +225,16 @@ class CharsInputStream extends InputStream {
 		return bytesRead;
 	}
 
-	private boolean refillBuffer() throws IOException {
+	/**
+	 * Refills the {@link #byteBuffer} by reading characters from the character
+	 * supplier, encoding them, and storing the resulting bytes into the
+	 * {@link #byteBuffer}.
+	 *
+	 * @return {@code true} if the buffer was successfully refilled and has bytes
+	 *         available for reading, {@code false} if the end of the stream is
+	 *         reached and there are no more bytes to read.
+	 */
+	private boolean refillByteBuffer() throws IOException {
 		if (encoderState == EncoderState.DONE)
 			return false;
 
@@ -173,12 +246,7 @@ class CharsInputStream extends InputStream {
 		// if EOF is reached transition to flushing
 		if (charIndex >= charsLen) {
 			// finalize encoding before switching to flushing
-			byteBuffer.clear();
-			final CoderResult result = encoder.encode(CharBuffer.allocate(0), byteBuffer, true /* signal EOF */);
-			byteBuffer.flip();
-			if (result.isError()) {
-				result.throwException();
-			}
+			encodeChars(CharBuffer.allocate(0), true /* signal EOF */);
 			return flushEncoder();
 		}
 
@@ -195,11 +263,11 @@ class CharsInputStream extends InputStream {
 							charBuffer.put(lowSurrogate);
 						} else {
 							// missing low surrogate - fallback to replacement character
-							charBuffer.put('\uFFFD');
+							charBuffer.put(UNICODE_REPLACEMENT_CHAR);
 						}
 					} else {
 						// missing low surrogate - fallback to replacement character
-						charBuffer.put('\uFFFD');
+						charBuffer.put(UNICODE_REPLACEMENT_CHAR);
 						break;
 					}
 				} else {
@@ -209,12 +277,7 @@ class CharsInputStream extends InputStream {
 			charBuffer.flip();
 
 			// encode chars into bytes
-			byteBuffer.clear();
-			final CoderResult result = encoder.encode(charBuffer, byteBuffer, false);
-			byteBuffer.flip();
-			if (result.isError()) {
-				result.throwException();
-			}
+			encodeChars(charBuffer, false);
 		} catch (final Exception ex) {
 			throw new IOException(ex);
 		}

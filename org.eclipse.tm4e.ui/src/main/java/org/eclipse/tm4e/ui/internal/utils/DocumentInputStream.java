@@ -16,19 +16,18 @@ import java.nio.charset.Charset;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 
 public final class DocumentInputStream extends CharsInputStream {
 
-	private static @Nullable Charset getCharset(final IDocument document) {
+	private static Charset getCharset(final IDocument document) {
 		final ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
 		if (bufferManager == null)
-			return null;
+			return Charset.defaultCharset();
 		final ITextFileBuffer buffer = bufferManager.getTextFileBuffer(document);
 		if (buffer == null)
-			return null;
+			return Charset.defaultCharset();
 		try {
 			final String charsetName = buffer.getEncoding();
 			if (charsetName != null)
@@ -36,7 +35,7 @@ public final class DocumentInputStream extends CharsInputStream {
 		} catch (final Exception ex) {
 			TMUIPlugin.logError(ex);
 		}
-		return null;
+		return Charset.defaultCharset();
 	}
 
 	public DocumentInputStream(final IDocument doc) {
