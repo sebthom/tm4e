@@ -38,7 +38,7 @@ jobs:
     - name: Mask Dash IP Token
       if: ${{ inputs.dash-iplab-token != '' }}
       run: |
-        DASH_IPLAB_TOKEN=$(jq -r '.inputs.dash-iplab-token' $GITHUB_EVENT_PATH)
+        DASH_IPLAB_TOKEN=$(jq -r '.inputs."dash-iplab-token"' $GITHUB_EVENT_PATH)
         DASH_IPLAB_TOKEN=$(echo "$DASH_IPLAB_TOKEN" | xargs) # trim string
         echo "::add-mask::$DASH_IPLAB_TOKEN"
         echo "DASH_IPLAB_TOKEN=$DASH_IPLAB_TOKEN" >> $GITHUB_ENV
