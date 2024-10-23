@@ -1458,6 +1458,16 @@
     <snippet name="YAML Example" path="syntaxes/yaml/yaml.example.yaml" scopeName="source.yaml" />
   </extension>
 
+  <!-- ======================================== -->
+  <!-- yaml: Inline Grammars -->
+  <!-- ======================================== -->
+  <extension point="org.eclipse.tm4e.registry.grammars">
+    <grammar scopeName="source.yaml.1.0" path="syntaxes/yaml/source.yaml.1.0.tmLanguage.json" />
+    <grammar scopeName="source.yaml.1.1" path="syntaxes/yaml/source.yaml.1.1.tmLanguage.json" />
+    <grammar scopeName="source.yaml.1.2" path="syntaxes/yaml/source.yaml.1.2.tmLanguage.json" />
+    <grammar scopeName="source.yaml.1.3" path="syntaxes/yaml/source.yaml.1.3.tmLanguage.json" />
+  </extension>
+
   <!-- END-GENERATED -->
 
 </plugin>
