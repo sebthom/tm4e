@@ -7,7 +7,7 @@ on:
     inputs:
       type:
         description: Type
-        default: micro'
+        default: micro
         required: true
         type: choice
         options:
