@@ -94,7 +94,7 @@ sources:
     github:
       repo: microsoft/vscode
       path: extensions
-      ref: "1.98.2" # https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/20242
+      ref: "1.99.3"  # https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/21554
     license-download: false
     include-all-by-default: true
     extensions:
@@ -131,6 +131,9 @@ sources:
 
       log:
         ignored: 'broken, maybe because of file extension: *.log.?'
+
+      ruby:
+        ignored: newer versions use a lot of variable-length lookbehinds not supported by Joni
 
       markdown-math:
         languages:

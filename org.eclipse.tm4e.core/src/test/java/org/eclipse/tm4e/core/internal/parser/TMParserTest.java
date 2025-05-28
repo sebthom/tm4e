@@ -260,7 +260,7 @@ class TMParserTest {
 						grammar.tokenizeLine("");
 
 					} catch (final Exception ex) {
-						throw new RuntimeException(ex);
+						throw new RuntimeException("Failed to parse [" + file + "]", ex);
 					}
 				}
 				return FileVisitResult.CONTINUE;
