@@ -1,9 +1,33 @@
+/**
+ * Copyright (c) 2022,2025 Vegard IT GmbH and others.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ * Sebastian Thomschke (Vegard IT) - initial implementation
+ * Alexander Shapayev - add testTokenizeMultiByteLine2
+ */
 package org.eclipse.tm4e.core.internal.grammar;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.castNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.Data;
+import org.eclipse.tm4e.core.internal.grammar.tokenattrs.EncodedTokenAttributes;
+import org.eclipse.tm4e.core.internal.grammar.tokenattrs.OptionalStandardTokenType;
+import org.eclipse.tm4e.core.registry.IGrammarConfiguration;
 import org.eclipse.tm4e.core.registry.IGrammarSource;
+import org.eclipse.tm4e.core.registry.IRegistryOptions;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.jupiter.api.Test;
 
@@ -49,20 +73,60 @@ class TokenizeLineTest {
 		}
 	}
 
-	/**
-	 * TODO
-	 */
 	@Test
 	void testTokenizeLine2() throws Exception {
-		final var grammar = new Registry().addGrammar(IGrammarSource.fromResource(Data.class, "JavaScript.tmLanguage"));
+		final var jsScope = "source.js";
 
-		final var lineTokens2 = grammar.tokenizeLine2("function add(a,b) { return a+b; }");
-		for (int i = 0; i < lineTokens2.getTokens().length; i++) {
-			final int token = lineTokens2.getTokens()[i];
-			System.out.println(token);
+		final var languageMap = new HashMap<String, Integer>();
+		languageMap.put(jsScope, 1);
+
+		final var tokenMap = new HashMap<String, Integer>();
+		tokenMap.put("comment.block.js", OptionalStandardTokenType.Comment);
+		tokenMap.put("string.single.js", OptionalStandardTokenType.String);
+
+		final var registry = new Registry(new IRegistryOptions() {
+			@Override
+			public @Nullable IGrammarSource getGrammarSource(final String scopeName) {
+				return switch (scopeName) {
+					case jsScope -> IGrammarSource.fromResource(Data.class, "JavaScript.tmLanguage.json");
+					default -> null;
+				};
+			}
+		});
+
+		final var grammar = registry.loadGrammarWithConfiguration(jsScope, castNonNull(languageMap.get(jsScope)),
+				new IGrammarConfiguration() {
+
+					@Override
+					public @Nullable Map<String, Integer> getTokenTypes() {
+						return tokenMap;
+					}
+				});
+		assertNotNull(grammar);
+
+		final var lineText = "console.log('hi'); /*comment*/}";
+		final var lineTokens2 = grammar.tokenizeLine2(lineText);
+		final int[] encodedTokens = lineTokens2.getTokens();
+
+		final var lineTokens = new ArrayList<String>();
+		for (int i = 0; i < encodedTokens.length; i += 2) {
+			final int meta = encodedTokens[i + 1];
+
+			final int languageId = EncodedTokenAttributes.getLanguageId(meta);
+			assertEquals(languageMap.get(jsScope), languageId);
+
+			final int start = encodedTokens[i];
+			final int end = i + 2 < encodedTokens.length ? encodedTokens[i + 2] : lineText.length();
+			final int tokenType = EncodedTokenAttributes.getTokenType(meta);
+			lineTokens.add("Token [start=" + start + ", end=" + end + ", tokenType=" + tokenType + "]");
 		}
 
-		System.out.println("----------");
+		assertThat(lineTokens).containsExactly(
+				"Token [start=0, end=12, tokenType=" + OptionalStandardTokenType.Other + "]",
+				"Token [start=12, end=16, tokenType=" + OptionalStandardTokenType.String + "]",
+				"Token [start=16, end=19, tokenType=" + OptionalStandardTokenType.Other + "]",
+				"Token [start=19, end=30, tokenType=" + OptionalStandardTokenType.Comment + "]",
+				"Token [start=30, end=31, tokenType=" + OptionalStandardTokenType.Other + "]");
 	}
 
 	@Test
@@ -106,21 +170,5 @@ class TokenizeLineTest {
 			final var s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes " + token.getScopes();
 			assertEquals(expected[i], s);
 		}
-	}
-
-	/**
-	 * TODO
-	 */
-	@Test
-	void testTokenizeMultiByteLine2() throws Exception {
-		final var grammar = new Registry().addGrammar(IGrammarSource.fromResource(Data.class, "c.tmLanguage.json"));
-
-		final var lineTokens2 = grammar.tokenizeLine2("char cat[] = {\"кошка\"}; char mouse = -1;\n");
-		for (int i = 0; i < lineTokens2.getTokens().length; i++) {
-			final int token = lineTokens2.getTokens()[i];
-			System.out.println(token);
-		}
-
-		System.out.println("----------");
 	}
 }
