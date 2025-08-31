@@ -23,10 +23,7 @@ public final class ScopeNames {
 
 	public static @Nullable String getContributor(final String scopeName) {
 		final int separatorAt = scopeName.indexOf(CONTRIBUTOR_SEPARATOR);
-		if (separatorAt == -1) {
-			return "";
-		}
-		return scopeName.substring(separatorAt + 1);
+		return separatorAt == -1 ? null : scopeName.substring(separatorAt + 1);
 	}
 
 	/**
@@ -38,10 +35,7 @@ public final class ScopeNames {
 
 	public static String withoutContributor(final String scopeName) {
 		final int separatorAt = scopeName.indexOf(CONTRIBUTOR_SEPARATOR);
-		if (separatorAt == -1) {
-			return scopeName;
-		}
-		return scopeName.substring(0, separatorAt);
+		return separatorAt == -1 ? scopeName : scopeName.substring(0, separatorAt);
 	}
 
 	private ScopeNames() {
