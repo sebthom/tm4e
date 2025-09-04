@@ -14,7 +14,6 @@ package org.eclipse.tm4e.core.theme;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.util.Objects;
 
 import org.eclipse.jdt.annotation.Nullable;
 
