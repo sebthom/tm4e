@@ -118,7 +118,7 @@ jobs:
           --update-snapshots \
           --batch-mode \
           --show-version \
-          -Dtycho.disableP2Mirrors=true \
+          -Declipse.p2.mirrors=false \
           $maven_args \
           org.eclipse.dash:license-tool-plugin:license-check \
           -Dtycho.target.eager=true \

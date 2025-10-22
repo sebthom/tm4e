@@ -195,7 +195,7 @@ jobs:
           --update-snapshots \
           --batch-mode \
           --show-version \
-          -Dtycho.disableP2Mirrors=true \
+          -Declipse.p2.mirrors=false \
           -Dsurefire.rerunFailingTestsCount=3 \
           -Dtm4e.target-platform=${{ matrix.target-platform }} \
           $maven_args \
