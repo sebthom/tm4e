@@ -92,21 +92,21 @@ An example with TypeScript:
 Here are some projects that use tm4e:
 
 - [Apache NetBeans](https://github.com/apache/netbeans) - A multi-language IDE written in Java that uses TM4E core parts to support syntax highlighting based on TextMate grammars.
-- Eclipse IDE languages and frameworks integrations
-  - [Eclipse Corrosion](https://github.com/eclipse/corrosion) - Rust development tools in Eclipse IDE.
-  - [Eclipse aCute](https://github.com/eclipse/aCute) - C# edition in Eclipse IDE.
-  - [Eclipse Wild Web Developer](https://github.com/eclipse/wildwebdeveloper) - Simple and productive Web Development Tools in the Eclipse IDE.
-  - [Eclipse ShellWax](https://github.com/eclipse/shellwax) - A shell script development plugin for the Eclipse IDE, providing a rich edition experience through integration with the [Bash Language Server](https://github.com/bash-lsp/bash-language-server).
-  - [LiClipseText](https://www.liclipse.com/text/) - An editor which enables Eclipse to be used as a general-purpose text editor, providing support for multiple languages out of the box.
-  - [EditorConfig for Eclipse](https://github.com/angelozerr/ec4e) - EditorConfig for Eclipse with GenericEditor.
-  - [Solargraph](https://github.com/PyvesB/eclipse-solargraph) - Ruby development tools for Eclipse.
-  - [dart4e](https://github.com/dart4e/dart4e) - Dart/Flutter development support for the Eclipse IDE.
-  - [haxe4e](https://github.com/haxe4e/haxe4e) - [Haxe](https://haxe.org/) programming language support for the Eclipse IDE.
+- [Eclipse Corrosion](https://github.com/eclipse/corrosion) - Rust development tools in Eclipse IDE.
+- [Eclipse aCute](https://github.com/eclipse/aCute) - C# edition in Eclipse IDE.
+- [Eclipse Wild Web Developer](https://github.com/eclipse/wildwebdeveloper) - Simple and productive Web Development Tools in the Eclipse IDE.
+- [Eclipse ShellWax](https://github.com/eclipse/shellwax) - A shell script development plugin for the Eclipse IDE, providing a rich edition experience through integration with the [Bash Language Server](https://github.com/bash-lsp/bash-language-server).
+- [LiClipseText](https://www.liclipse.com/text/) - An editor which enables Eclipse to be used as a general-purpose text editor, providing support for multiple languages out of the box.
+- [EditorConfig for Eclipse](https://github.com/angelozerr/ec4e) - EditorConfig for Eclipse with GenericEditor.
+- [Solargraph](https://github.com/PyvesB/eclipse-solargraph) - Ruby development tools for Eclipse.
+- [dart4e](https://github.com/dart4e/dart4e) - Dart/Flutter development support for the Eclipse IDE.
+- [haxe4e](https://github.com/haxe4e/haxe4e) - [Haxe](https://haxe.org/) programming language support for the Eclipse IDE.
+- [Previewer](https://github.com/sebthom/previewer-eclipse-plugin) - Eclipse plugin that contributes a Preview view that renders syntax-highlighted sample text in real-time using your TextMate grammar as you edit.
+- Deprecated projects:
   - [BEF: Bazel Eclipse Feature](https://github.com/salesforce/bazel-eclipse/) - [Bazel](https://bazel.build/) support for the Eclipse IDE.
-  - Deprecated projects:
-    - [Dartboard](https://github.com/eclipse/dartboard) - Dart language support  for the Eclipse IDE.
-    - [typescript.java](https://github.com/angelozerr/typescript.java) - TypeScript IDE for Eclipse with JSDT & tsserver.
-    - [Phaser Editor 2D](https://github.com/PhaserEditor2D/PhaserEditor) - an IDE for the creation of HTML5 games.
+  - [Dartboard](https://github.com/eclipse/dartboard) - Dart language support  for the Eclipse IDE.
+  - [typescript.java](https://github.com/angelozerr/typescript.java) - TypeScript IDE for Eclipse with JSDT & tsserver.
+  - [Phaser Editor 2D](https://github.com/PhaserEditor2D/PhaserEditor) - an IDE for the creation of HTML5 games.
 
 ## Documentation
 
