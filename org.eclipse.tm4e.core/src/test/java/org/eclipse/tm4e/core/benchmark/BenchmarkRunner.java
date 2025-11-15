@@ -22,13 +22,13 @@ public final class BenchmarkRunner {
 		Locale.setDefault(Locale.ENGLISH);
 		System.out.println("JVM Vendor: " + System.getProperty("java.vendor"));
 		System.out.println("JVM Version: " + System.getProperty("java.version"));
-		System.out.println(String.format("JVM Inital Heap: %.2f MB", RUNTIME.maxMemory() / (float) 1024 / 1024));
-		System.out.println(String.format("JVM Maximum Heap: %.2f MB", RUNTIME.totalMemory() / (float) 1024 / 1024));
+		System.out.println(String.format("JVM Initial Heap: %.2f MB", RUNTIME.totalMemory() / (float) 1024 / 1024));
+		System.out.println(String.format("JVM Maximum Heap: %.2f MB", RUNTIME.maxMemory() / (float) 1024 / 1024));
 		System.out.println("JVM Args: " + String.join(" ", ManagementFactory.getRuntimeMXBean().getInputArguments()));
 		System.out.println(SEPARATOR);
 
 		System.out.println("Warmup Rounds: " + warmUpRounds);
-		System.out.println("Benchmark Rounds: " + warmUpRounds);
+		System.out.println("Benchmark Rounds: " + benchmarkRounds);
 		System.out.println("Operations per Benchmark Round: " + opsPerBenchmarkRound);
 		System.out.println(SEPARATOR);
 
@@ -61,7 +61,7 @@ public final class BenchmarkRunner {
 					System.gc();
 					Thread.sleep(1_000);
 				} catch (final InterruptedException ex) {
-					Thread.interrupted();
+					Thread.currentThread().interrupt();
 					throw new RuntimeException(ex);
 				}
 			}
@@ -75,7 +75,7 @@ public final class BenchmarkRunner {
 
 			final var durationMS = System.currentTimeMillis() - startAt;
 			final var durationMSPerIteration = durationMS / (float) iterations;
-			final var iterationsPerSecond = 60_000 / durationMSPerIteration;
+			final var iterationsPerSecond = (iterations / (float) durationMS) * 1_000;
 
 			if (measureHeapUsage) {
 				final var heapBytesPerIteration = (startFreeMem - RUNTIME.freeMemory()) / (float) iterations;
