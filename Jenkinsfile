@@ -108,7 +108,7 @@ pipeline {
 
 							if (env.BRANCH_NAME == 'main') {
 								withCredentials([string(credentialsId: 'gpg-passphrase', variable: 'KEYRING_PASSPHRASE')]) {
-									sh "./mvnw ${maven_args} -Psign -Dgpg.passphrase="${KEYRING_PASSPHRASE}" clean deploy"
+									sh """./mvnw ${maven_args} -Psign -Dgpg.passphrase="\$KEYRING_PASSPHRASE" clean deploy"""
 								}
 							} else {
 								sh "./mvnw ${maven_args} clean verify"
