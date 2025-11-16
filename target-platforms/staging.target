@@ -16,6 +16,9 @@
       <unit id="org.eclipse.ui.tests.harness" version="0.0.0"/>
       <unit id="org.eclipse.jdt.annotation" version="0.0.0"/>
       <unit id="org.eclipse.jdt.junit5.runtime" version="0.0.0"/>
+
+      <!-- required to run the unit tests from within the Eclipse IDE -->
+      <unit id="org.eclipse.pde.junit.runtime" version="0.0.0"/>
     </location>
 
     <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
