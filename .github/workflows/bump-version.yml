@@ -63,7 +63,7 @@ jobs:
         print(ET.parse(open('pom.xml')).getroot().find(  \
         '{http://maven.apache.org/POM/4.0.0}version').text)")
 
-        git commit -m "set tm4e version to $projectVersion"
+        git commit -m "chore: set tm4e version to $projectVersion"
 
     - name: Push changes
       env:
