@@ -89,9 +89,10 @@ jobs:
 
     steps:
     - name: "Show: GitHub context"
-      env:
-        GITHUB_CONTEXT: ${{ toJSON(github) }}
-      run: printf '%s' "$GITHUB_CONTEXT" | python -m json.tool
+      run: |
+        python -m json.tool <<'EOT'
+        ${{ toJSON(github) }}
+        EOT
 
 
     - name: "Show: environment variables"
