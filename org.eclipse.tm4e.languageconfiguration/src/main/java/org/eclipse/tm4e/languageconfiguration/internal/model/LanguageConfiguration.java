@@ -125,9 +125,14 @@ public final class LanguageConfiguration {
 						return null;
 					}
 
-					// ex: {"lineComment": "//","blockComment": [ "/*", "*/" ]}
 					final var jsonObj = json.getAsJsonObject();
-					final var lineComment = getAsString(jsonObj.get("lineComment")); //$NON-NLS-1$
+					final var lineCommentElem = jsonObj.get("lineComment"); //$NON-NLS-1$
+					// VS Code also permits {"comment":"#","noIndent":true} here.
+					// TM4E always inserts line comments at the start of the line, so noIndent
+					// currently has no effect and is intentionally ignored.
+					final var lineComment = lineCommentElem != null && lineCommentElem.isJsonObject()
+							? getAsString(lineCommentElem.getAsJsonObject().get("comment")) //$NON-NLS-1$
+							: getAsString(lineCommentElem);
 					final var blockCommentElem = jsonObj.get("blockComment"); //$NON-NLS-1$
 					CharacterPair blockComment = null;
 					if (blockCommentElem != null && blockCommentElem.isJsonArray()) {
