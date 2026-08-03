@@ -95,6 +95,21 @@ class ParsingTest {
 	}
 
 	@Test
+	void testCanLoadObjectLineComment() {
+		final var languageConfiguration = loadLanguageConfigFromString("""
+			{
+				"comments": {
+					"lineComment": {
+						"comment": "#",
+						"noIndent": true
+					}
+				}
+			}""");
+
+		assertThat(castNonNull(languageConfiguration.getComments()).lineComment).isEqualTo("#");
+	}
+
+	@Test
 	void testLanguagePackLangConfigs() throws IOException {
 		final var count = new AtomicInteger();
 		Files.walkFileTree(Paths.get("../org.eclipse.tm4e.language_pack"), new SimpleFileVisitor<Path>() {
