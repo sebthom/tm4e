@@ -1,26 +1,32 @@
-# Local work folder that is not checked in
-_LOCAL/
+# Local work folders that is not checked in
+/_*/
+
+.*
+!.actrc
+!.markdownlint.yaml
+!.markdownlintignore
+!.editorconfig
+!.git*
 
 # Eclipse
 /bin
 /*/bin
+!**/.classpath
+!**/.settings/
 **/.settings/*
 !**/.settings/org.eclipse.core.resources.prefs
 !**/.settings/org.eclipse.jdt.core.prefs
 !**/.settings/org.eclipse.jdt.ui.prefs
 !**/.settings/org.eclipse.pde.core.prefs
-.pydevproject
-.tycho-consumer-pom.xml
-
-# Eclipse GFM Viewer
-*.md.html
 
 # Maven
+!**/.mvn/
 target/
-
-# OSX
-.DS_Store
 
 # Vim
 *.swo
 *.swp
+
+# patch
+*.orig
+*.rej
