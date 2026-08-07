@@ -14,6 +14,7 @@ package updater.utils;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,12 +33,10 @@ import io.pebbletemplates.pebble.loader.FileLoader;
  */
 public abstract class Strings {
 
-	private static final PebbleEngine PEBBLE = new PebbleEngine.Builder().loader(new FileLoader() {
-		// using FileLoader is a workaround because ClasspathLoader for some reason does not find templates on GHA/Linux
-		{
-			setPrefix("src/main/resources");
-		}
-	}).build();
+	// using FileLoader is a workaround because ClasspathLoader for some reason does not find templates on GHA/Linux
+	private static final PebbleEngine PEBBLE = new PebbleEngine.Builder()
+			.loader(new FileLoader(Path.of("src/main/resources").toAbsolutePath().toString()))
+			.build();
 
 	public static String indent(final int spaces, final String input) {
 		final String indentation = " ".repeat(spaces);

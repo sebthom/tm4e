@@ -47,7 +47,7 @@ public abstract class ObjectMappers {
 				.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES) //
 				.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER) //
 				.build()) //
-						.setSerializationInclusion(JsonInclude.Include.NON_EMPTY) //
+						.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY) //
 						.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
 	}
 }

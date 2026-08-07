@@ -1,6 +1,6 @@
 
 | Language/Format | File Associations | Source
-|:--------------- |:----------------- |:------ |
+|:--------------- |:----------------- |:------
 {% for l in languages %}
 | {{ l.label }}{% if l.icon_filename %} <img src="plugin/syntaxes/{{ l.ext_id }}/{{ l.icon_filename }}" width=16/>{% endif %}
  | {{ l.file_associations | raw }}
