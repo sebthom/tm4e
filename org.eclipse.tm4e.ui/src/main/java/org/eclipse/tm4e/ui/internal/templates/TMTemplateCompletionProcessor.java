@@ -36,14 +36,26 @@ import org.eclipse.tm4e.ui.templates.CommentTemplateContextType;
 import org.eclipse.tm4e.ui.templates.DefaultTMTemplateContextType;
 import org.eclipse.tm4e.ui.templates.DocumentationCommentTemplateContextType;
 
+/**
+ * Computes template proposals using TextMate token scopes to select the template context.
+ */
 public class TMTemplateCompletionProcessor extends TemplateCompletionProcessor {
 
 	private static final Template[] NO_TEMPLATES = {};
 
 	@Override
 	public ICompletionProposal[] computeCompletionProposals(final ITextViewer viewer, final int offset) {
-		// TODO Check why Invalid thread access exception occurs here without UI.runSync()
-		return UI.runSync(() -> TMTemplateCompletionProcessor.super.computeCompletionProposals(viewer, offset));
+		// JFace reads the viewer's selection, which requires the UI thread.
+		return UI.runSync(() -> {
+			// Check after dispatch: an asynchronous request can become stale while waiting for the UI thread.
+			final var document = viewer.getDocument();
+			// EOF is a valid insertion point, including offset zero in an empty document.
+			if (document == null || offset < 0 || offset > document.getLength()) {
+				// Discard stale requests before token lookup or context creation; this is expected while typing.
+				return new ICompletionProposal[0];
+			}
+			return TMTemplateCompletionProcessor.super.computeCompletionProposals(viewer, offset);
+		});
 	}
 
 	private static class TmTokenRegion implements IRegion {
