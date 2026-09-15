@@ -27,11 +27,16 @@ jobs:
   bump-version:
   ###########################################################
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
     steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+      with:
+        egress-policy: audit
+
+
     - name: "Show: GitHub context"
       run: |
         python -m json.tool <<'EOT'
@@ -44,17 +49,21 @@ jobs:
 
 
     - name: Git Checkout
-      uses: actions/checkout@v7  # https://github.com/actions/checkout
+      # https://github.com/actions/checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0  # required to prevent tycho-p2-extras-plugin:compare-version-with-baseline potentially failing the build
 
+
     - name: Bump Version
       run: python bump-version.py ${{ github.event.inputs.type }}
+
 
     - name: Configure Git
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
+
     
     - name: Commit changes
       run: |
@@ -65,6 +74,7 @@ jobs:
         '{http://maven.apache.org/POM/4.0.0}version').text)")
 
         git commit -m "chore: set tm4e version to $projectVersion"
+
 
     - name: Push changes
       env:
