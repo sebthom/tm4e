@@ -9,14 +9,26 @@ on:  # https://docs.github.com/en/actions/reference/workflows-and-actions/events
       - synchronize
 
 jobs:
+
+  ###########################################################
   build:
+  ###########################################################
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
-    runs-on: ubuntu-latest
+
+
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+
       - name: "Validate semantic PR title"
-        uses: amannn/action-semantic-pull-request@v6  # https://github.com/amannn/action-semantic-pull-request
+        # https://github.com/amannn/action-semantic-pull-request
+        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -38,7 +50,9 @@ jobs:
             [a-z]+[a-z0-9-]*
           requireScope: false
 
+
       - name: "Label PR"
-        uses: srvaroa/labeler@v1.14.0 # https://github.com/srvaroa/labeler
+        # https://github.com/srvaroa/labeler
+        uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
