@@ -14,6 +14,7 @@ package org.eclipse.tm4e.languageconfiguration.internal.folding;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.annotation.Nullable;
@@ -30,7 +31,12 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.IProjectionListener;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
+import org.eclipse.tm4e.ui.internal.utils.UI;
 
+/**
+ * Provides shared setup, cleanup, and scan cancellation for folding strategies.
+ * Background scans update annotations on the UI thread only if their document and scan version are still current.
+ */
 public abstract class AbstractFoldingStrategy
 		implements IReconcilingStrategy, IReconcilingStrategyExtension, ITextViewerLifecycle {
 
@@ -40,11 +46,14 @@ public abstract class AbstractFoldingStrategy
 	protected volatile @Nullable ProjectionViewer projectionViewer;
 
 	private static final Annotation[] EMPTY_ANNOTATIONS = new Annotation[0];
+	// Both UI lifecycle changes and new worker scans invalidate queued results without waiting for a running scan.
+	private final AtomicLong reconciliationVersion = new AtomicLong();
 
 	private final IProjectionListener projectionListener = new IProjectionListener() {
 		@Override
 		public void projectionDisabled() {
 			projectionAnnotationModel = null;
+			reconciliationVersion.incrementAndGet();
 		}
 
 		@Override
@@ -52,30 +61,57 @@ public abstract class AbstractFoldingStrategy
 			if (projectionViewer != null) {
 				projectionAnnotationModel = projectionViewer.getProjectionAnnotationModel();
 			}
+			reconciliationVersion.incrementAndGet();
 		}
 	};
 
+	protected final long beginReconcile() {
+		return reconciliationVersion.incrementAndGet();
+	}
+
+	protected final boolean isCurrentReconcile(final long version) {
+		return reconciliationVersion.get() == version;
+	}
+
 	/**
-	 * Modifies the annotation model if projection has not been disabled.
+	 * Schedules an annotation comparison and update on the UI thread. Discards the update if the scan is no longer current.
 	 *
+	 * @param version the value returned by {@link #beginReconcile()} before reading the scan's input
+	 * @param annotationModel the model captured with the scan's input
+	 * @param update compares scanned ranges with the current annotations and applies the differences
+	 */
+	protected void updateAnnotations(final long version, final ProjectionAnnotationModel annotationModel, final Runnable update) {
+		if (!isCurrentReconcile(version))
+			return;
+
+		// Compare and apply together on the UI thread. Computing differences before queuing them could add duplicate
+		// folds when another scan's changes are still queued. UI lifecycle callbacks also cannot interrupt this update.
+		UI.getDisplay().asyncExec(() -> {
+			if (isCurrentReconcile(version) && projectionAnnotationModel == annotationModel)
+				update.run();
+		});
+	}
+
+	/**
+	 * Applies annotation changes on the UI thread.
+	 * Call this from the callback passed to {@link #updateAnnotations(long, ProjectionAnnotationModel, Runnable)}.
+	 *
+	 * @param annotationModel the model compared with the scanned ranges
 	 * @param deletions the list of deleted annotations
 	 * @param additions the set of annotations to add together with their associated position
 	 * @param modifications the list of modified annotations
-	 *
-	 * @return true if projection is disabled and modifications were not applied
 	 */
-	protected boolean modifyAnnotations(final Collection<? extends Annotation> deletions,
+	protected void modifyAnnotations(final ProjectionAnnotationModel annotationModel,
+			final Collection<? extends Annotation> deletions,
 			final Map<? extends Annotation, ? extends Position> additions,
 			final Collection<? extends Annotation> modifications) {
-		final var projectionAnnotationModel = this.projectionAnnotationModel;
-		if (projectionAnnotationModel == null || deletions.isEmpty() && additions.isEmpty() && modifications.isEmpty())
-			return false;
+		if (deletions.isEmpty() && additions.isEmpty() && modifications.isEmpty())
+			return;
 
-		projectionAnnotationModel.modifyAnnotations(
+		annotationModel.modifyAnnotations(
 				deletions.isEmpty() ? EMPTY_ANNOTATIONS : deletions.toArray(Annotation[]::new),
 				additions,
 				modifications.isEmpty() ? EMPTY_ANNOTATIONS : modifications.toArray(Annotation[]::new));
-		return true;
 	}
 
 	@Override
@@ -94,6 +130,7 @@ public abstract class AbstractFoldingStrategy
 			projViewer.addProjectionListener(projectionListener);
 			projectionAnnotationModel = projViewer.getProjectionAnnotationModel();
 		}
+		reconciliationVersion.incrementAndGet();
 	}
 
 	@Override
@@ -121,6 +158,8 @@ public abstract class AbstractFoldingStrategy
 	@Override
 	public void setDocument(final @Nullable IDocument document) {
 		this.document = document;
+		// The same document can now use another language, so document identity alone cannot cancel a stale scan.
+		reconciliationVersion.incrementAndGet();
 	}
 
 	@Override

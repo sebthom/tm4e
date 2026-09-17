@@ -20,7 +20,7 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * TextMate Grammar registry manager API.
+ * Looks up TextMate grammars and provides edit sessions for workspace imports and bindings.
  */
 public interface IGrammarRegistryManager {
 
@@ -45,6 +45,16 @@ public interface IGrammarRegistryManager {
 		void unregisterGrammarDefinition(IGrammarDefinition definition);
 
 		/**
+		 * Associates a content type with an imported grammar, replacing any previous user choice.
+		 * Pass {@code null} to restore automatic selection. Changes take effect when {@link #save()} is called.
+		 * Reopen existing editors to apply the new grammar and editing rules.
+		 *
+		 * @throws IllegalArgumentException if the grammar is not imported, or an earlier import with the same scope
+		 *             points to a different source file. Remove that earlier import before binding this grammar.
+		 */
+		void setUserGrammarBinding(IContentType contentType, @Nullable IGrammarDefinition definition);
+
+		/**
 		 * Applies changes to the singleton grammar registry manager and persists them to disk
 		 */
 		void save() throws BackingStoreException;
@@ -66,9 +76,27 @@ public interface IGrammarRegistryManager {
 	IGrammarDefinition[] getDefinitions();
 
 	/**
+	 * Returns the explicit user binding for this exact content type, or {@code null} for automatic selection.
+	 */
+	@Nullable
+	IGrammarDefinition getUserGrammarBinding(IContentType contentType);
+
+	/**
+	 * Selects the content type of an explicit user binding, including inherited bindings.
+	 * If several user bindings match, the first match in the supplied content-type order wins.
+	 * Returns the original content types when no user binding has a grammar that can be loaded.
+	 * Editor features must use this selection for both editing rules and syntax highlighting.
+	 */
+	IContentType[] getEffectiveContentTypes(IContentType... contentTypes);
+
+	/**
+	 * Checks user bindings for all supplied content types before checking plugin bindings.
+	 * For user bindings, it follows the supplied order and checks each type before its parents.
+	 * It skips user bindings whose grammar cannot be loaded.
+	 *
 	 * @param contentTypes the content types to lookup for grammar association.
 	 *
-	 * @return the first {@link IGrammar} that applies to given content-types, or <code>null</code> if no content-type
+	 * @return the selected {@link IGrammar} that applies to given content-types, or <code>null</code> if no content-type
 	 *         has a grammar associated. Grammars associated with parent content-types will be returned if applicable.
 	 */
 	@Nullable
@@ -92,6 +120,9 @@ public interface IGrammarRegistryManager {
 	IGrammar getGrammarForFileExtension(String fileExtension);
 
 	/**
+	 * Includes plugin bindings even when a user choice overrides them for a document.
+	 * Embedded languages still need these bindings to find their content types.
+	 *
 	 * @return the list of content types bound with the given scope name and null otherwise.
 	 */
 	@Nullable

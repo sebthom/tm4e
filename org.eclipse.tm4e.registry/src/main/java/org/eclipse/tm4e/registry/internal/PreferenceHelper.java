@@ -14,6 +14,7 @@ package org.eclipse.tm4e.registry.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.annotation.Nullable;
@@ -28,11 +29,12 @@ import com.google.gson.InstanceCreator;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * Helper class load, save grammar preferences with JSON format.
+ * Loads and saves imported grammars and explicit content-type bindings as workspace JSON preferences.
  */
 final class PreferenceHelper {
 
 	private static final String GRAMMARS = "org.eclipse.tm4e.registry.grammars";
+	private static final String USER_BINDINGS = "org.eclipse.tm4e.registry.grammarBindings";
 
 	private static final Gson DEFAULT_GSON = new GsonBuilder()
 			.registerTypeAdapter(IGrammarDefinition.class,
@@ -47,12 +49,24 @@ final class PreferenceHelper {
 		}.getType());
 	}
 
-	static void saveGrammars(final Collection<IGrammarDefinition> definitions) throws BackingStoreException {
+	static Map<String, String> loadUserBindings() {
+		final var json = TMEclipseRegistryPlugin.getPreference(USER_BINDINGS, null);
+		if (json == null)
+			return Map.of();
+		final Map<String, String> bindings = DEFAULT_GSON.fromJson(json, new TypeToken<Map<String, String>>() {
+		}.getType());
+		return bindings == null ? Map.of() : bindings;
+	}
+
+	static void saveGrammars(final Collection<IGrammarDefinition> definitions, final Map<String, String> userBindings)
+			throws BackingStoreException {
 		// Save grammar definitions in the
 		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.registry.prefs"
 		final var json = DEFAULT_GSON.toJson(definitions);
 		final var prefs = InstanceScope.INSTANCE.getNode(TMEclipseRegistryPlugin.PLUGIN_ID);
 		prefs.put(GRAMMARS, json);
+		// Store IDs, not Eclipse content-type instances; user-created types are restored by the platform on restart.
+		prefs.put(USER_BINDINGS, DEFAULT_GSON.toJson(userBindings));
 		prefs.flush();
 	}
 

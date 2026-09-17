@@ -19,7 +19,8 @@ This guide is for Eclipse users who work with editors powered by TM4E. It explai
 In most Eclipse installations TM4E is installed automatically as a dependency of language tooling (for example, Wild Web Developer or other language-specific features).
 You usually do not need to install it explicitly, but you can install it from the TM4E release update site if necessary.
 
-To check whether TM4E is present, open `Window > Preferences` and look for the `TextMate` pages (such as `TextMate`, `TextMate > Grammar`, `TextMate > Themes`, and `TextMate > Language Configuration`).
+To check whether TM4E is present, choose `Window > Preferences` from Eclipse's main menu.
+In the preferences dialog, look for the `TextMate` pages, such as `Grammar`, `Themes`, and `Language Configuration`.
 If these pages exist, TM4E is installed and contributing to the IDE.
 
 
@@ -60,7 +61,7 @@ TM4E can add these behaviors to simple text editors, or refine them when an edit
 ### 3) Custom code templates and code proposals
 
 TM4E offers support for defining and proposing custom code templates for the languages available through a TextMate grammar.
-Users can specify their own code templates using the `TextMate > Templates` preferences page.
+To configure templates, open `Window > Preferences > TextMate > Templates` in Eclipse.
 
 Each template is registered to a context type, i.e. a language or grammar (technically a TextMate scope).
 In addition to available grammars, TM4E offers two special context types for comments.
@@ -102,15 +103,17 @@ After installing such a plugin you manage the new grammars and themes through th
 
 ## Configuring TM4E
 
-Most user-facing configuration lives under the `TextMate` section in the Eclipse preferences (`Window > Preferences`).
+Choose `Window > Preferences` from Eclipse's main menu to open the preferences dialog.
+Expand `TextMate` to find the following pages:
 
-1. The main `TextMate` page provides an overview and general switches.
-1. `TextMate > Grammar` lets you manage available grammars and their associations to Eclipse content types (the way Eclipse classifies file types).
-   Here you can enable or disable grammars and control which grammar applies to a file type.
-   For each selected grammar you can also inspect details, adjust the content types it applies to, configure grammar injections, and manage per-grammar theme associations using the built-in preview.\
+1. `Window > Preferences > TextMate` provides an overview and general switches.
+1. `Window > Preferences > TextMate > Grammar` lets you import and remove grammars
+   and assign them to Eclipse content types (the way Eclipse classifies files).
+   For each grammar, you can also view its details and injections, choose a theme, and preview the result.\
    ![Grammar Preferences](img/grammar_preferences.png)
 
-1. `TextMate > Language Configuration` lets you control language-configuration based features and attach additional configuration files:
+1. `Window > Preferences > TextMate > Language Configuration` lets you configure editing features
+   and add language-configuration files:
    - You can enable or disable auto closing brackets, matching bracket highlighting, and on-enter actions individually.
    - You can associate extra `language-configuration.json` files from the workspace or file system with specific content types.
 
@@ -118,41 +121,154 @@ Most user-facing configuration lives under the `TextMate` section in the Eclipse
 
    ![Language Configuration Preferences](img/langcfg_preferences.png)
 
-1. `TextMate > Task Tags` lets you define tags in comments (such as `TODO` or `FIXME`) that should be treated as tasks or problems, and configure how they are marked in the workspace.\
+1. `Window > Preferences > TextMate > Task Tags` lets you define tags in comments (such as `TODO` or `FIXME`)
+   that should be treated as tasks or problems, and configure how they are marked in the workspace.\
    ![Task Tags Preferences](img/task_tags_preferences.png)
 
-1. `TextMate > Templates` lets you specify custom code templates for available TextMate grammars (languages). These will be used in code proposals triggered by Ctrl + Space.\
+1. `Window > Preferences > TextMate > Templates` lets you specify custom code templates for available TextMate grammars (languages).
+   These will be used in code proposals triggered by Ctrl + Space.\
    ![Templates Preferences](img/templates_preferences.png)
 
-1. `TextMate > Themes` lets you choose between built-in Light and Dark themes and any additional themes contributed by installed plugins, as well as import extra theme files and set the default theme for light and dark modes.
-   You can also switch themes from the editor's context menu under `TextMate`.\
+1. `Window > Preferences > TextMate > Themes` lets you choose a built-in theme or one provided by a plugin.
+   You can also import theme files and set the default theme for light and dark modes.
+   To switch themes from an editor, use its context menu:
+   `Language and Theme > Theme for This Language`.
+
    ![Themes Preferences](img/themes_preferences.png)
 
 
 ## Using Custom Grammars, Language Configurations, and Themes
 
-Beyond the defaults provided by TM4E and its language pack, you can register additional grammars, language-configuration files, and themes through the UI.
+You can add grammars for syntax highlighting, language configurations for editing rules, and themes for colors.
+Open Eclipse's preferences dialog by choosing `Window > Preferences` from the main menu.
 
-To import a TextMate grammar, use the TextMate grammar import wizard or the grammar preferences to point TM4E at a grammar file on disk.
-Once imported, you can associate the grammar with one or more content types on the `TextMate > Grammar` page so that it is used for the corresponding file types.
+Choose whether to set a workspace default or select a language for one file:
 
-To add an extra language-configuration file, go to `TextMate > Language Configuration` and associate the configuration with the relevant content type.
-This is useful if a plugin does not already provide a configuration file for that language or if you want to experiment with your own configuration.
+| Choice | Affects | When it takes effect |
+| --- | --- | --- |
+| Workspace default | Matching files without their own language choice | After reopening the editors |
+| Language for one file | One workspace file and all its open editors | Immediately |
 
-Themes are contributed by plugins and selected on the `TextMate > Themes` page.
-Built-in themes cover common Light and Dark appearances, while plugin-provided themes can add alternative color schemes.
-You can also use the `New...` button on that page to import additional TextMate theme files from disk and mark one as the default for Light or Dark mode.
+A file's saved language choice takes priority over the workspace default.
+
+### Using a custom grammar as the workspace default
+
+Eclipse uses content types to classify files.
+An association between an imported grammar and a content type is called a **binding**.
+
+1. In Eclipse, open `Window > Preferences > TextMate > Grammar`.
+2. Import a grammar file from disk, then select it in the grammar list.
+3. Open its `Content type` tab and use `Add...` to choose a content type.
+   Repeat this step if the grammar should apply to more content types.
+4. Apply the preferences, then reopen affected editors to use the new grammar and editing rules.
+
+Each content type can have one selected grammar.
+For matching files without their own language choice, this grammar overrides the grammar provided by a plugin.
+
+**To restore automatic selection:** Remove the binding, apply the preferences, and reopen the affected editors.
+
+#### Example: use Mumps for `.m` files
+
+The TM4E Language Pack associates `.m` files with Objective-C.
+Mumps uses the same extension, so Mumps files may receive Objective-C highlighting.
+The steps below show how to import a Mumps grammar and use it as the workspace default for `.m` files.
+
+1. In Eclipse, open `Window > Preferences > General > Content Types`.
+   Create a Mumps content type with `Text` as its parent.
+   Add `m` as a file extension for this content type.
+2. Import the Mumps grammar and bind it to the Mumps content type using the steps above.
+3. If you have a Mumps language-configuration file, open `Window > Preferences > TextMate > Language Configuration`
+   and associate the file with the same content type.
+4. Apply the preferences and reopen affected editors.
+
+This makes Mumps the workspace default for `.m` files, including Objective-C files.
+TM4E does not automatically distinguish between the two languages.
+Use [a file-specific language choice](#choosing-a-language-for-one-file) for files that need a different language.
+
+### Choosing a language for one file
+
+Use a file-specific choice when files with the same extension need different languages.
+For example, `routine.m` can use Mumps while `AppDelegate.m` uses Objective-C.
+
+Eclipse must recognize the file as text to load TM4E's editor features.
+For an unknown extension, open `Window > Preferences > General > Content Types` in Eclipse.
+Associate the extension with a content type based on `Text`.
+
+1. Open the file in an editor that uses TM4E, such as the Generic Editor.
+2. Right-click in the editor and select `Language and Theme > Choose Language...`.
+3. Choose the language and click `OK`.
+   The list includes imported grammars and grammars provided by plugins.
+
+After you choose a language:
+
+- **Immediate update:** All open editors for the file use the new language.
+  Your unsaved text, selection, and undo history are preserved.
+- **Saved choice:** The choice is stored in Eclipse's workspace metadata and survives a restart.
+  It does not change the file contents.
+  Later changes to workspace grammar bindings do not replace it.
+- **Editing rules:** Both syntax highlighting and editing rules follow the selected language.
+  Entries marked `syntax highlighting only` have no associated content type for editing rules.
+- **Menu label:** The menu shows the saved language name, for example `Choose Language (Mumps)...`.
+
+**To return to the default:** Select `Language and Theme > Reset Language to Default` in the editor's context menu.
+This action appears only when the file has a saved choice.
+TM4E immediately returns to the workspace binding or the usual automatic selection.
+The same fallback applies if the chosen grammar or content type is no longer installed.
+
+### Adding editing rules for a language
+
+Language-configuration files provide rules for features such as brackets, indentation, comments, and folding.
+Add one when a plugin does not provide a configuration for the language, or when you want to use your own rules.
+
+1. In Eclipse, open `Window > Preferences > TextMate > Language Configuration`.
+2. Associate the language-configuration file with the language's content type.
+   If you added a grammar binding, use the same content type for both.
+3. Apply the preferences.
+
+TM4E uses the selected language's content type for both highlighting and editing rules.
+If that type has no language configuration, TM4E does not use editing rules from another matching language.
+
+### Importing and choosing themes
+
+The `Window > Preferences > TextMate > Themes` page lets you choose built-in Light and Dark themes
+or themes provided by plugins.
+To import another theme:
+
+1. In Eclipse, open `Window > Preferences > TextMate > Themes`.
+2. Click `New...` and choose a TextMate theme file from disk.
+3. Optionally, mark it as the default for Light or Dark mode.
+
+To change the theme for the language currently used by the editor, right-click in the editor and select
+`Language and Theme > Theme for This Language`.
+The choice applies to that language throughout the workspace.
+TM4E keeps separate choices for light and dark Eclipse themes.
+
 If you are interested in authoring themes or grammars yourself, see the Plugin Developer Guide for extension point and authoring details.
 
+### Advanced: how workspace bindings are resolved
+
+A binding also applies to content types based on the type you selected.
+When several bindings match, TM4E:
+
+1. Checks the matching content types in Eclipse's order.
+2. For each type, checks its own binding first, then its parent types, starting with the direct parent.
+3. Uses the first binding whose grammar can be loaded.
+
+**Imported grammars with the same scope:** If several imported files have the same value in the `Scope` column,
+TM4E uses the first import.
+To use another file, remove the earlier imports with that scope before adding its binding.
+Different content types cannot select different imported files with the same scope.
 
 ## Troubleshooting for End Users
 
 - **Syntax highlighting does not appear**:
   First check that TM4E is installed (the TextMate preference pages should exist).
-  Then open `TextMate > Grammar` to verify that a grammar is associated with the file's content type and that it is enabled.
+  In Eclipse, open `Window > Preferences > TextMate > Grammar`.
+  Check that a grammar is associated with the file's content type and that it is enabled.
 
 - **Bracket behavior or on-enter actions do not work**:
-  Open `TextMate > Language Configuration` and confirm that the corresponding features are enabled.
+  In Eclipse, open `Window > Preferences > TextMate > Language Configuration`.
+  Check that the corresponding features are enabled.
   It is also useful to check whether another editor or language server is overriding the behavior for that file type.
 
 - **Editor does not appear to use TM4E**:

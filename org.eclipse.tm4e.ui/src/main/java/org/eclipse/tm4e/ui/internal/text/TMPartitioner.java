@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.text.BadLocationException;
@@ -35,11 +36,15 @@ import org.eclipse.tm4e.registry.internal.TMScope;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.model.TMDocumentModel;
 import org.eclipse.tm4e.ui.internal.model.TMModelManager;
+import org.eclipse.tm4e.ui.internal.utils.FileLanguageSelection;
 import org.eclipse.tm4e.ui.internal.utils.GrammarUtils;
 import org.eclipse.tm4e.ui.text.ITMPartitionRegion;
 import org.eclipse.tm4e.ui.text.ITMPartitioner;
 import org.eclipse.tm4e.ui.text.TMPartitions;
 
+/**
+ * Maintains language partitions from the shared document token model, including changes to the selected grammar.
+ */
 public final class TMPartitioner implements ITMPartitioner {
 
 	record TMPartitionRegion(int offset, int length, String type, String grammarScope)
@@ -167,6 +172,29 @@ public final class TMPartitioner implements ITMPartitioner {
 	private final ReadWriteLock partitionsLock = new ReentrantReadWriteLock();
 
 	private final ModelTokensChangedEvent.Listener modelListener = this::onTokensChanged;
+	private final Consumer<IDocument> languageChangeListener = this::refreshLanguage;
+
+	private void refreshLanguage(final IDocument changedDocument) {
+		if (changedDocument != document)
+			return;
+		synchronized (activationLock) {
+			final var newGrammar = GrammarUtils.findGrammar(changedDocument);
+			if (Objects.equals(grammar, newGrammar))
+				return;
+			grammar = newGrammar;
+			partitionsLock.writeLock().lock();
+			try {
+				// Embedded partitions belong to the previous grammar. Expose only the new base until retokenization finishes.
+				partitions.clear();
+				basePartitionType = newGrammar == null ? TMPartitions.BASE_PARTITION_TYPE
+						: scopeToPartitionType(newGrammar.getScopeName());
+				legalTypes.clear();
+				legalTypes.add(basePartitionType);
+			} finally {
+				partitionsLock.writeLock().unlock();
+			}
+		}
+	}
 
 	private volatile boolean activated;
 	private final Object activationLock = new Object();
@@ -375,6 +403,7 @@ public final class TMPartitioner implements ITMPartitioner {
 	@Override
 	public void connect(final IDocument doc) {
 		document = doc;
+		FileLanguageSelection.addChangeListener(languageChangeListener);
 		activated = false;
 
 		// start with no indexed partitions; callers get base type until activation
@@ -390,6 +419,7 @@ public final class TMPartitioner implements ITMPartitioner {
 
 	@Override
 	public void disconnect() {
+		FileLanguageSelection.removeChangeListener(languageChangeListener);
 		final var model = tmModel;
 		if (model != null) {
 			model.removeModelTokensChangedListener(modelListener);

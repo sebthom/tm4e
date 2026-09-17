@@ -36,7 +36,8 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * Contribute "Switch to theme" menu item with list of available themes.
+ * Offers themes for the active editor's language.
+ * Saves the choice for that language across the workspace, separately for light and dark Eclipse themes.
  */
 public final class ThemeContribution extends CompoundContributionItem implements IWorkbenchContribution {
 

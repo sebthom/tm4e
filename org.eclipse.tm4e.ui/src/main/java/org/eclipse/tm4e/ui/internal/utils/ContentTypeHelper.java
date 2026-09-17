@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IStorage;
@@ -35,12 +36,13 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jdt.annotation.Owning;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 
 /**
- * {@link IContentType} utilities.
+ * Resolves document content types and applies explicit grammar choices consistently across editor features.
  */
 public final class ContentTypeHelper {
 
@@ -59,13 +61,55 @@ public final class ContentTypeHelper {
 	 * @return the content types from the given {@link IDocument} and null otherwise.
 	 */
 	public static @Nullable ContentTypeInfo findContentTypes(final IDocument document) {
+		// A file choice wins even when its name or contents match a different language.
+		final var fileSelection = FileLanguageSelection.getForDocument(document);
+		if (fileSelection != null)
+			return fileSelection;
+
 		// Find content types from FileBuffers
-		final ContentTypeInfo contentTypes = findContentTypesFromFileBuffers(document);
-		if (contentTypes != null) {
-			return contentTypes;
+		ContentTypeInfo info = findContentTypesFromFileBuffers(document);
+		if (info == null) {
+			info = findContentTypesFromEditorInput(document);
 		}
-		// Find content types from the IEditorInput
-		return findContentTypesFromEditorInput(document);
+		if (info == null)
+			return null;
+		// Apply explicit language choices before any feature caches document types. Reordering alone would still
+		// let bracket matching and auto-edit merge rules from other languages sharing the file extension.
+		return new ContentTypeInfo(info.getFileName(), TMEclipseRegistryPlugin.getGrammarRegistryManager()
+				.getEffectiveContentTypes(info.getContentTypes()));
+	}
+
+	/**
+	 * Finds a workspace file's language so Eclipse can decide which features to enable, even before the editor exists.
+	 * Uses the open document's selection when available; otherwise checks the saved choice before filename-based defaults.
+	 */
+	public static ContentTypeInfo findContentTypes(final IFile file) {
+		final var buffer = FileBuffers.getTextFileBufferManager().getTextFileBuffer(file.getFullPath(), LocationKind.IFILE);
+		if (buffer != null) {
+			// Use the document's selection so available features and editing rules follow the same language.
+			final var info = findContentTypes(buffer.getDocument());
+			if (info != null)
+				return info;
+		}
+		final var selection = FileLanguageSelection.resolve(file);
+		if (selection != null)
+			return selection;
+		return new ContentTypeInfo(file.getName(), TMEclipseRegistryPlugin.getGrammarRegistryManager()
+				.getEffectiveContentTypes(findContentTypesByFileName(file.getName())));
+	}
+
+	static @Nullable IFile getWorkspaceFile(final IDocument document) {
+		final var buffer = FileBuffers.getTextFileBufferManager().getTextFileBuffer(document);
+		if (buffer != null) {
+			final var location = buffer.getLocation();
+			if (location != null) {
+				final var file = FileBuffers.getWorkspaceFileAtLocation(location, true);
+				if (file != null)
+					return file;
+			}
+		}
+		final var input = getEditorInput(document);
+		return input == null ? null : input.getAdapter(IFile.class);
 	}
 
 	/**

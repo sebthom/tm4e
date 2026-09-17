@@ -19,6 +19,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 
+/**
+ * Resolves a document's grammar, honoring file choices before workspace bindings and filename fallbacks.
+ */
 public final class GrammarUtils {
 
 	/**
@@ -26,8 +29,16 @@ public final class GrammarUtils {
 	 */
 	public static @Nullable IGrammar findGrammar(final IDocument doc) {
 		final ContentTypeInfo info = ContentTypeHelper.findContentTypes(doc);
-		if (info == null)
-			return null;
+		return info == null ? null : findGrammar(info);
+	}
+
+	/**
+	 * Uses the same file selection for highlighting and features such as grammar-based folding.
+	 */
+	public static @Nullable IGrammar findGrammar(final ContentTypeInfo info) {
+		final var explicitGrammar = info.getExplicitGrammar();
+		if (explicitGrammar != null)
+			return explicitGrammar;
 
 		final IContentType[] contentTypes = info.getContentTypes();
 		final var registry = TMEclipseRegistryPlugin.getGrammarRegistryManager();

@@ -26,6 +26,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.reconciler.DirtyRegion;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.tm4e.core.internal.utils.MoreCollections;
 import org.eclipse.tm4e.languageconfiguration.LanguageConfigurationPlugin;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
@@ -46,19 +47,18 @@ public final class TMFoldingStrategy extends AbstractFoldingStrategy {
 	private record FoldingRange(int startLineIndex, int endLineIndex) {
 	}
 
-	private @Nullable ContentTypeInfo contentTypeInfo;
+	private volatile @Nullable ContentTypeInfo contentTypeInfo;
 
 	@Override
 	public void reconcile(final DirtyRegion dirtyRegion, final @Nullable IRegion subRegion) {
+		final long version = beginReconcile();
 		final var document = this.document;
 		final var annoModel = projectionAnnotationModel;
 		final var contentTypeInfo = this.contentTypeInfo;
-		if (document == null || annoModel == null || contentTypeInfo == null)
+		if (document == null || annoModel == null)
 			return;
 
-		final var folding = FoldingSupport.getFoldingRules(contentTypeInfo);
-		if (folding == null)
-			return;
+		final var folding = contentTypeInfo == null ? null : FoldingSupport.getFoldingRules(contentTypeInfo);
 
 		try {
 			/*
@@ -71,9 +71,10 @@ public final class TMFoldingStrategy extends AbstractFoldingStrategy {
 			final var foldingRanges = new ArrayList<FoldingRange>();
 			final var openRanges = new ArrayList<Integer>();
 
-			for (int lineIndex = startLineIndex; lineIndex < endLineIndexExclusive; lineIndex++) {
-				if (document != this.document)
-					return; // abort on changed document
+			// An empty scan removes the previous language's marker folds when the new language has no rules.
+			for (int lineIndex = startLineIndex; folding != null && lineIndex < endLineIndexExclusive; lineIndex++) {
+				if (!isCurrentReconcile(version))
+					return;
 
 				final String lineText = DocumentHelper.getLineText(document, lineIndex, false);
 				if (folding.markers.start.matchesPartially(lineText)) {
@@ -85,7 +86,15 @@ public final class TMFoldingStrategy extends AbstractFoldingStrategy {
 
 			// ignore single line foldingRanges
 			foldingRanges.removeIf(r -> r.endLineIndex - r.startLineIndex == 0);
+			updateAnnotations(version, annoModel, () -> updateAnnotations(document, annoModel, foldingRanges));
+		} catch (final BadLocationException ex) {
+			LanguageConfigurationPlugin.logError(ex);
+		}
+	}
 
+	private void updateAnnotations(final IDocument document, final ProjectionAnnotationModel annoModel,
+			final List<FoldingRange> foldingRanges) {
+		try {
 			/*
 			 * Diff against existing annotations
 			 */
@@ -94,12 +103,9 @@ public final class TMFoldingStrategy extends AbstractFoldingStrategy {
 			final var newRanges = new HashSet<>(foldingRanges);
 
 			// Iterate over existing annotations to find those that must be kept or removed
-			final var scanOffset = document.getLineOffset(startLineIndex);
+			final var scanOffset = document.getLineOffset(0);
 			final var scanLength = document.getLength() - scanOffset;
 			for (final Iterator<Annotation> it = annoModel.getAnnotationIterator(scanOffset, scanLength, true, true); it.hasNext();) {
-				if (document != this.document)
-					return; // abort on changed document
-
 				if (!(it.next() instanceof final TMFoldingAnno anno)) {
 					continue; // ignore foreign annotations
 				}
@@ -139,9 +145,7 @@ public final class TMFoldingStrategy extends AbstractFoldingStrategy {
 			/*
 			 * Apply changes to the annotation model
 			 */
-			if (document != this.document)
-				return; // abort on changed document
-			modifyAnnotations(deletions, additions, List.of());
+			modifyAnnotations(annoModel, deletions, additions, List.of());
 		} catch (final BadLocationException ex) {
 			LanguageConfigurationPlugin.logError(ex);
 		}
@@ -149,7 +153,10 @@ public final class TMFoldingStrategy extends AbstractFoldingStrategy {
 
 	@Override
 	public void setDocument(final @Nullable IDocument doc) {
-		super.setDocument(doc);
+		// Cache the selected content types before updating the document and scan version.
+		// The version change invalidates any scan that read the cache during this UI update,
+		// before its queued annotations can be applied.
 		contentTypeInfo = doc == null ? null : ContentTypeHelper.findContentTypes(doc);
+		super.setDocument(doc);
 	}
 }

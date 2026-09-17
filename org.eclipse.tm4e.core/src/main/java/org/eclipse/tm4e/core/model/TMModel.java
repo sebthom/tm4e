@@ -91,7 +91,7 @@ public abstract class TMModel implements ITMModel {
 	private static final Logger LOGGER = System.getLogger(TMModel.class.getName());
 
 	/** The TextMate grammar to use to tokenize lines of the attached document **/
-	private @Nullable IGrammar grammar;
+	private volatile @Nullable IGrammar grammar;
 
 	/** Listeners that are notified when (re)tokenization of changed lines was performed **/
 	private final ModelTokensChangedEvent.Listeners listeners = new ModelTokensChangedEvent.Listeners();
@@ -194,6 +194,14 @@ public abstract class TMModel implements ITMModel {
 		 * revalidates tokens of lines starting at {@link #firstLineToRevalidate} until all lines are processed or new {@link Edit} arrive.
 		 */
 		private void revalidateTokens() {
+			if (grammar == null) {
+				// Clearing a language must notify partitioners too, even though there are no new tokens to produce.
+				setAllTokensAreValid();
+				if (!lines.isEmpty())
+					listeners.dispatchEvent(new ModelTokensChangedEvent(new Range(1, lines.size()), TMModel.this));
+				return;
+			}
+
 			final int startLineIndex = firstLineToRevalidate;
 			final int startLineNumber = startLineIndex + 1;
 			if (DEBUG_LOGGING) {
@@ -372,10 +380,13 @@ public abstract class TMModel implements ITMModel {
 	}
 
 	@Override
-	public synchronized void setGrammar(final IGrammar grammar) {
+	public synchronized void setGrammar(final @Nullable IGrammar grammar) {
 		if (!Objects.equals(grammar, this.grammar)) {
+			if (grammar != null) {
+				tokenizer = new TMTokenizationSupport(grammar);
+			}
+			// Set the tokenizer before the worker sees a non-null grammar when switching from plain text.
 			this.grammar = grammar;
-			tokenizer = new TMTokenizationSupport(grammar);
 			// Reset every line because different grammars can produce equal parser states.
 			// Equal counts keep the line count unchanged. applyEdit bounds the reset after earlier queued text edits.
 			edits.add(new Edit(0, Integer.MAX_VALUE, Integer.MAX_VALUE));
@@ -433,7 +444,8 @@ public abstract class TMModel implements ITMModel {
 	}
 
 	private synchronized void startTokenizerThread() {
-		if (grammar != null && listeners.isNotEmpty()) {
+		// After clearing the grammar, the worker must still process queued edits and notify listeners that the old tokens are gone.
+		if (listeners.isNotEmpty()) {
 			var thread = tokenizerThread;
 			if (thread == null || !thread.isAlive() || thread.isInterrupted()) {
 				thread = tokenizerThread = new TokenizerThread();
@@ -461,6 +473,8 @@ public abstract class TMModel implements ITMModel {
 
 	@Override
 	public @Nullable List<TMToken> getLineTokens(final int lineIndex) {
+		if (grammar == null)
+			return null;
 		synchronized (linesWriteLock) {
 			final var lineTokens = getLineTokensOrNull(lineIndex);
 			return lineTokens == null ? null : lineTokens.tokens;

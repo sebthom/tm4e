@@ -23,6 +23,9 @@ import org.eclipse.tm4e.registry.ITMScope;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 
+/**
+ * Maps template context IDs and display names to the registered TextMate grammar scopes.
+ */
 public class CodeTemplateContextTypeUtils {
 
 	private static final String CONTEXT_TYPE_ID_PREFIX = TMUIPlugin.PLUGIN_ID + ".templates.context."; //$NON-NLS-1$
@@ -73,13 +76,21 @@ public class CodeTemplateContextTypeUtils {
 	}
 
 	public static @Nullable IGrammar toGrammar(final String contextTypeName) {
-		final IGrammarDefinition[] grammarDefinitions = TMEclipseRegistryPlugin.getGrammarRegistryManager().getDefinitions();
+		final var plugin = TMUIPlugin.getDefault();
+		if (plugin == null)
+			return null;
 
-		return Arrays.stream(grammarDefinitions)
-				.map(IGrammarDefinition::getScope)
-				.filter(scope -> contextTypeName.equals(toContextTypeName(scope)))
-				.map(scope -> TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarForScope(scope))
-				.findFirst().orElse(null);
+		// The dialog may still show cached names after a binding change.
+		// Match the cached name, then look up the grammar by its stable context ID.
+		final var contexts = plugin.getTemplateContextRegistry().contextTypes();
+		while (contexts.hasNext()) {
+			final var context = contexts.next();
+			if (contextTypeName.equals(context.getName())) {
+				final var scope = findScopeFor(context.getId());
+				return scope == null ? null : TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarForScope(scope);
+			}
+		}
+		return null;
 	}
 
 }

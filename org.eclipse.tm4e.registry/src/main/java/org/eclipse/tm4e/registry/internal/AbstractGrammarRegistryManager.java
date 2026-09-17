@@ -19,7 +19,9 @@ import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,21 +29,27 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jdt.annotation.Owning;
+import org.eclipse.tm4e.core.TMException;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.registry.IGrammarSource;
 import org.eclipse.tm4e.core.registry.IRegistryOptions;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.registry.ITMScope;
+import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 
 /**
- * Resolves registered grammars by scope, content type and file extension.
+ * Looks up grammars and workspace bindings so highlighting and editing features use the same language.
  * Shared base for the live registry and its editable copies.
  */
 abstract class AbstractGrammarRegistryManager implements IGrammarRegistryManager {
+
+	private static record UserGrammarSelection(IContentType contentType, IGrammar grammar) {
+	}
 
 	private static record ContentTypeToScopeBinding(IContentType contentType, TMScope scope) {
 		ContentTypeToScopeBinding(final String pluginId, final IContentType contentType, final String scopeName) {
@@ -119,6 +127,7 @@ abstract class AbstractGrammarRegistryManager implements IGrammarRegistryManager
 	protected final GrammarDefinitions userDefinitions = new GrammarDefinitions();
 
 	protected final Map<IContentType, ContentTypeToScopeBinding> contentTypeToScopeBindings = new HashMap<>();
+	protected final Map<String /*contentTypeId*/, String /*scopeName*/> userContentTypeToScopeBindings = new HashMap<>();
 	protected final Map<String /*scopeName*/, Collection<String>> injections = new HashMap<>();
 
 	private final ReloadingRegistry registry;
@@ -168,7 +177,49 @@ abstract class AbstractGrammarRegistryManager implements IGrammarRegistryManager
 	}
 
 	@Override
+	public @Nullable IGrammarDefinition getUserGrammarBinding(final IContentType contentType) {
+		final String scopeName = userContentTypeToScopeBindings.get(contentType.getId());
+		// A removed import must not resolve to a contributed grammar with the same unqualified scope.
+		return scopeName == null ? null : userDefinitions.getBestForScope(scopeName);
+	}
+
+	private @Nullable UserGrammarSelection findUserGrammar(final IContentType[] contentTypes) {
+		if (userContentTypeToScopeBindings.isEmpty())
+			return null;
+		// A user binding takes priority over plugin bindings for every matching content type.
+		// Keep Eclipse's type order when several user bindings match. Check each type before its parents.
+		for (final IContentType candidate : contentTypes) {
+			for (@Nullable
+			IContentType type = candidate; type != null; type = type.getBaseType()) {
+				final var definition = getUserGrammarBinding(type);
+				if (definition != null) {
+					// Unavailable grammar files must not switch editing rules while highlighting falls back to another language.
+					try {
+						final var grammar = getGrammarForScope(definition.getScope());
+						if (grammar != null)
+							return new UserGrammarSelection(type, grammar);
+					} catch (final TMException ex) {
+						TMEclipseRegistryPlugin.logError("Cannot apply user grammar binding for " + type.getId(), ex);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public IContentType[] getEffectiveContentTypes(final IContentType... contentTypes) {
+		final var selection = findUserGrammar(contentTypes);
+		// Return only the selected type because several editing features combine rules from every type they receive.
+		// For inherited bindings, this also selects the configuration associated with the user's chosen parent type.
+		return selection == null ? contentTypes : new IContentType[] { selection.contentType };
+	}
+
+	@Override
 	public @Nullable IGrammar getGrammarFor(final IContentType... contentTypes) {
+		final var selection = findUserGrammar(contentTypes);
+		if (selection != null)
+			return selection.grammar;
 		// -> used by TMPresentationReconciler
 		for (@Nullable
 		IContentType contentType : contentTypes) {
@@ -218,6 +269,17 @@ abstract class AbstractGrammarRegistryManager implements IGrammarRegistryManager
 		final String desiredFileExt = fileExt.startsWith(".") ? fileExt.substring(1) : fileExt;
 		if (desiredFileExt.isBlank())
 			return null;
+
+		if (!userContentTypeToScopeBindings.isEmpty()) {
+			// Eclipse's filename matcher includes inherited extensions; getFileSpecs() only returns a type's own associations.
+			// Without file contents, several types can match. Sort by ID to keep the choice predictable.
+			final var candidates = Arrays.stream(Platform.getContentTypeManager().findContentTypesFor("file." + desiredFileExt))
+					.sorted(Comparator.comparing(IContentType::getId))
+					.toArray(IContentType[]::new);
+			final var selection = findUserGrammar(candidates);
+			if (selection != null)
+				return selection.grammar;
+		}
 
 		/*
 		 * first try to lookup grammar via contentTypes that match the file extension
@@ -295,9 +357,16 @@ abstract class AbstractGrammarRegistryManager implements IGrammarRegistryManager
 	@Override
 	public @Nullable Collection<IContentType> getContentTypesForScope(final ITMScope scope) {
 		// -> used by GrammarPreferencePage.createGrammarListContent().fillContentTypeTab()
-		return contentTypeToScopeBindings.values().stream()
+		final var contributed = contentTypeToScopeBindings.values().stream()
 				.filter(binding -> scope.equals(binding.scope))
-				.map(binding -> binding.contentType).toList();
+				.map(binding -> binding.contentType);
+		final var user = userContentTypeToScopeBindings.entrySet().stream()
+				.filter(entry -> entry.getValue().equals(scope.getQualifiedName()))
+				.map(Map.Entry::getKey).sorted()
+				.map(id -> Platform.getContentTypeManager().getContentType(id))
+				.filter(Objects::nonNull);
+		// Keep plugin bindings for embedded languages even when a user choice overrides the document's language.
+		return Stream.concat(contributed, user).distinct().toList();
 	}
 
 	protected void registerContentTypeToScopeBinding(final String pluginId, final IContentType contentType, final String scopeName) {
@@ -319,6 +388,10 @@ abstract class AbstractGrammarRegistryManager implements IGrammarRegistryManager
 		// -> used by GrammarPreferencePage.grammarRemoveButton
 		if (definition.getPluginId() == null) {
 			userDefinitions.remove(definition);
+			// Bindings identify scopes, so keep them while another imported definition still supplies that scope.
+			if (userDefinitions.getBestForScope(definition.getScope().getName()) == null) {
+				userContentTypeToScopeBindings.values().removeIf(definition.getScope().getName()::equals);
+			}
 		} else {
 			pluginDefinitions.remove(definition);
 		}

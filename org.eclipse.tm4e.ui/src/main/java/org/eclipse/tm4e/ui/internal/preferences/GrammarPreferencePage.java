@@ -15,15 +15,22 @@ package org.eclipse.tm4e.ui.internal.preferences;
 
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.lateNonNull;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,11 +58,11 @@ import org.eclipse.tm4e.ui.samples.ISample;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
+import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * A grammar preference page allows configuration of the TextMate grammar.
- * It provides controls for adding, removing and changing grammar as well as enablement, default management.
+ * Manages imported TextMate grammars, content-type bindings, and theme associations.
  */
 public final class GrammarPreferencePage extends AbstractPreferencePage {
 
@@ -120,7 +127,7 @@ public final class GrammarPreferencePage extends AbstractPreferencePage {
 					protected @Nullable String getColumnText(final IGrammarDefinition def, final int columnIndex) {
 						return switch (columnIndex) {
 							case 0 -> {
-								final var contentTypes = grammarManager.getContentTypesForScope(def.getScope());
+								final var contentTypes = getContentTypes(def);
 								yield contentTypes == null
 										? null
 										: contentTypes.stream().map(IContentType::getName)
@@ -246,16 +253,89 @@ public final class GrammarPreferencePage extends AbstractPreferencePage {
 					@Override
 					protected @Nullable String getColumnText(final IContentType contentType, final int columnIndex) {
 						return switch (columnIndex) {
-							case 0 -> contentType.getName() + " (" + contentType.getId() + ")";
+							case 0 -> {
+								final var binding = grammarManager.getUserGrammarBinding(contentType);
+								yield contentType.getName() + " (" + contentType.getId() + ")"
+										+ (binding == null ? ""
+												: NLS.bind(TMUIMessages.ContentTypesBindingWidget_userChoice,
+														binding.getScope().getName()));
+							}
 							default -> null;
 						};
 					}
 				};
 			}
+
+			@Override
+			protected void createButtons() {
+				final var add = createButton(TMUIMessages.Button_new, GrammarPreferencePage.this::addContentTypeBinding);
+				add.setEnabled(false);
+				grammarsTable
+						.onSelectionChanged(selection -> add.setEnabled(!selection.isEmpty() && selection.get(0).getPluginId() == null));
+				final var remove = createButton(TMUIMessages.Button_remove, () -> {
+					final var type = table.getFirstSelectedElement();
+					final var definition = grammarsTable.getFirstSelectedElement();
+					if (type != null && definition != null) {
+						grammarManager.setUserGrammarBinding(type, null);
+						grammarsTable.refresh();
+						fillContentTypeTab(definition);
+					}
+				});
+				remove.setEnabled(false);
+				table.onSelectionChanged(selection -> {
+					final var definition = grammarsTable.getFirstSelectedElement();
+					final var binding = selection.isEmpty() ? null : grammarManager.getUserGrammarBinding(selection.get(0));
+					// Only user bindings can be removed here.
+					// Plugin bindings are still needed for automatic selection and embedded languages.
+					remove.setEnabled(definition != null && binding != null && binding.getScope().equals(definition.getScope()));
+				});
+			}
 		};
 		contentTypesWidget.setLayoutData(new GridData(GridData.FILL_BOTH));
+		final var help = new Label(parent, SWT.WRAP);
+		help.setText(TMUIMessages.ContentTypesBindingWidget_help);
+		help.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).hint(450, SWT.DEFAULT).create());
 
 		tab.setControl(parent);
+	}
+
+	private void addContentTypeBinding() {
+		final var definition = grammarsTable.getFirstSelectedElement();
+		if (definition == null || definition.getPluginId() != null)
+			return;
+		final var dialog = new ElementListSelectionDialog(getShell(), new LabelProvider() {
+			@Override
+			public String getText(final Object element) {
+				final var type = (IContentType) element;
+				return type.getName() + " (" + type.getId() + ")";
+			}
+		});
+		dialog.setTitle(TMUIMessages.ContentTypesBindingWidget_add_title);
+		dialog.setMessage(TMUIMessages.ContentTypesBindingWidget_add_message);
+		dialog.setMultipleSelection(false);
+		final var manager = Platform.getContentTypeManager();
+		final var textType = manager.getContentType("org.eclipse.core.runtime.text");
+		dialog.setElements(Arrays.stream(manager.getAllContentTypes())
+				.filter(type -> textType != null && type.isKindOf(textType))
+				.sorted(Comparator.comparing(IContentType::getName).thenComparing(IContentType::getId)).toArray());
+		if (dialog.open() != Window.OK || !(dialog.getFirstResult() instanceof final IContentType type))
+			return;
+		final var previous = grammarManager.getUserGrammarBinding(type);
+		if (previous != null && !previous.getScope().equals(definition.getScope())
+				&& !MessageDialog.openConfirm(getShell(), TMUIMessages.ContentTypesBindingWidget_replace_title,
+						NLS.bind(TMUIMessages.ContentTypesBindingWidget_replace_message, previous.getScope().getName(), type.getName())))
+			return;
+		try {
+			grammarManager.setUserGrammarBinding(type, definition);
+		} catch (final IllegalArgumentException ex) {
+			// The grammar is already imported, so this failure means another import has the same scope.
+			// Use a translated message that explains how to resolve the conflict.
+			MessageDialog.openError(getShell(), TMUIMessages.ContentTypesBindingWidget_add_error_title,
+					NLS.bind(TMUIMessages.ContentTypesBindingWidget_add_error_message, definition.getScope().getName()));
+			return;
+		}
+		grammarsTable.refresh();
+		fillContentTypeTab(definition);
 	}
 
 	/**
@@ -343,8 +423,18 @@ public final class GrammarPreferencePage extends AbstractPreferencePage {
 	}
 
 	private void fillContentTypeTab(final IGrammarDefinition definition) {
-		// Load the content type binding for the given grammar
-		contentTypesWidget.getTable().setInput(grammarManager.getContentTypesForScope(definition.getScope()));
+		contentTypesWidget.getTable().setInput(getContentTypes(definition));
+	}
+
+	private @Nullable Collection<IContentType> getContentTypes(final IGrammarDefinition definition) {
+		final var contentTypes = grammarManager.getContentTypesForScope(definition.getScope());
+		if (contentTypes == null || definition.getPluginId() != null)
+			return contentTypes;
+		// Several import rows can share a scope. Show a user binding only on the source file that lookup actually selects.
+		return contentTypes.stream().filter(type -> {
+			final var binding = grammarManager.getUserGrammarBinding(type);
+			return binding != null && binding.getURI().equals(definition.getURI());
+		}).toList();
 	}
 
 	private void fillInjectionsTab(final IGrammarDefinition definition) {

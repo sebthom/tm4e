@@ -12,6 +12,7 @@
 #     Angelo Zerr <angelo.zerr@gmail.com> - Initial API and implementation
 ###############################################################################
  -->
+<!-- Contributes language configuration rules and the editor features that use them. -->
 <plugin>
 
    <extension-point id="languageConfigurations" name="%LanguageConfigurations.extension.name" schema="schema/languageConfigurations.exsd" />
@@ -21,23 +22,19 @@
             class="org.eclipse.tm4e.languageconfiguration.internal.folding.CompositeFoldingStrategy"
             contentType="org.eclipse.core.runtime.text">
          <enabledWhen>
-           <and>
-              <!-- language-configuration.json is present -->
-              <reference definitionId="org.eclipse.tm4e.languageconfiguration.editorHasFoldingRules" />
+            <!-- Keep folding installed so a language change can add marker rules without reopening the editor.
+                 Indentation folding remains available when there are no marker rules. -->
+            <or>
+               <!-- LSP4E bundle not resolved/started -->
+               <not>
+                  <test property="org.eclipse.tm4e.languageconfiguration.isBundleActive" args="org.eclipse.lsp4e"/>
+               </not>
 
-              <!-- AND ( ( LSP4E bundle NOT active )  OR  ( bundle active but NO LS here ) ) -->
-              <or>
-                 <!-- LSP4E bundle not resolved/started -->
-                 <not>
-                    <test property="org.eclipse.tm4e.languageconfiguration.isBundleActive" args="org.eclipse.lsp4e"/>
-                 </not>
-
-                 <!-- LSP4E present, but this editor/viewer has no LS -->
-                 <not>
-                    <reference definitionId="org.eclipse.lsp4e.editorHasLanguageServer"/>
-                 </not>
-              </or>
-           </and>
+               <!-- LSP4E present, but this editor/viewer has no LS -->
+               <not>
+                  <reference definitionId="org.eclipse.lsp4e.editorHasLanguageServer"/>
+               </not>
+            </or>
          </enabledWhen>
       </foldingReconcilingStrategy>
    </extension>

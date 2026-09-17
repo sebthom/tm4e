@@ -73,8 +73,26 @@ public final class TMUIMessages extends NLS {
 	public static String ThemePreferencePage_defaultThemeButton_label;
 	public static String ThemePreferencePage_preview;
 
+	// File language selection
+	public static String LanguageSelection_action;
+	public static String LanguageSelection_actionWithSelection;
+	public static String LanguageSelection_unavailable;
+	public static String LanguageSelection_title;
+	public static String LanguageSelection_message;
+	public static String LanguageSelection_reset;
+	public static String LanguageSelection_syntaxOnly;
+	public static String LanguageSelection_error;
+
 	// Widgets
 	public static String ContentTypesBindingWidget_description;
+	public static String ContentTypesBindingWidget_userChoice;
+	public static String ContentTypesBindingWidget_help;
+	public static String ContentTypesBindingWidget_add_title;
+	public static String ContentTypesBindingWidget_add_message;
+	public static String ContentTypesBindingWidget_add_error_title;
+	public static String ContentTypesBindingWidget_add_error_message;
+	public static String ContentTypesBindingWidget_replace_title;
+	public static String ContentTypesBindingWidget_replace_message;
 	public static String GrammarInjectionsWidget_description;
 	public static String ThemeAssociationsWidget_description;
 	public static String ThemeAssociationsWidget_remove_dialog_title;

@@ -89,10 +89,11 @@ public final class GrammarRegistryManager extends AbstractGrammarRegistryManager
 				userDefinitions.add(definition);
 			}
 		}
+		userContentTypeToScopeBindings.putAll(PreferenceHelper.loadUserBindings());
 	}
 
 	void save() throws BackingStoreException {
-		PreferenceHelper.saveGrammars(userDefinitions.stream().toList());
+		PreferenceHelper.saveGrammars(userDefinitions.stream().toList(), userContentTypeToScopeBindings);
 	}
 
 	@Override
