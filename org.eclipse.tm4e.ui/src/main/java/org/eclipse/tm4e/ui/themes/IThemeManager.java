@@ -61,7 +61,11 @@ public interface IThemeManager {
 		void unregisterThemeAssociation(IThemeAssociation association);
 
 		/**
-		 * Applies changes to the singleton theme manager and persists them to disk
+		 * Merges this session's changes into the current singleton theme manager and persists them to disk.
+		 * If persistence fails, restores the previous manager state and in-memory preferences and keeps the pending edits
+		 * available for retry or {@link #reset()}.
+		 *
+		 * @throws BackingStoreException if persistence fails
 		 */
 		void save() throws BackingStoreException;
 

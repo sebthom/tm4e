@@ -28,7 +28,7 @@ import com.google.gson.InstanceCreator;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * Helper class load, save grammar preferences with JSON format.
+ * Loads and saves imported grammar definitions as workspace JSON preferences.
  */
 final class PreferenceHelper {
 
@@ -52,8 +52,23 @@ final class PreferenceHelper {
 		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.registry.prefs"
 		final var json = DEFAULT_GSON.toJson(definitions);
 		final var prefs = InstanceScope.INSTANCE.getNode(TMEclipseRegistryPlugin.PLUGIN_ID);
+		final var previous = prefs.get(GRAMMARS, null);
 		prefs.put(GRAMMARS, json);
-		prefs.flush();
+		try {
+			prefs.flush();
+		} catch (final BackingStoreException ex) {
+			// A failed flush still changes the in-memory node. Restore it so a later flush cannot persist rejected edits.
+			if (previous == null)
+				prefs.remove(GRAMMARS);
+			else
+				prefs.put(GRAMMARS, previous);
+			try {
+				prefs.flush();
+			} catch (final BackingStoreException rollbackFailure) {
+				ex.addSuppressed(rollbackFailure);
+			}
+			throw ex;
+		}
 	}
 
 	private PreferenceHelper() {

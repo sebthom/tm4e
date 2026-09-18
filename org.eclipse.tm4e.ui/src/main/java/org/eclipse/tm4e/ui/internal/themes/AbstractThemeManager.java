@@ -26,6 +26,7 @@ import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 
+/** Stores theme definitions, defaults and scope associations for the live manager and isolated edit sessions. */
 public abstract class AbstractThemeManager implements IThemeManager {
 
 	final Map<String /* theme id */, ITheme> themes = new LinkedHashMap<>();
@@ -33,6 +34,17 @@ public abstract class AbstractThemeManager implements IThemeManager {
 	final Map<@Nullable String, @Nullable IThemeAssociation> lightThemeAssociations = new HashMap<>();
 	protected @Nullable String defaultDarkThemeId;
 	protected @Nullable String defaultLightThemeId;
+
+	void copyFrom(final AbstractThemeManager source) {
+		themes.clear();
+		themes.putAll(source.themes);
+		darkThemeAssociations.clear();
+		darkThemeAssociations.putAll(source.darkThemeAssociations);
+		lightThemeAssociations.clear();
+		lightThemeAssociations.putAll(source.lightThemeAssociations);
+		defaultDarkThemeId = source.defaultDarkThemeId;
+		defaultLightThemeId = source.defaultLightThemeId;
+	}
 
 	protected void registerTheme(final ITheme theme) {
 		themes.put(theme.getId(), theme);

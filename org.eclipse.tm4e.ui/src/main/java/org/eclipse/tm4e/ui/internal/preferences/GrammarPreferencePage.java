@@ -422,8 +422,12 @@ public final class GrammarPreferencePage extends AbstractPreferencePage {
 			themeManager.save();
 		} catch (final BackingStoreException ex) {
 			TMUIPlugin.logError(ex);
+			// Returning false keeps the dialog open; JFace relies on the page to explain the failed save.
+			setErrorMessage(ex.getMessage());
 			return false;
 		}
+		// Apply can retry on the same page, without recreating its error state.
+		setErrorMessage(null);
 		return super.performOk();
 	}
 }

@@ -130,24 +130,43 @@ TM4E tracks it closely while adapting data structures and performance characteri
 
 ## Registry and Grammar Loading
 
-The registry bundle turns extension point contributions into TextMate grammars that the core engine can consume.
-On startup, [`GrammarRegistryManager.loadGrammarsFromExtensionPoints`](../org.eclipse.tm4e.registry/src/main/java/org/eclipse/tm4e/registry/internal/GrammarRegistryManager.java) scans the `org.eclipse.tm4e.registry.grammars` extension point and registers each contributed grammar definition and its associated `scopeNameContentTypeBinding` entries.
+The registry bundle connects plugin and user-defined grammars to the core TextMate engine.
 
-In addition to extension point contributions, the registry also loads user-defined grammars from preferences (for example, grammars imported via the TextMate grammar wizard or Grammar preference page).
-These user grammars are stored separately from plugin grammars and take precedence when both define the same scope.
+### Grammar sources and registration
 
-Each grammar contribution declares a TextMate scope name (for example, `source.json` or `text.html`) and a path to the grammar file inside the contributing bundle.
-The registry tracks these definitions by scope and plugin id and exposes them to the core [`Registry`](../org.eclipse.tm4e.core/src/main/java/org/eclipse/tm4e/core/registry/Registry.java) when a grammar is first needed for a document.
-Content-type-to-scope bindings tell the registry which scope should be used for a given `IContentType`, which in turn drives editor integration.
-Preference pages interact with the registry via `IGrammarRegistryManager.EditSession`, which lets you stage additions and removals of grammars and only commit them when the user applies the changes.
+Plugins contribute grammars through the `org.eclipse.tm4e.registry.grammars` extension point.
+Each contribution declares a TextMate scope name (for example, `source.json` or `text.html`)
+and a path to the grammar file inside the contributing bundle.
+At startup, [`GrammarRegistryManager.loadGrammarsFromExtensionPoints`](../org.eclipse.tm4e.registry/src/main/java/org/eclipse/tm4e/registry/internal/GrammarRegistryManager.java)
+registers these definitions and their `scopeNameContentTypeBinding` entries.
+Definitions are tracked by scope and plugin ID.
 
-Grammar injections are handled in the same layer.
-They allow one plugin to augment another plugin's grammar by injecting additional scopes into the host grammar, which is especially useful for embedded languages.
-The registry combines the base grammar and any active injections into a single effective grammar that is then used by the tokenizer.
+The registry also loads user-defined grammars from preferences.
+These imports are stored separately from plugin grammars and take precedence when both define the same scope.
 
-When no suitable content-type-to-scope binding exists, the registry can also resolve grammars by file extension.
-[`AbstractGrammarRegistryManager.getGrammarForFileExtension`](../org.eclipse.tm4e.registry/src/main/java/org/eclipse/tm4e/registry/internal/AbstractGrammarRegistryManager.java) first looks for content types that declare the given extension and, as a fallback, scans the `fileTypes` property of all registered grammars.
-This last step can be expensive because it may load many grammar files.
+### Grammar selection and loading
+
+Content-type-to-scope bindings determine which grammar to use for a given Eclipse `IContentType`.
+The registry supplies the definition to the core [`Registry`](../org.eclipse.tm4e.core/src/main/java/org/eclipse/tm4e/core/registry/Registry.java)
+when a grammar is first needed for a document.
+See [Handling Conflicting Grammar Registrations](#handling-conflicting-grammar-registrations)
+for examples of how bindings select between plugins that contribute the same scope.
+
+When no suitable binding exists, the registry can also resolve grammars by file extension.
+[`AbstractGrammarRegistryManager.getGrammarForFileExtension`](../org.eclipse.tm4e.registry/src/main/java/org/eclipse/tm4e/registry/internal/AbstractGrammarRegistryManager.java)
+first looks for content types that declare the extension, then falls back to the `fileTypes` property of registered grammars.
+Scanning `fileTypes` can be expensive because it may load many grammar files.
+
+### Grammar injections
+
+Injections let one plugin extend another plugin's grammar, for example to support embedded languages.
+The registry combines the base grammar and active injections into the effective grammar used by the tokenizer.
+
+### Editing imported grammars
+
+Changes to imported grammars are staged through `IGrammarRegistryManager.EditSession`.
+Saving merges pending changes with the latest saved imports and updates the live registry only after persistence succeeds.
+Failed saves preserve the previous registry state and retain pending edits for retry or reset.
 
 
 ## Language Configuration and Folding Internals
@@ -191,6 +210,11 @@ At runtime, the wiring for a Generic Editor document looks like this:
 
 The result is that Generic Editor-based editors get TextMate-driven syntax highlighting, secondary TM partitioning, and language-configuration behavior without having to implement their own tokenization or colorization logic.
 From a contributor's perspective, the main customization points are the registry (which grammar is chosen), the theme manager (how scopes are colored), and the model and colorizer logic in `org.eclipse.tm4e.ui` (how and when tokenization results are applied).
+
+Theme preferences use `IThemeManager.EditSession` to merge pending edits with the current theme manager.
+Saving updates the live manager before changing preferences so that synchronous editor listeners see the new themes.
+If persistence fails, the manager and in-memory preferences are restored, and the session keeps its edits for retry or reset.
+Reusing a saved or reset session preserves default-theme changes from other sessions unless those defaults are explicitly edited again.
 
 Internally, the incremental tokenization is implemented by `org.eclipse.tm4e.core.model.TMModel`, which owns a background `TokenizerThread` that pulls queued edits, retokenizes out-of-date lines, and emits model token change events that drive the UI updates described above.
 

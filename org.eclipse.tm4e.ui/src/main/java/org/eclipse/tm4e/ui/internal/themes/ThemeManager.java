@@ -14,11 +14,15 @@ package org.eclipse.tm4e.ui.internal.themes;
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.castNonNull;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceHelper;
@@ -145,12 +149,13 @@ public final class ThemeManager extends AbstractThemeManager {
 		defaultLightThemeId = TMUIPlugin.getPreference(PreferenceConstants.DEFAULT_LIGHT_THEME, null);
 	}
 
-	void save() throws BackingStoreException {
+	void save(final AbstractThemeManager newState) throws BackingStoreException {
 		// save config to "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.ui.prefs"
 		final var prefs = InstanceScope.INSTANCE.getNode(TMUIPlugin.PLUGIN_ID);
+		final var newPreferences = new LinkedHashMap<String, @Nullable String>();
 
 		// manually registered themes
-		prefs.put(PreferenceConstants.THEMES, Arrays.stream(getThemes()) //
+		newPreferences.put(PreferenceConstants.THEMES, Arrays.stream(newState.getThemes()) //
 				.filter(t -> t.getPluginId() == null) //
 				.map(theme -> {
 					final var json = new JsonObject();
@@ -163,22 +168,48 @@ public final class ThemeManager extends AbstractThemeManager {
 				.toString());
 
 		// manually modified theme associations
-		final String json = PreferenceHelper.toJsonThemeAssociations(Arrays.stream(getAllThemeAssociations())
+		final String json = PreferenceHelper.toJsonThemeAssociations(Arrays.stream(newState.getAllThemeAssociations())
 				.filter(t -> t.getPluginId() == null)
 				.toList());
-		prefs.put(PreferenceConstants.THEME_ASSOCIATIONS, json);
+		newPreferences.put(PreferenceConstants.THEME_ASSOCIATIONS, json);
 
 		// manually set default themes
-		if (defaultDarkThemeId != null)
-			prefs.put(PreferenceConstants.DEFAULT_DARK_THEME, defaultDarkThemeId);
-		else
-			prefs.remove(PreferenceConstants.DEFAULT_DARK_THEME);
-		if (defaultLightThemeId != null)
-			prefs.put(PreferenceConstants.DEFAULT_LIGHT_THEME, defaultLightThemeId);
-		else
-			prefs.remove(PreferenceConstants.DEFAULT_LIGHT_THEME);
+		newPreferences.put(PreferenceConstants.DEFAULT_DARK_THEME, newState.defaultDarkThemeId);
+		newPreferences.put(PreferenceConstants.DEFAULT_LIGHT_THEME, newState.defaultLightThemeId);
 
-		// save preferences
+		final var previousState = new WorkingCopyThemeManager(this);
+		final var previousPreferences = new LinkedHashMap<String, @Nullable String>();
+		for (final var key : newPreferences.keySet()) {
+			previousPreferences.put(key, prefs.get(key, null));
+		}
+
+		// Preference listeners resolve editor themes synchronously from this manager, so publish before notifying them.
+		copyFrom(newState);
+		try {
+			savePreferences(prefs, newPreferences);
+		} catch (final BackingStoreException ex) {
+			// Restore the manager first so rollback notifications also return editors to the previous themes.
+			copyFrom(previousState);
+			try {
+				// Restore the cache as well as disk, so a later flush cannot persist the failed edits.
+				savePreferences(prefs, previousPreferences);
+			} catch (final BackingStoreException rollbackFailure) {
+				// Keep the original save failure while retaining diagnostics if the rollback also cannot reach disk.
+				ex.addSuppressed(rollbackFailure);
+			}
+			throw ex;
+		}
+	}
+
+	private static void savePreferences(final IEclipsePreferences prefs, final Map<String, @Nullable String> values)
+			throws BackingStoreException {
+		values.forEach((key, value) -> {
+			// An absent preference must remain absent, allowing Eclipse's default-scope fallback to apply.
+			if (value == null)
+				prefs.remove(key);
+			else
+				prefs.put(key, value);
+		});
 		prefs.flush();
 	}
 

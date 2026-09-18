@@ -19,16 +19,19 @@ import java.util.List;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferencePage;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.tm4e.core.TMException;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.registry.GrammarDefinition;
+import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.ui.IImportWizard;
 import org.junit.jupiter.api.Test;
 
-/** Verifies wizard creation, repeated and conflicting imports, and recovery from missing grammar files. */
+/** Verifies grammar import errors, retries, shared edit sessions and recovery from missing grammar files. */
 class GrammarImportLifecycleTest {
 
 	@Test
@@ -68,6 +71,229 @@ class GrammarImportLifecycleTest {
 			final var cleanup = registry.newEditSession();
 			cleanup.unregisterGrammarDefinition(original);
 			cleanup.save();
+			Files.deleteIfExists(file);
+		}
+	}
+
+	@Test
+	void overlappingImportShowsWizardErrorAndClearsItAfterRetry() throws Exception {
+		final var file = createGrammar();
+		final var registry = TMEclipseRegistryPlugin.getGrammarRegistryManager();
+		final var competing = new GrammarDefinition("source.changed", file.toString());
+		try {
+			final var wizard = createImportWizard();
+			final var shell = new Shell();
+			try {
+				wizard.addPages();
+				final var page = wizard.getPages()[0];
+				page.createControl(shell);
+				// Exercise real page validation without exposing the wizard's private input as a test API.
+				final var fileInput = page.getClass().getDeclaredField("grammarFileText");
+				fileInput.setAccessible(true);
+				((Text) fileInput.get(page)).setText(file.toString());
+				assertThat(page.isPageComplete()).isTrue();
+
+				// The wizard already validated the old scope. Finish must check it against the latest saved imports.
+				Files.writeString(file, "{\"scopeName\":\"source.changed\",\"patterns\":[]}");
+				final var otherSession = registry.newEditSession();
+				otherSession.registerGrammarDefinition(competing);
+				otherSession.save();
+				assertThat(wizard.performFinish()).isFalse();
+				assertThat(page.getErrorMessage()).contains("different scope");
+				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(file.toUri())).containsExactly(competing);
+
+				otherSession.unregisterGrammarDefinition(competing);
+				otherSession.save();
+				Files.writeString(file, "{\"scopeName\":\"source.test\",\"patterns\":[]}");
+				// Keep the input untouched: revalidating it would clear the error and hide a stale save message.
+				assertThat(wizard.performFinish()).isTrue();
+				assertThat(page.getErrorMessage()).isNull();
+				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(file.toUri()))
+						.extracting(def -> def.getScope().getName()).containsExactly("source.test");
+			} finally {
+				wizard.dispose();
+				shell.dispose();
+			}
+		} finally {
+			removeImportsFor(file);
+			Files.deleteIfExists(file);
+		}
+	}
+
+	@Test
+	void selectingAnotherGrammarAfterAConflictKeepsTheCompetingImport() throws Exception {
+		final var firstFile = createGrammar();
+		final var secondFile = createGrammar();
+		final var registry = TMEclipseRegistryPlugin.getGrammarRegistryManager();
+		final var competing = new GrammarDefinition("source.changed", firstFile.toString());
+		try {
+			final var wizard = createImportWizard();
+			final var shell = new Shell();
+			try {
+				wizard.addPages();
+				final var page = wizard.getPages()[0];
+				page.createControl(shell);
+				final var fileInput = page.getClass().getDeclaredField("grammarFileText");
+				fileInput.setAccessible(true);
+				final var input = (Text) fileInput.get(page);
+				input.setText(firstFile.toString());
+				assertThat(page.isPageComplete()).isTrue();
+				Files.writeString(firstFile, "{\"scopeName\":\"source.changed\",\"patterns\":[]}");
+				final var otherSession = registry.newEditSession();
+				otherSession.registerGrammarDefinition(competing);
+				otherSession.save();
+				assertThat(wizard.performFinish()).isFalse();
+				assertThat(page.getErrorMessage()).contains("different scope");
+
+				// Leave the competing import in place: selecting a different file must discard the rejected attempt.
+				input.setText(secondFile.toString());
+				assertThat(page.isPageComplete()).isTrue();
+				assertThat(wizard.performFinish()).isTrue();
+				assertThat(page.getErrorMessage()).isNull();
+				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(firstFile.toUri())).containsExactly(competing);
+				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(secondFile.toUri()))
+						.extracting(def -> def.getScope().getName()).containsExactly("source.test");
+			} finally {
+				wizard.dispose();
+				shell.dispose();
+			}
+		} finally {
+			removeImportsFor(firstFile);
+			removeImportsFor(secondFile);
+			Files.deleteIfExists(firstFile);
+			Files.deleteIfExists(secondFile);
+		}
+	}
+
+	@Test
+	void retryAfterAStorageFailureImportsOnlyTheCurrentSelection() throws Exception {
+		final var firstFile = createGrammar();
+		final var secondFile = createGrammar();
+		final var registry = TMEclipseRegistryPlugin.getGrammarRegistryManager();
+		final var prefs = InstanceScope.INSTANCE.getNode(TMEclipseRegistryPlugin.PLUGIN_ID);
+		final var markerKey = "tm4e.test.wizardSaveFailure." + UUID.randomUUID();
+		final var preferenceFile = Platform.getStateLocation(Platform.getBundle("org.eclipse.core.runtime"))
+				.append(".settings").append(TMEclipseRegistryPlugin.PLUGIN_ID + ".prefs").toFile().toPath();
+		try {
+			final var wizard = createImportWizard();
+			final var shell = new Shell();
+			try {
+				wizard.addPages();
+				final var page = wizard.getPages()[0];
+				page.createControl(shell);
+				final var fileInput = page.getClass().getDeclaredField("grammarFileText");
+				fileInput.setAccessible(true);
+				final var input = (Text) fileInput.get(page);
+				input.setText(firstFile.toString());
+				assertThat(page.isPageComplete()).isTrue();
+				prefs.put(markerKey, "test");
+				prefs.flush();
+				// Fail the real persistence step, independently of when import conflicts are detected.
+				// Eclipse writes existing preferences through .bak; a directory blocks that write on all platforms.
+				final var blocker = Files.createDirectory(preferenceFile.resolveSibling(preferenceFile.getFileName() + ".bak"));
+				try {
+					assertThat(wizard.performFinish()).isFalse();
+					assertThat(page.getErrorMessage()).isNotBlank();
+					assertThat(registry.getDefinitions()).noneMatch(def -> def.getURI().equals(firstFile.toUri()));
+				} finally {
+					Files.delete(blocker);
+				}
+				input.setText(secondFile.toString());
+				assertThat(page.isPageComplete()).isTrue();
+				assertThat(wizard.performFinish()).isTrue();
+				assertThat(page.getErrorMessage()).isNull();
+				assertThat(registry.getDefinitions()).noneMatch(def -> def.getURI().equals(firstFile.toUri()));
+				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(secondFile.toUri()))
+						.extracting(def -> def.getScope().getName()).containsExactly("source.test");
+			} finally {
+				wizard.dispose();
+				shell.dispose();
+			}
+		} finally {
+			prefs.remove(markerKey);
+			removeImportsFor(firstFile);
+			removeImportsFor(secondFile);
+			prefs.flush();
+			Files.deleteIfExists(firstFile);
+			Files.deleteIfExists(secondFile);
+		}
+	}
+
+	@Test
+	void embeddedImportWizardPreservesTheCallersPendingEdits() throws Exception {
+		final var firstFile = createGrammar();
+		final var secondFile = createGrammar();
+		final var registry = TMEclipseRegistryPlugin.getGrammarRegistryManager();
+		final var session = registry.newEditSession();
+		final var pending = new GrammarDefinition("source.test", firstFile.toString());
+		session.registerGrammarDefinition(pending);
+		try {
+			// Access the caller-owned constructor without exporting the internal wizard package for tests.
+			final var wizard = (IImportWizard) Platform.getBundle("org.eclipse.tm4e.ui")
+					.loadClass("org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard")
+					.getConstructor(IGrammarRegistryManager.EditSession.class, boolean.class).newInstance(session, false);
+			final var shell = new Shell();
+			try {
+				wizard.addPages();
+				final var page = wizard.getPages()[0];
+				page.createControl(shell);
+				final var fileInput = page.getClass().getDeclaredField("grammarFileText");
+				fileInput.setAccessible(true);
+				((Text) fileInput.get(page)).setText(secondFile.toString());
+				assertThat(page.isPageComplete()).isTrue();
+				assertThat(wizard.performFinish()).isTrue();
+				assertThat(session.getDefinitions()).contains(pending);
+				assertThat(session.getDefinitions()).filteredOn(def -> def.getURI().equals(secondFile.toUri())).hasSize(1);
+				// The preference page still owns the commit; Finish must neither save nor reset its other edits.
+				assertThat(registry.getDefinitions()).noneMatch(def -> def.getURI().equals(firstFile.toUri())
+						|| def.getURI().equals(secondFile.toUri()));
+				session.save();
+				assertThat(registry.getDefinitions()).contains(pending);
+				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(secondFile.toUri())).hasSize(1);
+			} finally {
+				wizard.dispose();
+				shell.dispose();
+			}
+		} finally {
+			removeImportsFor(firstFile);
+			removeImportsFor(secondFile);
+			Files.deleteIfExists(firstFile);
+			Files.deleteIfExists(secondFile);
+		}
+	}
+
+	@Test
+	void saveConflictShowsPreferencePageErrorAndClearsItAfterRetry() throws Exception {
+		final var file = createGrammar();
+		final var registry = TMEclipseRegistryPlugin.getGrammarRegistryManager();
+		final var pending = new GrammarDefinition("source.test", file.toString());
+		final var competing = new GrammarDefinition("source.changed", file.toString());
+		try {
+			final var page = createGrammarPreferencePage();
+			try {
+				// Stage through the page's own session without widening the production API for tests.
+				final var managerField = page.getClass().getDeclaredField("grammarManager");
+				managerField.setAccessible(true);
+				final var session = (IGrammarRegistryManager.EditSession) managerField.get(page);
+				session.registerGrammarDefinition(pending);
+				// Keep the page's snapshot stale so this conflict reaches the save-error handler.
+				final var otherSession = registry.newEditSession();
+				otherSession.registerGrammarDefinition(competing);
+				otherSession.save();
+
+				assertThat(page.performOk()).isFalse();
+				assertThat(page.getErrorMessage()).contains("different scope");
+				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(file.toUri())).containsExactly(competing);
+				otherSession.unregisterGrammarDefinition(competing);
+				otherSession.save();
+				assertThat(page.performOk()).isTrue();
+				assertThat(page.getErrorMessage()).isNull();
+				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(file.toUri())).containsExactly(pending);
+			} finally {
+				page.dispose();
+			}
+		} finally {
+			removeImportsFor(file);
 			Files.deleteIfExists(file);
 		}
 	}
@@ -178,6 +404,28 @@ class GrammarImportLifecycleTest {
 			}
 		}
 		throw new AssertionError("Grammar import wizard is not registered");
+	}
+
+	private static IPreferencePage createGrammarPreferencePage() throws Exception {
+		// Use the extension to access the internal page without changing package visibility for tests.
+		for (final var element : Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.ui.preferencePages")) {
+			if ("org.eclipse.tm4e.ui.preferences.GrammarPreferencePage".equals(element.getAttribute("id"))) {
+				return (IPreferencePage) element.createExecutableExtension("class");
+			}
+		}
+		throw new AssertionError("Grammar preference page is not registered");
+	}
+
+	private static void removeImportsFor(final Path file) throws Exception {
+		final var registry = TMEclipseRegistryPlugin.getGrammarRegistryManager();
+		final var cleanup = registry.newEditSession();
+		// The surviving definition differs before and after a successful retry. Remove only this test's temporary source.
+		for (final var definition : registry.getDefinitions()) {
+			if (definition.getURI().equals(file.toUri())) {
+				cleanup.unregisterGrammarDefinition(definition);
+			}
+		}
+		cleanup.save();
 	}
 
 	private static Path createGrammar() throws Exception {

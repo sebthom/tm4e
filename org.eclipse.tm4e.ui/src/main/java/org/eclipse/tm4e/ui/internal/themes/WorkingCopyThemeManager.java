@@ -42,19 +42,15 @@ final class WorkingCopyThemeManager extends AbstractThemeManager implements IThe
 
 	@Override
 	public void reset() {
-		themes.clear();
-		themes.putAll(manager.themes);
-		darkThemeAssociations.clear();
-		darkThemeAssociations.putAll(manager.darkThemeAssociations);
-		lightThemeAssociations.clear();
-		lightThemeAssociations.putAll(manager.lightThemeAssociations);
+		copyFrom(manager);
 
 		themesAdded.clear();
 		themesRemoved.clear();
 		associationsAdded.clear();
 		associationsRemoved.clear();
-		defaultDarkThemeId = manager.defaultDarkThemeId;
-		defaultLightThemeId = manager.defaultLightThemeId;
+		// Reusing a saved or reset session must not replay old defaults over another session's changes.
+		isDefaultDarkThemeModified = false;
+		isDefaultLightThemeModified = false;
 		isDirty = false;
 	}
 
@@ -105,21 +101,24 @@ final class WorkingCopyThemeManager extends AbstractThemeManager implements IThe
 		if (!isDirty)
 			return;
 
-		themesRemoved.forEach(manager::unregisterTheme);
-		themesAdded.forEach(manager::registerTheme);
+		// Merge with the current manager on every attempt, including retries after another session has saved.
+		final var merged = new WorkingCopyThemeManager(manager);
+		themesRemoved.forEach(merged::unregisterTheme);
+		themesAdded.forEach(merged::registerTheme);
 
-		associationsRemoved.forEach(manager::unregisterThemeAssociation);
-		associationsAdded.forEach(manager::registerThemeAssociation);
+		associationsRemoved.forEach(merged::unregisterThemeAssociation);
+		associationsAdded.forEach(merged::registerThemeAssociation);
 
 		// this if checks ensures that in case two separate working copies exist, e.g. for different prefs pages
 		// the changes are not overwritten with old values if both copies are saved
 		if (isDefaultDarkThemeModified)
-			manager.defaultDarkThemeId = defaultDarkThemeId;
+			merged.defaultDarkThemeId = defaultDarkThemeId;
 
 		if (isDefaultLightThemeModified)
-			manager.defaultLightThemeId = defaultLightThemeId;
+			merged.defaultLightThemeId = defaultLightThemeId;
 
-		manager.save();
+		manager.save(merged);
+		// A failed save leaves this session's pending edits available for retry or reset.
 		reset();
 	}
 }
