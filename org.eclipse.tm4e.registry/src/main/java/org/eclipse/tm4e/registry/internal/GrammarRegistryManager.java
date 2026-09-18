@@ -19,7 +19,6 @@ import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.registry.XMLConstants;
-import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * Grammar registry manager singleton.
@@ -89,10 +88,6 @@ public final class GrammarRegistryManager extends AbstractGrammarRegistryManager
 				userDefinitions.add(definition);
 			}
 		}
-	}
-
-	void save() throws BackingStoreException {
-		PreferenceHelper.saveGrammars(userDefinitions.stream().toList());
 	}
 
 	@Override

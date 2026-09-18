@@ -13,6 +13,7 @@ package org.eclipse.tm4e.ui.internal.wizards;
 
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.lateNonNull;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
@@ -24,20 +25,21 @@ import org.eclipse.ui.IWorkbench;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * Wizard to import TextMate grammar.
- *
+ * Imports one selected TextMate grammar, either saving it directly or staging it in a caller's edit session.
  */
 public final class TextMateGrammarImportWizard extends Wizard implements IImportWizard {
 
-	private final IGrammarRegistryManager.EditSession manager;
+	// A supplied session belongs to the caller; null means the standalone wizard owns its sessions.
+	private final IGrammarRegistryManager.@Nullable EditSession manager;
 	private final boolean saveOnFinish;
 
 	private SelectGrammarWizardPage mainPage = lateNonNull();
 	private IGrammarDefinition createdDefinition = lateNonNull();
 
-	/** Eclipse uses this constructor for File > Import, where Finish must save the wizard's own edit session. */
+	/** Eclipse uses this constructor for File > Import, where Finish saves the selected grammar directly. */
 	public TextMateGrammarImportWizard() {
-		this(TMEclipseRegistryPlugin.getGrammarRegistryManager().newEditSession(), true);
+		manager = null;
+		saveOnFinish = true;
 	}
 
 	public TextMateGrammarImportWizard(final IGrammarRegistryManager.EditSession manager, final boolean saveOnFinish) {
@@ -54,10 +56,15 @@ public final class TextMateGrammarImportWizard extends Wizard implements IImport
 	@Override
 	public boolean performFinish() {
 		final IGrammarDefinition definition = mainPage.getGrammarDefinition();
+		// A failed standalone attempt must not retain an earlier selection when Finish is retried.
+		// Keep caller-owned sessions intact because they may also contain other preference-page edits.
+		final var editSession = manager == null
+				? TMEclipseRegistryPlugin.getGrammarRegistryManager().newEditSession()
+				: manager;
 		try {
-			manager.registerGrammarDefinition(definition);
+			editSession.registerGrammarDefinition(definition);
 			if (saveOnFinish) {
-				manager.save();
+				editSession.save();
 			}
 		} catch (final IllegalArgumentException ex) {
 			// Page validation checks the file, but only the registry can detect a conflicting earlier import.
@@ -65,8 +72,12 @@ public final class TextMateGrammarImportWizard extends Wizard implements IImport
 			return false;
 		} catch (final BackingStoreException ex) {
 			TMUIPlugin.logError(ex);
+			// Returning false keeps the dialog open; JFace does not display save errors for us.
+			mainPage.setErrorMessage(ex.getMessage());
 			return false;
 		}
+		// A retry may succeed without revalidating the unchanged input.
+		mainPage.setErrorMessage(null);
 		createdDefinition = definition;
 		return true;
 	}

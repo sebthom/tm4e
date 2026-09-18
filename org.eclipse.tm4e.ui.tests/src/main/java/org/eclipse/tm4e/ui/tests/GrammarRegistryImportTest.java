@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.TMException;
 import org.eclipse.tm4e.core.grammar.IGrammar;
@@ -32,9 +34,10 @@ import org.eclipse.tm4e.registry.ITMScope;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * Verifies isolation, import order and cache updates through the grammar registry's edit-session API.
+ * Verifies isolation, save failures, overlapping edits, import order and cache updates through the grammar registry's edit-session API.
  * Each test removes its own imports and temporary files without changing other registered grammars.
  */
 class GrammarRegistryImportTest {
@@ -126,6 +129,150 @@ class GrammarRegistryImportTest {
 		assertDefinitions(registry, scope, first, second);
 		assertGrammarName(registry, first.getScope(), "first");
 		assertGrammarName(reloadRegistry(), first.getScope(), "first");
+	}
+
+	@Test
+	void overlappingImportsOfTheSameFileKeepTheSavedEntryAndItsPriority() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var first = createGrammar(scope, "first");
+		final var other = createGrammar(scope, "other");
+		final var duplicate = new GrammarDefinition(scope, first.getPath());
+		grammars.add(duplicate);
+		final var firstSession = registry.newEditSession();
+		final var secondSession = registry.newEditSession();
+		firstSession.registerGrammarDefinition(first);
+		firstSession.registerGrammarDefinition(other);
+		secondSession.registerGrammarDefinition(duplicate);
+
+		firstSession.save();
+		secondSession.save();
+		assertDefinitions(registry, scope, first, other);
+		assertDefinitions(secondSession, scope, first, other);
+		assertThat(reloadRegistry().getDefinitions()).filteredOn(definition -> scope.equals(definition.getScope().getName()))
+				.extracting(IGrammarDefinition::getURI).containsExactly(first.getURI(), other.getURI());
+	}
+
+	@Test
+	void savingAnOlderSessionPreservesOtherSavedAdditionsAndRemovals() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var original = createGrammar(scope, "original");
+		saveImport(original);
+		final var first = createGrammar(scope, "first");
+		final var second = createGrammar(scope, "second");
+		final var firstSession = registry.newEditSession();
+		final var secondSession = registry.newEditSession();
+		firstSession.unregisterGrammarDefinition(original);
+		firstSession.registerGrammarDefinition(first);
+		secondSession.registerGrammarDefinition(second);
+
+		firstSession.save();
+		secondSession.save();
+		assertDefinitions(registry, scope, first, second);
+		assertDefinitions(secondSession, scope, first, second);
+		assertThat(reloadRegistry().getDefinitions()).filteredOn(definition -> scope.equals(definition.getScope().getName()))
+				.extracting(IGrammarDefinition::getURI).containsExactly(first.getURI(), second.getURI());
+	}
+
+	@Test
+	void conflictingScopeFromAnotherSessionDoesNotPublishPartialEdits() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var original = createGrammar(scope, "original");
+		saveImport(original);
+		final var first = createGrammar(scope, "first");
+		final var pending = createGrammar(scope, "pending");
+		final var conflicting = new GrammarDefinition(scope + ".changed", first.getPath());
+		grammars.add(conflicting);
+		final var firstSession = registry.newEditSession();
+		final var secondSession = registry.newEditSession();
+		firstSession.registerGrammarDefinition(first);
+		secondSession.unregisterGrammarDefinition(original);
+		secondSession.registerGrammarDefinition(pending);
+		secondSession.registerGrammarDefinition(conflicting);
+		firstSession.save();
+		final var prefs = InstanceScope.INSTANCE.getNode(TMEclipseRegistryPlugin.PLUGIN_ID);
+		final var savedGrammars = prefs.get("org.eclipse.tm4e.registry.grammars", null);
+
+		assertThatThrownBy(secondSession::save).isInstanceOf(BackingStoreException.class)
+				.hasCauseInstanceOf(IllegalArgumentException.class);
+		assertDefinitions(registry, scope, original, first);
+		assertDefinitions(registry, conflicting.getScope().getName());
+		assertThat(prefs.get("org.eclipse.tm4e.registry.grammars", null)).isEqualTo(savedGrammars);
+		// The rejected session keeps its edits so the user can remove the conflicting import and retry.
+		secondSession.unregisterGrammarDefinition(conflicting);
+		secondSession.save();
+		assertDefinitions(registry, scope, first, pending);
+	}
+
+	@Test
+	void removingAndReimportingTheSameFileCanChangeItsScope() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var original = createGrammar(scope, "original");
+		saveImport(original);
+		final var replacement = new GrammarDefinition(scope + ".changed", original.getPath());
+		grammars.add(replacement);
+		final var session = registry.newEditSession();
+		session.unregisterGrammarDefinition(original);
+		session.registerGrammarDefinition(replacement);
+		session.save();
+		assertDefinitions(registry, scope);
+		assertDefinitions(registry, replacement.getScope().getName(), replacement);
+		assertThat(reloadRegistry().getDefinitions()).filteredOn(definition -> definition.getURI().equals(original.getURI()))
+				.extracting(definition -> definition.getScope().getName()).containsExactly(replacement.getScope().getName());
+	}
+
+	@Test
+	void failedSavePreservesRegistryAndPreferencesAndCanBeRetried() throws Exception {
+		assertFailedSaveCanBeRetried(true);
+	}
+
+	@Test
+	void failedSaveRestoresAnAbsentGrammarPreference() throws Exception {
+		assertFailedSaveCanBeRetried(false);
+	}
+
+	private void assertFailedSaveCanBeRetried(final boolean keepPreviousPreference) throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var original = createGrammar(scope, "original");
+		saveImport(original);
+		final var replacement = createGrammar(scope, "replacement");
+		final var session = registry.newEditSession();
+		session.unregisterGrammarDefinition(original);
+		session.registerGrammarDefinition(replacement);
+		final var prefs = InstanceScope.INSTANCE.getNode(TMEclipseRegistryPlugin.PLUGIN_ID);
+		final var grammarKey = "org.eclipse.tm4e.registry.grammars";
+		final var markerKey = "tm4e.test.saveFailure." + UUID.randomUUID();
+		final var preferenceFile = Platform.getStateLocation(Platform.getBundle("org.eclipse.core.runtime"))
+				.append(".settings").append(TMEclipseRegistryPlugin.PLUGIN_ID + ".prefs").toFile().toPath();
+		try {
+			if (!keepPreviousPreference)
+				prefs.remove(grammarKey);
+			// Keep a backing file even when the grammar preference was absent.
+			prefs.put(markerKey, "test");
+			prefs.flush();
+			final var previousValue = prefs.get(grammarKey, null);
+			final var previousContents = Files.readString(preferenceFile);
+			// Eclipse writes an existing preference file through .bak. A directory there fails on all platforms,
+			// even when the tests run with permission to write read-only files.
+			final var blocker = Files.createDirectory(preferenceFile.resolveSibling(preferenceFile.getFileName() + ".bak"));
+			try {
+				assertThatThrownBy(session::save).isInstanceOf(BackingStoreException.class)
+						.satisfies(ex -> assertThat(ex.getSuppressed()).singleElement().isInstanceOf(BackingStoreException.class));
+				assertDefinitions(registry, scope, original);
+				assertThat(prefs.get(grammarKey, null)).isEqualTo(previousValue);
+				assertThat(Files.readString(preferenceFile)).isEqualTo(previousContents);
+			} finally {
+				Files.delete(blocker);
+			}
+			session.save();
+			assertDefinitions(registry, scope, replacement);
+			assertThat(reloadRegistry().getDefinitions()).filteredOn(definition -> scope.equals(definition.getScope().getName()))
+					.extracting(IGrammarDefinition::getURI).containsExactly(replacement.getURI());
+			session.save();
+			assertDefinitions(registry, scope, replacement);
+		} finally {
+			prefs.remove(markerKey);
+			prefs.flush();
+		}
 	}
 
 	@Test

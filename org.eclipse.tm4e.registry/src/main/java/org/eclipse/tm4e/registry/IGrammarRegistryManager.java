@@ -48,7 +48,12 @@ public interface IGrammarRegistryManager {
 		void unregisterGrammarDefinition(IGrammarDefinition definition);
 
 		/**
-		 * Applies changes to the singleton grammar registry manager and persists them to disk
+		 * Merges this session's edits with the latest saved imports and persists them before updating the live registry.
+		 * Reimporting a file already saved by another session keeps that entry and its priority.
+		 * Failed saves leave the live registry unchanged and keep this session's edits available for retry or reset.
+		 *
+		 * @throws BackingStoreException if another session imported the same file with a different scope,
+		 *             or the preferences cannot be saved
 		 */
 		void save() throws BackingStoreException;
 

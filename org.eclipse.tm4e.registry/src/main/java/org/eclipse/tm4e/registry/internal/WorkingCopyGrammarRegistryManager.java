@@ -26,6 +26,7 @@ import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * Edits grammar imports without changing the live registry until the session is saved.
+ * Merges with other saved sessions and publishes changes only after persistence succeeds.
  */
 class WorkingCopyGrammarRegistryManager extends AbstractGrammarRegistryManager implements IGrammarRegistryManager.EditSession {
 
@@ -95,10 +96,20 @@ class WorkingCopyGrammarRegistryManager extends AbstractGrammarRegistryManager i
 		if (!isDirty)
 			return;
 
-		removed.forEach(manager::unregisterGrammarDefinition);
-		added.forEach(manager::registerGrammarDefinition);
+		// Merge into a fresh snapshot so a failed save cannot publish partial changes or erase another session's edits.
+		final var candidate = new WorkingCopyGrammarRegistryManager(manager);
+		// Remove before deduplicating additions, allowing Remove followed by Add to change a file's scope.
+		removed.forEach(candidate::unregisterGrammarDefinition);
+		try {
+			added.forEach(candidate::registerGrammarDefinition);
+		} catch (final IllegalArgumentException ex) {
+			// Another session may have imported this source with a different scope since this session was opened.
+			throw new BackingStoreException("Cannot save grammar imports: " + ex.getMessage(), ex);
+		}
 
-		manager.save();
+		PreferenceHelper.saveGrammars(candidate.userDefinitions.stream().toList());
+		manager.userDefinitions.copyFrom(candidate.userDefinitions);
+		manager.pluginDefinitions.copyFrom(candidate.pluginDefinitions);
 		reset();
 	}
 }
