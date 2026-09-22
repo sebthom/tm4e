@@ -13,8 +13,10 @@
 package org.eclipse.tm4e.languageconfiguration.internal.folding;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -23,10 +25,11 @@ import org.eclipse.jface.text.ITextViewerLifecycle;
 import org.eclipse.jface.text.reconciler.DirtyRegion;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
+import org.eclipse.tm4e.ui.internal.utils.FileLanguageSelection;
 
 /**
- * Applies annotations from both the indent‐based and the language‐configuration‐based
- * folding strategies for a single Eclipse editor.
+ * Applies indentation and language marker folding for a single Eclipse editor,
+ * including changes to the file's selected language.
  * <p>
  * Since only one {@code foldingReconcilingStrategy} can be active per editor
  * at a time, this class delegates to {@link IndentationFoldingStrategy} and {@link TMFoldingStrategy}.
@@ -44,8 +47,17 @@ public final class CompositeFoldingStrategy
 			new IndentationFoldingStrategy(),
 			new TMFoldingStrategy());
 
+	private volatile @Nullable IDocument document;
+	private final Job languageRefresh = Job.createSystem("Refresh language folding", monitor -> {
+		initialReconcile();
+	});
+	private final Consumer<IDocument> languageChangeListener = this::refreshLanguage;
+
+	// Only background scans take this lock. UI callbacks must be able to invalidate a slow scan without waiting for it.
 	@Override
-	public void initialReconcile() {
+	public synchronized void initialReconcile() {
+		if (document == null)
+			return;
 		for (final AbstractFoldingStrategy delegate : delegates) {
 			delegate.initialReconcile();
 		}
@@ -56,17 +68,27 @@ public final class CompositeFoldingStrategy
 		for (final AbstractFoldingStrategy delegate : delegates) {
 			delegate.install(textViewer);
 		}
+		FileLanguageSelection.addChangeListener(languageChangeListener);
+	}
+
+	private void refreshLanguage(final IDocument changedDocument) {
+		if (document != changedDocument)
+			return;
+		// Changing the language does not trigger a text edit, so invalidate old results now and schedule a background scan.
+		// The shared lock prevents this job and the editor's normal folding reconciler from scanning at the same time.
+		setDocument(changedDocument);
+		languageRefresh.schedule();
 	}
 
 	@Override
-	public void reconcile(final DirtyRegion dirtyRegion, final @Nullable IRegion subRegion) {
+	public synchronized void reconcile(final DirtyRegion dirtyRegion, final @Nullable IRegion subRegion) {
 		for (final AbstractFoldingStrategy delegate : delegates) {
 			delegate.reconcile(dirtyRegion, subRegion);
 		}
 	}
 
 	@Override
-	public void reconcile(final IRegion partition) {
+	public synchronized void reconcile(final IRegion partition) {
 		for (final AbstractFoldingStrategy delegate : delegates) {
 			delegate.reconcile(partition);
 		}
@@ -74,6 +96,7 @@ public final class CompositeFoldingStrategy
 
 	@Override
 	public void setDocument(final @Nullable IDocument document) {
+		this.document = document;
 		for (final AbstractFoldingStrategy delegate : delegates) {
 			delegate.setDocument(document);
 		}
@@ -88,6 +111,9 @@ public final class CompositeFoldingStrategy
 
 	@Override
 	public void uninstall() {
+		FileLanguageSelection.removeChangeListener(languageChangeListener);
+		languageRefresh.cancel();
+		document = null;
 		for (final AbstractFoldingStrategy delegate : delegates) {
 			delegate.uninstall();
 		}

@@ -73,8 +73,28 @@ public final class TMUIMessages extends NLS {
 	public static String ThemePreferencePage_defaultThemeButton_label;
 	public static String ThemePreferencePage_preview;
 
+	// File language selection
+	public static String LanguageSelection_current;
+	public static String LanguageSelection_none;
+	public static String LanguageSelection_action;
+	public static String LanguageSelection_actionWithSelection;
+	public static String LanguageSelection_unavailable;
+	public static String LanguageSelection_title;
+	public static String LanguageSelection_message;
+	public static String LanguageSelection_reset;
+	public static String LanguageSelection_syntaxOnly;
+	public static String LanguageSelection_error;
+
 	// Widgets
 	public static String ContentTypesBindingWidget_description;
+	public static String ContentTypesBindingWidget_userChoice;
+	public static String ContentTypesBindingWidget_help;
+	public static String ContentTypesBindingWidget_add_title;
+	public static String ContentTypesBindingWidget_add_message;
+	public static String ContentTypesBindingWidget_add_error_title;
+	public static String ContentTypesBindingWidget_add_error_message;
+	public static String ContentTypesBindingWidget_replace_title;
+	public static String ContentTypesBindingWidget_replace_message;
 	public static String GrammarInjectionsWidget_description;
 	public static String ThemeAssociationsWidget_description;
 	public static String ThemeAssociationsWidget_remove_dialog_title;
@@ -88,6 +108,11 @@ public final class TMUIMessages extends NLS {
 	public static String SelectGrammarWizardPage_file_label;
 	public static String SelectGrammarWizardPage_file_error_required;
 	public static String SelectGrammarWizardPage_file_error_load;
+	public static String SelectGrammarWizardPage_workspaceDefault;
+	public static String SelectGrammarWizardPage_associations;
+	public static String SelectGrammarWizardPage_associationsHelp;
+	public static String GrammarPreferencePage_sourceUnavailable;
+	public static String GrammarPreferencePage_pendingType;
 
 	public static String CreateThemeAssociationWizardPage_title;
 	public static String CreateThemeAssociationWizardPage_description;

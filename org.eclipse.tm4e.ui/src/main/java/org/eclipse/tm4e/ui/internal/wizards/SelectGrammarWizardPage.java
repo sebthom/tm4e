@@ -15,6 +15,8 @@ package org.eclipse.tm4e.ui.internal.wizards;
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.*;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,8 +43,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.registry.IGrammarSource;
 import org.eclipse.tm4e.core.registry.Registry;
+import org.eclipse.tm4e.registry.GrammarContentType;
 import org.eclipse.tm4e.registry.GrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
+import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.TMUIMessages;
 import org.eclipse.tm4e.ui.internal.widgets.GrammarInfoWidget;
@@ -51,7 +55,7 @@ import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 /**
- * Wizard page to select a textMate grammar file and register it in the grammar registry.
+ * Selects a grammar, chooser suggestions, and optional workspace-default associations without changing saved state.
  */
 final class SelectGrammarWizardPage extends AbstractWizardPage {
 
@@ -67,9 +71,16 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 
 	private Text grammarFileText = lateNonNull();
 	private GrammarInfoWidget grammarInfoWidget = lateNonNull();
+	private final IGrammarRegistryManager manager;
+	private Button workspaceDefault = lateNonNull();
+	private Text fileAssociations = lateNonNull();
+	private String loadedPath = "";
+	private @Nullable List<String> loadedFileAssociations;
+	private boolean fillingAssociations;
 
-	protected SelectGrammarWizardPage() {
+	protected SelectGrammarWizardPage(final IGrammarRegistryManager manager) {
 		super(PAGE_NAME);
+		this.manager = manager;
 		super.setTitle(TMUIMessages.SelectGrammarWizardPage_title);
 		super.setDescription(TMUIMessages.SelectGrammarWizardPage_description);
 	}
@@ -169,6 +180,18 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 		data.horizontalSpan = 2;
 		grammarInfoWidget = new GrammarInfoWidget(parent, SWT.NONE);
 		grammarInfoWidget.setLayoutData(data);
+
+		workspaceDefault = new Button(parent, SWT.CHECK);
+		workspaceDefault.setText(TMUIMessages.SelectGrammarWizardPage_workspaceDefault);
+		workspaceDefault.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		workspaceDefault.addListener(SWT.Selection, this);
+		fileAssociations = createText(parent, TMUIMessages.SelectGrammarWizardPage_associations);
+		fileAssociations.addListener(SWT.Modify, this);
+		final var help = new Label(parent, SWT.WRAP);
+		help.setText(TMUIMessages.SelectGrammarWizardPage_associationsHelp);
+		final var helpData = new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1);
+		helpData.widthHint = 440;
+		help.setLayoutData(helpData);
 	}
 
 	private Text createText(final Composite parent, final String s) {
@@ -187,21 +210,76 @@ final class SelectGrammarWizardPage extends AbstractWizardPage {
 
 	@Override
 	protected @Nullable IStatus validatePage(final Event event) {
-		grammarInfoWidget.refresh(null);
+		if (fillingAssociations)
+			return null;
 		final String path = grammarFileText.getText();
 		if (path.isEmpty()) {
+			loadedPath = "";
+			loadedFileAssociations = null;
+			grammarInfoWidget.refresh(null);
 			return new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID,
 					TMUIMessages.SelectGrammarWizardPage_file_error_required);
 		}
-		final var registry = new Registry();
 		try {
-			final IGrammar grammar = registry.addGrammar(IGrammarSource.fromFile(Paths.get(path)));
-			grammarInfoWidget.refresh(grammar);
+			if (!path.equals(loadedPath)) {
+				grammarInfoWidget.refresh(null);
+				final IGrammar grammar = new Registry().addGrammar(IGrammarSource.fromFile(Paths.get(path)));
+				grammarInfoWidget.refresh(grammar);
+				final var def = getGrammarDefinition();
+				final var setup = manager.getGrammarContentType(def);
+				final var savedAssociations = manager.getSavedGrammarFileAssociations(def);
+				loadedFileAssociations = savedAssociations == null ? null : List.copyOf(savedAssociations);
+				// Restore only this grammar's existing setup. New imports must not change workspace defaults,
+				// even if the user enabled setup for a different file earlier in this wizard.
+				fillingAssociations = true;
+				try {
+					workspaceDefault.setSelection(setup != null);
+					fileAssociations.setText(String.join(", ", savedAssociations != null
+							? savedAssociations
+							: setup != null ? setup.fileAssociations()
+									: GrammarContentType.suggestFileAssociations(grammar.getFileTypes())));
+				} finally {
+					fillingAssociations = false;
+				}
+				loadedPath = path;
+			}
 		} catch (final Exception e) {
+			loadedPath = "";
+			loadedFileAssociations = null;
 			return new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID,
 					NLS.bind(TMUIMessages.SelectGrammarWizardPage_file_error_load, e.getMessage()), e);
 		}
+		try {
+			if (workspaceDefault.getSelection()) {
+				@SuppressWarnings("unused")
+				final var ct = new GrammarContentType("preview", getLanguageName(), getFileAssociations());
+			} else {
+				getFileAssociations().forEach(GrammarContentType::fileSpecType);
+			}
+		} catch (final IllegalArgumentException ex) {
+			return new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, ex.getMessage(), ex);
+		}
 		return null;
+	}
+
+	private String getLanguageName() {
+		final String name = grammarInfoWidget.getGrammarNameText().getText();
+		return name.isBlank() ? grammarInfoWidget.getScopeNameText().getText() : name;
+	}
+
+	@Nullable
+	String getWorkspaceLanguageName() {
+		return workspaceDefault.getSelection() ? getLanguageName() : null;
+	}
+
+	List<String> getFileAssociations() {
+		return Arrays.stream(fileAssociations.getText().split(",")).map(String::strip).filter(value -> !value.isEmpty()).distinct()
+				.toList();
+	}
+
+	@Nullable
+	List<String> getLoadedFileAssociations() {
+		return loadedFileAssociations;
 	}
 
 	IGrammarDefinition getGrammarDefinition() {

@@ -19,11 +19,17 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.IFileBuffer;
+import org.eclipse.core.filebuffers.IFileBufferListener;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.text.templates.ContextTypeRegistry;
@@ -32,6 +38,7 @@ import org.eclipse.tm4e.registry.ITMScope;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.internal.model.TMModelManager;
 import org.eclipse.tm4e.ui.internal.samples.SampleManager;
+import org.eclipse.tm4e.ui.internal.text.TMPartitioner;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.internal.utils.CodeTemplateContextTypeUtils;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
@@ -40,6 +47,7 @@ import org.eclipse.tm4e.ui.templates.CommentTemplateContextType;
 import org.eclipse.tm4e.ui.templates.DefaultTMTemplateContextType;
 import org.eclipse.tm4e.ui.templates.DocumentationCommentTemplateContextType;
 import org.eclipse.tm4e.ui.templates.TMLanguageTemplateContextType;
+import org.eclipse.tm4e.ui.text.TMPartitions;
 import org.eclipse.tm4e.ui.themes.ColorManager;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
@@ -66,6 +74,56 @@ public class TMUIPlugin extends AbstractUIPlugin {
 	// registry and store for custom code templates
 	private @Nullable ContributionContextTypeRegistry contextTypeRegistry = null;
 	private @Nullable TemplateStore templateStore = null;
+
+	private final IFileBufferListener fileBufferListener = new IFileBufferListener() {
+		@Override
+		public void bufferDisposed(final IFileBuffer buffer) {
+			// Eclipse disposes file buffers without disconnecting their secondary partitioners.
+			// This event fires only after the last buffer connection closes, so editors still using the document keep their listeners.
+			if (buffer instanceof final ITextFileBuffer textBuffer
+					&& textBuffer.getDocument() instanceof final IDocumentExtension3 document
+					&& document.getDocumentPartitioner(TMPartitions.TM_PARTITIONING) instanceof final TMPartitioner partitioner) {
+				partitioner.disconnect();
+			}
+		}
+
+		// Content and path changes do not end the buffer's lifetime. Only final disposal needs cleanup.
+		@Override
+		public void bufferCreated(final IFileBuffer buffer) {
+		}
+
+		@Override
+		public void bufferContentAboutToBeReplaced(final IFileBuffer buffer) {
+		}
+
+		@Override
+		public void bufferContentReplaced(final IFileBuffer buffer) {
+		}
+
+		@Override
+		public void stateChanging(final IFileBuffer buffer) {
+		}
+
+		@Override
+		public void dirtyStateChanged(final IFileBuffer buffer, final boolean isDirty) {
+		}
+
+		@Override
+		public void stateValidationChanged(final IFileBuffer buffer, final boolean isStateValidated) {
+		}
+
+		@Override
+		public void underlyingFileMoved(final IFileBuffer buffer, final IPath path) {
+		}
+
+		@Override
+		public void underlyingFileDeleted(final IFileBuffer buffer) {
+		}
+
+		@Override
+		public void stateChangeFailed(final IFileBuffer buffer) {
+		}
+	};
 
 	/**
 	 * Returns the shared instance
@@ -131,6 +189,7 @@ public class TMUIPlugin extends AbstractUIPlugin {
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		FileBuffers.getTextFileBufferManager().addFileBufferListener(fileBufferListener);
 		if (isLogTraceEnabled()) {
 			// if the trace option is enabled publish all TM4E CORE JDK logging output to the Eclipse Error Log
 			final var tm4eCorePluginId = "org.eclipse.tm4e.core";
@@ -180,6 +239,7 @@ public class TMUIPlugin extends AbstractUIPlugin {
 
 	@Override
 	public void stop(final BundleContext context) throws Exception {
+		FileBuffers.getTextFileBufferManager().removeFileBufferListener(fileBufferListener);
 		if (templateStore != null) {
 			templateStore.stopListeningForPreferenceChanges();
 		}

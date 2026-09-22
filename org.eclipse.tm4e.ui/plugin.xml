@@ -14,6 +14,20 @@
  -->
 <plugin>
 
+   <!-- Bind the shared registry base so imported languages and language-pack descendants use the same viewers. -->
+   <extension point="org.eclipse.ui.editors">
+      <editorContentTypeBinding contentTypeId="org.eclipse.tm4e.registry.basetype"
+                                editorId="org.eclipse.ui.genericeditor.GenericEditor" />
+   </extension>
+   <extension point="org.eclipse.compare.contentViewers">
+      <contentTypeBinding contentTypeId="org.eclipse.tm4e.registry.basetype"
+                          contentViewerId="org.eclipse.ui.genericeditor.compareViewer" />
+   </extension>
+   <extension point="org.eclipse.compare.contentMergeViewers">
+      <contentTypeBinding contentTypeId="org.eclipse.tm4e.registry.basetype"
+                          contentMergeViewerId="org.eclipse.ui.genericeditor.compareViewer" />
+   </extension>
+
    <extension-point id="themes"
                     name="%Themes.extension.name"
                     schema="schema/themes.exsd" />
@@ -96,31 +110,58 @@
             class="org.eclipse.tm4e.ui.internal.TMPropertyTester"
             id="org.eclipse.tm4e.ui.TMPropertyTester"
             namespace="org.eclipse.tm4e.ui"
-            properties="canSupportTextMate"
+            properties="canSupportTextMate,hasTextMateReconciler"
             type="org.eclipse.ui.IEditorPart" />
    </extension>
 
    <!-- Contextual Menu -->
+   <extension point="org.eclipse.ui.commands">
+      <command id="org.eclipse.tm4e.ui.openTextMatePreferencesCommand"
+            name="%menu.textmate.preferences.label" />
+   </extension>
+
+   <extension point="org.eclipse.ui.handlers">
+      <handler commandId="org.eclipse.tm4e.ui.openTextMatePreferencesCommand"
+            class="org.eclipse.tm4e.ui.internal.menus.TextMatePreferencesContribution" />
+   </extension>
+
    <extension point="org.eclipse.ui.menus">
-      <!-- Editor "TextMate" contribution -->
+      <!-- Language choices belong to individual files; theme choices belong to the active language. -->
       <menuContribution allPopups="true" locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-         <menu id="org.eclipse.tm4e.ui.internal.menus.Theme" label="%menu.textmate.theme.label" >
-            <separator name="additions" visible="false"/>
-            <dynamic id="org.eclipse.tm4e.ui.menus.ThemeContribution"
-                     class="org.eclipse.tm4e.ui.internal.menus.ThemeContribution">
-               <visibleWhen checkEnabled="false">
+         <menu id="org.eclipse.tm4e.ui.internal.menus.TextMate" label="%menu.textmate.label">
+            <!-- Check the active part: an editor can stay open while a view owns the context menu. -->
+            <visibleWhen checkEnabled="false">
+               <with variable="activePart">
                   <and>
-                     <with variable="activePart">
-                        <instanceof value="org.eclipse.ui.IEditorPart" />
-                     </with>
-                     <with variable="activePart">
-                        <adapt type="org.eclipse.ui.IEditorPart">
-                           <test property="org.eclipse.tm4e.ui.canSupportTextMate" />
-                        </adapt>
-                     </with>
+                     <instanceof value="org.eclipse.ui.IEditorPart" />
+                     <test property="org.eclipse.tm4e.ui.hasTextMateReconciler" />
                   </and>
-               </visibleWhen>
-            </dynamic>
+               </with>
+            </visibleWhen>
+            <dynamic id="org.eclipse.tm4e.ui.menus.LanguageContribution"
+                     class="org.eclipse.tm4e.ui.internal.menus.LanguageContribution" />
+            <separator name="theme" visible="true" />
+            <menu id="org.eclipse.tm4e.ui.internal.menus.Theme" label="%menu.textmate.theme.label">
+               <separator name="additions" visible="false"/>
+               <dynamic id="org.eclipse.tm4e.ui.menus.ThemeContribution"
+                        class="org.eclipse.tm4e.ui.internal.menus.ThemeContribution">
+                  <visibleWhen checkEnabled="false">
+                     <and>
+                        <with variable="activePart">
+                           <instanceof value="org.eclipse.ui.IEditorPart" />
+                        </with>
+                        <with variable="activePart">
+                           <adapt type="org.eclipse.ui.IEditorPart">
+                              <test property="org.eclipse.tm4e.ui.canSupportTextMate" />
+                           </adapt>
+                        </with>
+                     </and>
+                  </visibleWhen>
+               </dynamic>
+            </menu>
+            <separator name="preferences" visible="true" />
+            <command commandId="org.eclipse.tm4e.ui.openTextMatePreferencesCommand"
+                     label="%menu.textmate.preferences.label" />
          </menu>
       </menuContribution>
    </extension>

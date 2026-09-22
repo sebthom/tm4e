@@ -139,14 +139,18 @@ Each contribution declares a TextMate scope name (for example, `source.json` or 
 and a path to the grammar file inside the contributing bundle.
 At startup, [`GrammarRegistryManager.loadGrammarsFromExtensionPoints`](../org.eclipse.tm4e.registry/src/main/java/org/eclipse/tm4e/registry/internal/GrammarRegistryManager.java)
 registers these definitions and their `scopeNameContentTypeBinding` entries.
-Definitions are tracked by scope and plugin ID.
+Plugin definitions use qualified scopes of the form `scope@pluginId`.
+Each plugin's content-type bindings refer to its qualified scopes.
 
 The registry also loads user-defined grammars from preferences.
-These imports are stored separately from plugin grammars and take precedence when both define the same scope.
+These imports are stored separately from plugin grammars.
+They take precedence when looking up an unqualified scope, such as `source.json`.
 
 ### Grammar selection and loading
 
 Content-type-to-scope bindings determine which grammar to use for a given Eclipse `IContentType`.
+Workspace bindings take priority over plugin bindings.
+A [saved file choice](#resolving-file-choices-and-editing-rules) takes priority over both.
 The registry supplies the definition to the core [`Registry`](../org.eclipse.tm4e.core/src/main/java/org/eclipse/tm4e/core/registry/Registry.java)
 when a grammar is first needed for a document.
 See [Handling Conflicting Grammar Registrations](#handling-conflicting-grammar-registrations)
@@ -154,8 +158,28 @@ for examples of how bindings select between plugins that contribute the same sco
 
 When no suitable binding exists, the registry can also resolve grammars by file extension.
 [`AbstractGrammarRegistryManager.getGrammarForFileExtension`](../org.eclipse.tm4e.registry/src/main/java/org/eclipse/tm4e/registry/internal/AbstractGrammarRegistryManager.java)
-first looks for content types that declare the extension, then falls back to the `fileTypes` property of registered grammars.
+uses this order:
+
+1. User bindings for content types that match the extension, including inherited extensions.
+   Matching types are sorted by ID because this lookup cannot use file contents to choose between them.
+2. Plugin bindings for content types that declare the extension.
+3. The `fileTypes` property of registered grammars.
+
 Scanning `fileTypes` can be expensive because it may load many grammar files.
+Unreadable candidates are logged and skipped so a missing import does not prevent another grammar from matching.
+
+### Resolving workspace bindings
+
+A workspace binding stores a content-type ID and an imported grammar's scope name.
+The registry checks these bindings across all matching content types before checking plugin bindings:
+
+1. Check the content types in the order supplied by Eclipse.
+2. For each type, check its own binding first, then its parent types, starting with the direct parent.
+3. Use the first binding whose grammar can be loaded.
+
+`IGrammarRegistryManager.getEffectiveContentTypes(...)` returns the content type selected by that binding.
+If a child type inherits a binding from a parent, it returns the parent's content type.
+Editor features use this result to keep highlighting and editing rules consistent.
 
 ### Grammar injections
 
@@ -164,9 +188,48 @@ The registry combines the base grammar and active injections into the effective 
 
 ### Editing imported grammars
 
-Changes to imported grammars are staged through `IGrammarRegistryManager.EditSession`.
-Saving merges pending changes with the latest saved imports and updates the live registry only after persistence succeeds.
-Failed saves preserve the previous registry state and retain pending edits for retry or reset.
+Changes to imported grammars, workspace bindings, and managed content types
+are staged through `IGrammarRegistryManager.EditSession`.
+Saving merges pending changes with the latest saved state and updates the live registry only after persistence succeeds.
+Failed saves restore the previous preferences and platform content types and retain pending edits for retry or reset.
+
+### Content types for imported grammars
+
+`EditSession.importGrammar(...)` can create a content type and workspace binding for an imported file.
+New imported types inherit directly from `org.eclipse.tm4e.registry.basetype`, declared by the registry bundle.
+The UI bundle supplies the shared parent's editor and compare bindings.
+The parent's built-in filename association prevents imported types from inheriting Text's `.txt` association.
+
+The language pack declares `org.eclipse.tm4e.language_pack.basetype` as a child of the shared parent.
+Its existing ID preserves references from bundled content types and workspace settings.
+Managed imports already created under the language-pack parent retain that parent and require the language pack.
+
+Setup metadata is optional and stored separately from grammar definitions.
+An import without metadata is unmanaged, including imports saved by older versions.
+Loading preferences never creates content types or claims existing user types.
+Reimporting the same source reuses its entry and lets the user opt into setup explicitly.
+
+Saving checks for conflicting workspace choices and applies platform changes before publishing the registry snapshot.
+Conflict checks use current Eclipse file associations and pending edits,
+so another import can use an extension released by an edit.
+If saving fails, it restores the previous preferences and rolls back those platform changes.
+Rollback removes a new type's file associations before removing the type itself:
+Eclipse 4.32 otherwise leaves stale filename matches in the current session.
+
+Removing a saved import retains its content type because other settings can reference it,
+and Eclipse has no complete reference query.
+Reimport also checks the saved setup before changing associations, so manual changes are preserved.
+
+### Import order and cache refresh
+
+- **Duplicate scopes:** If several imports share a scope, the registry uses the first import.
+  Trying to bind a later import from a different source file fails, because the registry would load the first file.
+- **Import order:** Edit sessions preserve import order when saving.
+- **Same source:** Reimporting the same file keeps its entry and its position among imports sharing a scope.
+- **Cache refresh:** Removing an import can change which file supplies its scope.
+  The grammar cache detects this immediately, even if the replacement file has an older timestamp.
+- **Missing files:** Timestamp checks detect deletion as well as newer and older replacements.
+  A failed reload clears the successful cache state so restoring the file can recover even with its original timestamp.
 
 
 ## Language Configuration and Folding Internals
@@ -186,7 +249,7 @@ For editors that use TM4E's folding integration (via the `org.eclipse.ui.generic
   - `TMFoldingStrategy`, which derives folding ranges from language-configuration folding markers or, as a fallback, from TextMate grammar folding markers.
 
 Folding scans compute ranges in the background and apply annotation changes on the UI thread.
-Editing the text, changing the input document, toggling folding, or closing the editor invalidates pending results
+Editing the text, changing the input document or selected language, toggling folding, or closing the editor invalidates pending results
 without waiting for the scan.
 
 From a contributor perspective, most feature-level integrations with Eclipse editors live in `org.eclipse.tm4e.ui`.
@@ -253,6 +316,44 @@ sequenceDiagram
 ```
 
 
+### Resolving file choices and editing rules
+
+[`FileLanguageSelection`](../org.eclipse.tm4e.ui/src/main/java/org/eclipse/tm4e/ui/internal/utils/FileLanguageSelection.java)
+stores a file's grammar scope and the ID of the content type used for editing rules in an Eclipse resource property.
+Plugin scopes include the plugin ID, so an imported grammar with the same scope cannot replace the chosen plugin grammar.
+Later workspace binding changes do not affect saved file choices.
+If the grammar cannot be loaded or the selected content type is unavailable when the document opens,
+both highlighting and editing fall back to the workspace binding or automatic selection.
+
+`ContentTypeInfo` holds the file's selected grammar and content types.
+Grammar lookup, partition rules, and folding use this choice before workspace bindings.
+Folding and commands use configurations for these already selected types,
+so an inherited workspace binding cannot replace the file choice.
+
+For both file choices and workspace bindings, a partition uses the selected content types for editing rules
+only when it matches the selected grammar's scope.
+Other partitions use bindings provided by plugins.
+This keeps editing rules for embedded languages and unrelated files independent of the user's selection.
+
+Eclipse can check whether to enable a feature before the editor document exists.
+`ContentTypeHelper.findContentTypes(IFile)` checks the saved file choice in that case.
+For an open file, it uses the document's selection so commands and other editor features use the same language.
+
+### Applying language changes to open editors
+
+The first language lookup caches the document's file choice.
+It also caches the result when no choice is saved.
+Saving or clearing a choice updates the open editors in this order:
+
+1. Update the document's cached selection and notify editor features on the UI thread.
+2. Prepare syntax highlighting and document partitions for the new grammar.
+3. Retokenize the document through the existing shared token model.
+
+Editing rules and available commands follow the new choice.
+Folding is recalculated even though the text has not changed.
+The document and token model stay connected, preserving unsaved text, selection, and undo history in all open views.
+
+
 ## TM Partitioner (Secondary Partitioning)
 
 TM4E installs a secondary partitioner for documents that resolves a TextMate grammar.
@@ -274,53 +375,80 @@ This is more stable in the presence of embedded languages and secondary partitio
 
 ## Handling Conflicting Grammar Registrations
 
-Multiple plugins can legitimately contribute grammars for the same TextMate scope, for example two different plugins that both register a grammar for `source.batchfile`.
-TM4E handles this by disambiguating the internal registration while keeping the shared scope name stable for consumers.
-
-At registry load time, [`GrammarRegistryManager.registerGrammarDefinition`](../org.eclipse.tm4e.registry/src/main/java/org/eclipse/tm4e/registry/internal/GrammarRegistryManager.java) registers each contributed grammar under an internal scope name of the form `scope@pluginId`, such as `source.batchfile@com.plugin1`.
-When bindings from content types to scopes are processed, [`GrammarRegistryManager.registerContentTypeToScopeBinding`](../org.eclipse.tm4e.registry/src/main/java/org/eclipse/tm4e/registry/internal/GrammarRegistryManager.java) records which content type is associated with which internal scope.
+Suppose two plugins both support `.bat` files and register a grammar named `source.batchfile`.
+When you open `build.bat`, TM4E must choose one of them.
+This section explains how that choice is made and how users can change it.
 
 ### 1) Example: two batchfile grammars
 
-Consider two plug-ins that both register a grammar for `source.batchfile`:
+Consider two plugins that both register a grammar for `source.batchfile`:
 
-- Plug-in 1:
+- Plugin 1:
   - Defines content type `com.plugin1.bat` for `*.bat` with normal priority.
   - Contributes a TextMate grammar with `scopeName="source.batchfile"` and binds it via `scopeNameContentTypeBinding` to `com.plugin1.bat`.
-- Plug-in 2:
+- Plugin 2:
   - Defines content type `com.plugin2.bat` for `*.bat` with higher priority.
   - Also contributes a grammar for `scopeName="source.batchfile"` and binds it to `com.plugin2.bat`.
 
-Internally TM4E:
+TM4E keeps both registrations by adding the plugin ID to each internal scope name.
+Internally, TM4E:
 
-- Qualifies the scopes when registering the grammars, for example:
+- Qualifies the scopes when registering the grammars:
   - `source.batchfile@com.plugin1`
   - `source.batchfile@com.plugin2`
-- Binds each content type to the qualified scope from the same plug-in:
-  - `com.plugin1.bat` → `source.batchfile@com.plugin1`
-  - `com.plugin2.bat` → `source.batchfile@com.plugin2`
+- Binds each content type to the qualified scope from the same plugin:
+  - `com.plugin1.bat` binds to `source.batchfile@com.plugin1`.
+  - `com.plugin2.bat` binds to `source.batchfile@com.plugin2`.
 
-When a `*.bat` file is opened:
+When a `*.bat` file is opened and no file choice or workspace binding applies:
 
-1. `TMPresentationReconciler` asks `ContentTypeHelper.findContentTypes(doc)` for the content types of the document, which returns them ordered by Eclipse content-type priority (for example `[com.plugin2.bat, com.plugin1.bat]` if plug-in 2 has higher priority).
-2. `GrammarRegistryManager.getGrammarFor(contentTypes)` iterates over the content types in that order.
-   For each content type it:
+1. `TMPresentationReconciler` asks `ContentTypeHelper.findContentTypes(doc)` for the document's content types.
+   Eclipse returns them in content-type priority order: `[com.plugin2.bat, com.plugin1.bat]` in this example.
+2. `GrammarRegistryManager.getGrammarFor(contentTypes)` checks the content types in that order.
+   For each type, including its parents, it:
    - First looks up a grammar using the qualified scope for that content type (`source.batchfile@com.plugin2`).
-   - If none is found, falls back to the unqualified scope (`source.batchfile`) to allow grammars from other plug-ins to be used.
+   - If none is found, tries the unqualified scope (`source.batchfile`) to allow another registered grammar to be used.
 3. The first successful match is used for tokenization.
 
-This means that in the example above, the grammar from plug-in 2 wins for `*.bat` files, because its content type has higher priority and is bound to `source.batchfile@com.plugin2`.
+Plugin 2's grammar wins because its content type has higher priority
+and is bound to `source.batchfile@com.plugin2`.
+If content-type lookup finds no grammar, TM4E tries the [file-extension fallback](#registry-and-grammar-loading).
 
-### 2) Referencing shared scopes from other grammars
+### 2) Choosing a different grammar
 
-Other grammars (for example, an HTML grammar that embeds batchfile regions) can safely reference the shared unqualified scope `source.batchfile` without knowing which concrete plug-in provides it.
-Internally TM4E resolves that shared scope to the appropriate `scope@pluginId` variant based on the registry state and content-type bindings.
+The automatic choice may not be the one a user needs.
+TM4E supports two ways to override it:
 
-From a contributor's point of view, the important behavior is:
+- **Workspace default:** Bind an imported grammar to a content type under
+  `Window > Preferences > TextMate > Grammar`.
+  This binding takes priority over plugin bindings for matching files.
+  Reopen affected editors to apply the new grammar and editing rules.
+- **One file:** Right-click in the editor and select `Language and Theme > Choose Language...`.
+  The list includes imported grammars and plugin grammars.
+  For example, a user can select Plugin 1's grammar for `build.bat` while other batch files keep their default.
+  The change applies immediately to all open editors for that file.
 
-- The primary content type (based on the usual Eclipse content-type priority rules) controls which plug-in's grammar is used at runtime for a given document.
-- Conflicting grammar registrations for the same scope are handled by scope qualification and content-type-to-scope bindings; you do not need to invent unique scope names for each plug-in just to avoid conflicts.
-- Other grammars can rely on the shared scope name (such as `source.batchfile`) to refer to "the batchfile grammar in this installation" without caring which plug-in contributed it.
+The selection order is **file choice, then workspace binding, then automatic selection**.
+If a choice is unavailable, TM4E tries the next option.
+A saved file choice takes priority over later workspace binding changes.
+
+See the [user guide](user-guide.md#using-custom-grammars-language-configurations-and-themes)
+for setup steps, including an example where Mumps and Objective-C share the `.m` extension.
+Details about [binding resolution](#resolving-workspace-bindings)
+and [updating open editors](#applying-language-changes-to-open-editors) are covered in the implementation sections.
+
+### 3) Referencing shared scopes from other grammars
+
+Other grammars can embed batchfile regions by referencing the shared scope `source.batchfile`.
+They do not need to know which plugin provides the grammar.
+
+For an unqualified scope, the registry looks for an imported grammar first, then a plugin grammar.
+Within either group, it uses the first registered definition for that scope.
+The fallback to an unqualified scope in the example above uses the same lookup.
+
+Plugin authors can keep shared scope names in embedded-language references.
+TM4E's qualified registrations and content-type bindings handle conflicts without requiring
+each plugin to invent a unique public scope name.
 
 
 ## Diagnostics and Troubleshooting for Contributors

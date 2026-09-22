@@ -12,7 +12,18 @@
 #     Angelo Zerr <angelo.zerr@gmail.com> - Initial API and implementation
 ###############################################################################
  -->
+<!-- Registers grammar contributions and the shared root for highlighted text. -->
 <plugin>
+
+   <!-- Bundled and imported languages share this root, which exists without the optional language pack. -->
+   <extension point="org.eclipse.core.contenttype.contentTypes">
+      <!-- The built-in name prevents children from inheriting Text's .txt association (issue #703). -->
+      <content-type id="org.eclipse.tm4e.registry.basetype"
+                    base-type="org.eclipse.core.runtime.text"
+                    name="TM4E Syntax Highlighting"
+                    priority="low"
+                    file-names="WORKAROUND_SO_THAT_THIS_CONTENTTYPE_IS_NOT_ASSOCIATED_WITH_TXT_FILES_SEE_ISSUE_703" />
+   </extension>
 
    <extension-point id="grammars"
                     name="%Grammars.extension.name"

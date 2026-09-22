@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Consumer;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -53,6 +54,7 @@ import org.eclipse.tm4e.ui.internal.model.TMModelManager;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
+import org.eclipse.tm4e.ui.internal.utils.FileLanguageSelection;
 import org.eclipse.tm4e.ui.internal.utils.GrammarUtils;
 import org.eclipse.tm4e.ui.internal.utils.MarkerUtils;
 import org.eclipse.tm4e.ui.internal.utils.PreferenceUtils;
@@ -62,7 +64,7 @@ import org.eclipse.tm4e.ui.themes.ITokenProvider;
 import org.eclipse.ui.IEditorPart;
 
 /**
- * TextMate presentation reconciler which must be initialized with:
+ * Applies TextMate syntax highlighting to an editor's text viewer using:
  *
  * <ol>
  * <li>a TextMate grammar {@link IGrammar} used to initialize the {@link ITMDocumentModel}</li>
@@ -108,7 +110,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		if (colorizer != null) {
 			final Control control = colorizer.getTextViewer().getTextWidget();
 			if (control != null && !control.isDisposed()) {
-				control.getDisplay().asyncExec(() -> colorizer.colorize(event));
+				control.getDisplay().asyncExec(() -> {
+					// A queued update from the previous language must not restore its colors after a live switch.
+					if (colorizer == this.colorizer)
+						colorizer.colorize(event);
+				});
 			}
 		}
 		MarkerUtils.updateTextMarkers(event);
@@ -148,6 +154,34 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private @Nullable ITokenProvider theme;
 
 	private final Set<ITMPresentationReconcilerListener> listeners = new CopyOnWriteArraySet<>();
+	private final Consumer<IDocument> languageChangeListener = this::refreshLanguage;
+
+	private void refreshLanguage(final IDocument document) {
+		final var viewer = this.viewer;
+		if (viewer == null || viewer.getDocument() != document)
+			return;
+		final var newGrammar = GrammarUtils.findGrammar(document);
+		if (Objects.equals(grammar, newGrammar))
+			return;
+		// A saved file choice must not force the viewer to keep using this grammar after a reset.
+		// Clearing this flag lets reset return to workspace defaults.
+		isForcedGrammar = false;
+		grammar = newGrammar;
+		if (newGrammar == null) {
+			colorizer = null;
+			theme = null;
+			// Invalidating token styles does not undo the language theme's widget and current-line colors.
+			Colorizer.restoreEditorColors(viewer);
+			viewer.invalidateTextPresentation();
+		} else {
+			// Choose light or dark mode from the workbench theme. The editor's old background may come from the previous language's theme.
+			final var newTheme = TMUIPlugin.getThemeManager().getThemeForScope(newGrammar.getScopeName());
+			theme = newTheme;
+			colorizer = new Colorizer(viewer, newTheme, listeners);
+			TMModelManager.INSTANCE.connect(document).addModelTokensChangedListener(modelsTokensChangedListener);
+		}
+		// FileLanguageSelection starts tokenization after all views and partitioners are ready for the new language.
+	}
 
 	public TMPresentationReconciler() {
 		if (PreferenceUtils.isDebugGenerateTest()) {
@@ -393,6 +427,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	@Override
 	public void install(final ITextViewer viewer) {
 		this.viewer = viewer;
+		FileLanguageSelection.addChangeListener(languageChangeListener);
 		viewer.addTextInputListener(viewerListener);
 
 		final IDocument doc = viewer.getDocument();
@@ -404,6 +439,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	@Override
 	public void uninstall() {
+		FileLanguageSelection.removeChangeListener(languageChangeListener);
+		colorizer = null;
 		final var viewer = this.viewer;
 		if (viewer != null) {
 			viewer.removeTextInputListener(viewerListener);

@@ -33,6 +33,8 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public final class TextMatePreferencePage extends AbstractPreferencePage {
 
+	public static final String PAGE_ID = "org.eclipse.tm4e.ui.preferences.TextMatePreferencePage";
+
 	private Button tmTokenHoverCheckbox = lateNonNull();
 
 	public TextMatePreferencePage() {

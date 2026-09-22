@@ -13,6 +13,8 @@ package org.eclipse.tm4e.ui.internal.wizards;
 
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.lateNonNull;
 
+import java.util.Objects;
+
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -25,7 +27,7 @@ import org.eclipse.ui.IWorkbench;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * Imports one selected TextMate grammar, either saving it directly or staging it in a caller's edit session.
+ * Imports a TextMate grammar and optional workspace associations, either saving them directly or staging them in a caller's edit session.
  */
 public final class TextMateGrammarImportWizard extends Wizard implements IImportWizard {
 
@@ -49,20 +51,34 @@ public final class TextMateGrammarImportWizard extends Wizard implements IImport
 
 	@Override
 	public void addPages() {
-		mainPage = new SelectGrammarWizardPage();
+		// Standalone previews use saved imports; each Finish still owns a fresh edit session for safe retries.
+		mainPage = new SelectGrammarWizardPage(manager == null ? TMEclipseRegistryPlugin.getGrammarRegistryManager() : manager);
 		addPage(mainPage);
 	}
 
 	@Override
 	public boolean performFinish() {
-		final IGrammarDefinition definition = mainPage.getGrammarDefinition();
+		final IGrammarDefinition selectedDef = mainPage.getGrammarDefinition();
 		// A failed standalone attempt must not retain an earlier selection when Finish is retried.
 		// Keep caller-owned sessions intact because they may also contain other preference-page edits.
-		final var editSession = manager == null
-				? TMEclipseRegistryPlugin.getGrammarRegistryManager().newEditSession()
-				: manager;
+		final IGrammarRegistryManager.EditSession editSession;
+		if (manager == null) {
+			final var liveManager = TMEclipseRegistryPlugin.getGrammarRegistryManager();
+			// The page was filled before this fresh session exists, so compare its explicit baseline first.
+			if (!Objects.equals(mainPage.getLoadedFileAssociations(),
+					liveManager.getSavedGrammarFileAssociations(selectedDef))) {
+				mainPage.setErrorMessage(
+						"The matching files for this grammar changed in another dialog. Reopen the import to edit them again.");
+				return false;
+			}
+			editSession = liveManager.newEditSession();
+		} else {
+			editSession = manager;
+		}
+		final IGrammarDefinition createdDefinition;
 		try {
-			editSession.registerGrammarDefinition(definition);
+			createdDefinition = editSession.importGrammar(selectedDef, mainPage.getWorkspaceLanguageName(),
+					mainPage.getFileAssociations());
 			if (saveOnFinish) {
 				editSession.save();
 			}
@@ -78,7 +94,7 @@ public final class TextMateGrammarImportWizard extends Wizard implements IImport
 		}
 		// A retry may succeed without revalidating the unchanged input.
 		mainPage.setErrorMessage(null);
-		createdDefinition = definition;
+		this.createdDefinition = createdDefinition;
 		return true;
 	}
 

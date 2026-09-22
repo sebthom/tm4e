@@ -33,6 +33,9 @@ import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceHelper;
 import org.eclipse.tm4e.ui.model.ITMDocumentModel;
 
+/**
+ * Keeps TM4E task and problem markers in sync with comment tokens without changing markers owned by other tools.
+ */
 public final class MarkerUtils {
 
 	private static final String TEXTMARKER_TYPE = "org.eclipse.tm4e.ui.textmarker";
@@ -61,6 +64,7 @@ public final class MarkerUtils {
 	/**
 	 * Updates all TM4E text markers of the corresponding document starting from
 	 * <code>event.ranges.get(0).fromLineNumber</code> until the end of the document.
+	 * If the grammar is cleared, removes all TM4E text markers for the document.
 	 */
 	public static void updateTextMarkers(final ModelTokensChangedEvent event) {
 		final ITMModel model = event.model;
@@ -86,6 +90,13 @@ public final class MarkerUtils {
 		final IResource res = ResourceUtils.findResource(doc);
 		if (res == null)
 			return;
+
+		if (docModel.getGrammar() == null) {
+			// Null tokens with an active grammar mean parsing is pending; no grammar makes all comment markers obsolete.
+			// Restrict cleanup to TM4E's marker hierarchy so other tools' task and problem markers survive.
+			res.deleteMarkers(TEXTMARKER_TYPE, true, IResource.DEPTH_ZERO);
+			return;
+		}
 
 		final int numberOfLines = doc.getNumberOfLines();
 

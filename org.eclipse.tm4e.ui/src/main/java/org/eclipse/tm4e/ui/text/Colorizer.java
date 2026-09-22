@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.CursorLinePainter;
 import org.eclipse.jface.text.IDocument;
@@ -37,12 +39,18 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.tm4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.tm4e.core.model.Range;
 import org.eclipse.tm4e.core.model.TMToken;
+import org.eclipse.tm4e.core.theme.RGB;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.utils.ClassHelper;
 import org.eclipse.tm4e.ui.model.ITMDocumentModel;
+import org.eclipse.tm4e.ui.themes.ColorManager;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 
+/** Applies token styles and language theme colors, and restores editor colors when highlighting ends. */
 class Colorizer {
 	private static final TextAttribute DEFAULT_TEXT_ATTRIBUTE = new TextAttribute(null);
 
@@ -231,32 +239,57 @@ class Colorizer {
 		}
 
 		if (!isViewerHighlightColorInitialized) {
-			try {
-				// Ugly code to update "current line highlight" :
-				// - get the PaintManager from the ITextViewer with reflection.
-				// - get the list of IPainter of PaintManager with reflection
-				// - loop for IPainter to retrieve CursorLinePainter which manages "current line highlight".
-				final PaintManager paintManager = ClassHelper.getFieldValue(viewer, "fPaintManager", TextViewer.class);
-				if (paintManager == null)
-					return;
+			isViewerHighlightColorInitialized = updateCurrentLineHighlight(viewer, theme.getEditorCurrentLineHighlight());
+		}
+	}
 
-				final List<IPainter> painters = ClassHelper.getFieldValue(paintManager, "fPainters", PaintManager.class);
-				if (painters == null)
-					return;
+	static void restoreEditorColors(final ITextViewer viewer) {
+		// Read the current preference store, including theme defaults. A snapshot would undo later appearance or user changes.
+		final IPreferenceStore store = EditorsUI.getPreferenceStore();
+		final StyledText widget = viewer.getTextWidget();
+		widget.setForeground(store.getBoolean(AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND_SYSTEM_DEFAULT) ? null
+				: getEditorPreferenceColor(store, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND));
+		widget.setBackground(store.getBoolean(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT) ? null
+				: getEditorPreferenceColor(store, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND));
+		widget.setSelectionForeground(store.getBoolean(AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND_SYSTEM_DEFAULT) ? null
+				: getEditorPreferenceColor(store, AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND));
+		widget.setSelectionBackground(store.getBoolean(AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND_SYSTEM_DEFAULT) ? null
+				: getEditorPreferenceColor(store, AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND));
+		updateCurrentLineHighlight(viewer,
+				getEditorPreferenceColor(store, AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR));
+		// An empty document has no token presentation to invalidate, but its current-line color still needs repainting.
+		widget.redraw();
+	}
 
-				for (final IPainter painter : painters) {
-					if (painter instanceof final CursorLinePainter cursorLinePainter) {
-						// Update current line highlight
-						final Color background = theme.getEditorCurrentLineHighlight();
-						if (background != null) {
-							cursorLinePainter.setHighlightColor(background);
-						}
-						isViewerHighlightColorInitialized = true;
-					}
+	private static @Nullable Color getEditorPreferenceColor(final IPreferenceStore store, final String key) {
+		if (!store.contains(key))
+			return null;
+		final org.eclipse.swt.graphics.RGB rgb = PreferenceConverter.getColor(store, key);
+		return ColorManager.getInstance().getColor(new RGB(rgb.red, rgb.green, rgb.blue));
+	}
+
+	private static boolean updateCurrentLineHighlight(final ITextViewer viewer, final @Nullable Color background) {
+		try {
+			// JFace exposes no painter lookup. Share this access when applying and removing a theme so both update the same painter.
+			final PaintManager paintManager = ClassHelper.getFieldValue(viewer, "fPaintManager", TextViewer.class);
+			if (paintManager == null)
+				return false;
+			final List<IPainter> painters = ClassHelper.getFieldValue(paintManager, "fPainters", PaintManager.class);
+			if (painters == null)
+				return false;
+			boolean initialized = false;
+			for (final IPainter painter : painters) {
+				if (painter instanceof final CursorLinePainter cursorLinePainter) {
+					if (background != null)
+						cursorLinePainter.setHighlightColor(background);
+					initialized = true;
 				}
-			} catch (final Exception ex) {
-				TMUIPlugin.logError(ex);
 			}
+			// Painters can be installed after the colorizer. Retry during a later colorization until one is available.
+			return initialized;
+		} catch (final Exception ex) {
+			TMUIPlugin.logError(ex);
+			return false;
 		}
 	}
 

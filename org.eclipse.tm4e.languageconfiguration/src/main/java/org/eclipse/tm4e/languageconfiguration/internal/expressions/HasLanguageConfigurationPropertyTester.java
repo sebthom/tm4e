@@ -25,6 +25,9 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+/**
+ * Enables editing commands when the file's selected language has a configuration.
+ */
 public final class HasLanguageConfigurationPropertyTester extends PropertyTester {
 
 	private final LanguageConfigurationRegistryManager registry = LanguageConfigurationRegistryManager.getInstance();
@@ -33,13 +36,14 @@ public final class HasLanguageConfigurationPropertyTester extends PropertyTester
 	public boolean test(final @Nullable Object receiver, final String property, final Object[] args, final @Nullable Object expectedValue) {
 		switch (receiver) {
 			case IFileEditorInput fileInput -> {
-				return hasLanguageConfiguration(ContentTypeHelper.findContentTypesByFileName(fileInput.getFile().getName()));
+				return hasLanguageConfiguration(ContentTypeHelper.findContentTypes(fileInput.getFile()));
 			}
 			case IPathEditorInput pathInput -> {
-				return hasLanguageConfiguration(ContentTypeHelper.findContentTypesByFileName(castNonNull(pathInput.getPath().lastSegment())));
+				return hasLanguageConfiguration(
+						ContentTypeHelper.findContentTypesByFileName(castNonNull(pathInput.getPath().lastSegment())));
 			}
 			case IFile file -> {
-				return hasLanguageConfiguration(ContentTypeHelper.findContentTypesByFileName(file.getName()));
+				return hasLanguageConfiguration(ContentTypeHelper.findContentTypes(file));
 			}
 			case null, default -> {
 			}
@@ -62,7 +66,13 @@ public final class HasLanguageConfigurationPropertyTester extends PropertyTester
 		if (info == null)
 			return false;
 
-		return hasLanguageConfiguration(info.getContentTypes());
+		return hasLanguageConfiguration(info);
+	}
+
+	private boolean hasLanguageConfiguration(final ContentTypeInfo info) {
+		// Command enablement must preserve the file choice just like the command's editing rules do.
+		return info.getExplicitGrammar() == null ? hasLanguageConfiguration(info.getContentTypes())
+				: registry.getLanguageConfigurationForResolvedTypes(info.getContentTypes()) != null;
 	}
 
 	private boolean hasLanguageConfiguration(final IContentType[] contentTypes) {

@@ -18,7 +18,7 @@ import org.eclipse.tm4e.languageconfiguration.internal.model.LanguageConfigurati
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * Language Configuration registry manager API.
+ * Looks up language configurations and provides edit sessions for workspace configuration changes.
  */
 public interface ILanguageConfigurationRegistryManager {
 
@@ -66,12 +66,34 @@ public interface ILanguageConfigurationRegistryManager {
 	ILanguageConfigurationDefinition[] getDefinitions();
 
 	/**
-	 * Returns the {@link LanguageConfiguration} for the given content types and null otherwise.
+	 * Looks up editing rules after using workspace grammar bindings to select a language from the given content types.
+	 * A matching binding selects its content type instead of the other matching types. This can be a parent of a supplied type.
+	 * The selected types are passed to {@link #getLanguageConfigurationForResolvedTypes(IContentType...)}.
+	 * <p>
+	 * Use this method when workspace bindings should determine the language.
+	 * Use {@code getLanguageConfigurationForResolvedTypes} when the caller has already selected the language,
+	 * for example through a file-specific choice that must take priority over workspace bindings.
 	 *
-	 * @param contentTypes the content type.
+	 * @param contentTypes ordered content type candidates, before applying workspace bindings
 	 *
-	 * @return the {@link LanguageConfiguration} for the given content type and null otherwise.
+	 * @return the configuration for the first matching selected type, or {@code null} if none is available
 	 */
 	@Nullable
 	LanguageConfiguration getLanguageConfigurationFor(IContentType... contentTypes);
+
+	/**
+	 * Looks up editing rules for the given content types without applying workspace grammar bindings.
+	 * Types are checked in the supplied order. For each exact type, a user configuration takes priority over
+	 * a plugin configuration. This lookup does not search parent types.
+	 * <p>
+	 * Use this method when the caller has already selected the language, for example through a file-specific choice.
+	 * Skipping workspace bindings preserves that choice even if another matching type or a parent type has a binding.
+	 * Use {@link #getLanguageConfigurationFor(IContentType...)} when workspace bindings should still be applied.
+	 *
+	 * @param contentTypes ordered content types that already represent the selected language
+	 *
+	 * @return the configuration for the first matching supplied type, or {@code null} if none is available
+	 */
+	@Nullable
+	LanguageConfiguration getLanguageConfigurationForResolvedTypes(IContentType... contentTypes);
 }

@@ -7,6 +7,7 @@ Bundle-Vendor: Eclipse TM4E
 Automatic-Module-Name: org.eclipse.tm4e.languageconfiguration.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.filebuffers,
  org.eclipse.core.resources,
  org.eclipse.jface.text,
  org.eclipse.ui,
@@ -16,9 +17,13 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.workbench,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.tm4e.languageconfiguration,
+ org.eclipse.tm4e.core,
+ org.eclipse.tm4e.registry,
  org.eclipse.tm4e.language_pack,
  org.eclipse.tm4e.ui,
  org.eclipse.tm4e.ui.tests,
  assertj-core
 Bundle-ActivationPolicy: lazy
-Import-Package: org.junit.jupiter.api
+Import-Package: org.junit.jupiter.api,
+ org.junit.jupiter.params,
+ org.junit.jupiter.params.provider

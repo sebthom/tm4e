@@ -3,6 +3,15 @@
 <plugin>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
+      <!-- The dedicated extension isolates the counter; the JavaScript base supplies a grammar and editing rules. -->
+      <content-type
+            base-type="org.eclipse.tm4e.language_pack.javascript"
+            describer="org.eclipse.tm4e.languageconfiguration.tests.CountingContentDescriber"
+            file-extensions="lc-counted"
+            id="org.eclipse.tm4e.languageconfiguration.tests.content-type.counted"
+            name="Test content type with counted detection"
+            priority="normal">
+      </content-type>
       <content-type
             base-type="org.eclipse.core.runtime.text"
             file-extensions="lc-test"

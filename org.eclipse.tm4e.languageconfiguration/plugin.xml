@@ -21,23 +21,21 @@
             class="org.eclipse.tm4e.languageconfiguration.internal.folding.CompositeFoldingStrategy"
             contentType="org.eclipse.core.runtime.text">
          <enabledWhen>
-           <and>
-              <!-- language-configuration.json is present -->
-              <reference definitionId="org.eclipse.tm4e.languageconfiguration.editorHasFoldingRules" />
+            <!-- We intentionally do not use org.eclipse.tm4e.languageconfiguration.editorHasFoldingRules here
+                 because users can select a language with folding rules after opening a file that has none.
+                 The strategy must already be installed to receive that language change and apply its rules.
+                 Indentation folding is available even without language-specific markers. -->
+            <or>
+               <!-- LSP4E bundle not resolved/started -->
+               <not>
+                  <test property="org.eclipse.tm4e.languageconfiguration.isBundleActive" args="org.eclipse.lsp4e"/>
+               </not>
 
-              <!-- AND ( ( LSP4E bundle NOT active )  OR  ( bundle active but NO LS here ) ) -->
-              <or>
-                 <!-- LSP4E bundle not resolved/started -->
-                 <not>
-                    <test property="org.eclipse.tm4e.languageconfiguration.isBundleActive" args="org.eclipse.lsp4e"/>
-                 </not>
-
-                 <!-- LSP4E present, but this editor/viewer has no LS -->
-                 <not>
-                    <reference definitionId="org.eclipse.lsp4e.editorHasLanguageServer"/>
-                 </not>
-              </or>
-           </and>
+               <!-- LSP4E present, but this editor/viewer has no LS -->
+               <not>
+                  <reference definitionId="org.eclipse.lsp4e.editorHasLanguageServer"/>
+               </not>
+            </or>
          </enabledWhen>
       </foldingReconcilingStrategy>
    </extension>

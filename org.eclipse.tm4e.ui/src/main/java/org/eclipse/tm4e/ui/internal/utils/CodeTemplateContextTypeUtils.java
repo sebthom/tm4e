@@ -13,9 +13,11 @@ package org.eclipse.tm4e.ui.internal.utils;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
@@ -23,6 +25,9 @@ import org.eclipse.tm4e.registry.ITMScope;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 
+/**
+ * Maps template context IDs and display names to the registered TextMate grammar scopes.
+ */
 public class CodeTemplateContextTypeUtils {
 
 	private static final String CONTEXT_TYPE_ID_PREFIX = TMUIPlugin.PLUGIN_ID + ".templates.context."; //$NON-NLS-1$
@@ -49,11 +54,10 @@ public class CodeTemplateContextTypeUtils {
 	}
 
 	public static @Nullable String getContentTypeName(final ITMScope languageScope) {
-		@Nullable
-		final Collection<IContentType> contentTypes = TMEclipseRegistryPlugin.getGrammarRegistryManager()
+		final @Nullable Collection<IContentType> contentTypes = TMEclipseRegistryPlugin.getGrammarRegistryManager()
 				.getContentTypesForScope(languageScope);
 
-		if (contentTypes != null && contentTypes.size() > 0) {
+		if (contentTypes != null && !contentTypes.isEmpty()) {
 			// we only consider the first content type
 			return contentTypes.iterator().next().getName();
 		}
@@ -73,13 +77,21 @@ public class CodeTemplateContextTypeUtils {
 	}
 
 	public static @Nullable IGrammar toGrammar(final String contextTypeName) {
-		final IGrammarDefinition[] grammarDefinitions = TMEclipseRegistryPlugin.getGrammarRegistryManager().getDefinitions();
+		final var plugin = TMUIPlugin.getDefault();
+		if (plugin == null)
+			return null;
 
-		return Arrays.stream(grammarDefinitions)
-				.map(IGrammarDefinition::getScope)
-				.filter(scope -> contextTypeName.equals(toContextTypeName(scope)))
-				.map(scope -> TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarForScope(scope))
-				.findFirst().orElse(null);
+		// The dialog may still show cached names after a binding change.
+		// Match the cached name, then look up the grammar by its stable context ID.
+		final Iterator<TemplateContextType> contexts = plugin.getTemplateContextRegistry().contextTypes();
+		while (contexts.hasNext()) {
+			final TemplateContextType context = contexts.next();
+			if (contextTypeName.equals(context.getName())) {
+				final ITMScope scope = findScopeFor(context.getId());
+				return scope == null ? null : TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarForScope(scope);
+			}
+		}
+		return null;
 	}
 
 }
