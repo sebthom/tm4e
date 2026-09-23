@@ -21,9 +21,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
+import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.expressions.EvaluationContext;
 import org.eclipse.core.expressions.EvaluationResult;
 import org.eclipse.core.expressions.ExpressionConverter;
@@ -52,9 +54,11 @@ import org.eclipse.tm4e.ui.internal.utils.UI;
 import org.eclipse.tm4e.ui.tests.support.TestUtils;
 import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
 import org.eclipse.ui.ISources;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.dialogs.AbstractElementListSelectionDialog;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.dialogs.FilteredList;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.menus.IWorkbenchContribution;
@@ -65,10 +69,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Checks language ranking, labels and filtering, menu visibility, and live updates after choosing or resetting a language.
+ * Checks language commands, chooser ranking and filtering, menu visibility, and live updates after choosing or resetting a language.
  * Each test owns its workspace project and saved file choices.
  */
 class FileLanguageMenuTest {
+
+	private static final String CHOOSE_LANGUAGE_COMMAND = "org.eclipse.tm4e.ui.chooseLanguageCommand";
 
 	private final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject("file-language-menu-" + UUID.randomUUID());
 	private final IFile file = project.getFile("example.ts");
@@ -99,6 +105,7 @@ class FileLanguageMenuTest {
 		try {
 			page.activate(editor);
 			assertThat(isLanguageMenuVisible()).isTrue();
+			assertThat(isLanguageCommandEnabled()).isTrue();
 
 			page.activate(explorer);
 			((ISetSelectionTarget) explorer).selectReveal(new StructuredSelection(file));
@@ -106,6 +113,43 @@ class FileLanguageMenuTest {
 			assertThat(page.getActiveEditor()).isSameAs(editor);
 			assertThat(page.getActivePart()).isSameAs(explorer);
 			assertThat(isLanguageMenuVisible()).isFalse();
+			assertThat(isLanguageCommandEnabled()).isFalse();
+		} finally {
+			page.hideView(explorer);
+		}
+	}
+
+	@Test
+	void languageCommandUsesTheSuppliedEditorContextBeforeTheMenuIsCreated() throws Exception {
+		openEditor();
+		final var window = editor.getSite().getWorkbenchWindow();
+		final var commands = castNonNull(window.getService(ICommandService.class));
+		final var handlers = castNonNull(window.getService(IHandlerService.class));
+		final var command = commands.getCommand(CHOOSE_LANGUAGE_COMMAND);
+		assertThat(command.isDefined()).isTrue();
+		assertThat(command.getName()).isEqualTo("Choose Language...");
+		assertThat(command.getCategory().getName()).isEqualTo("TextMate");
+		assertThat(isLanguageCommandEnabled()).isTrue();
+		// Quick Access executes with its captured context, even after focus moves away from the editor.
+		final var context = handlers.createContextSnapshot(true);
+		final var page = editor.getSite().getPage();
+		final var explorer = page.showView("org.eclipse.ui.navigator.ProjectExplorer");
+		final var opened = new AtomicBoolean();
+		final var parent = editor.getSite().getShell();
+		try {
+			page.activate(explorer);
+			assertThat(isLanguageCommandEnabled()).isFalse();
+			parent.getDisplay().asyncExec(() -> {
+				for (final var shell : parent.getShells()) {
+					if (shell.getData() instanceof final ElementListSelectionDialog dialog) {
+						opened.set(true);
+						dialog.close();
+					}
+				}
+			});
+			handlers.executeCommandInContext(new ParameterizedCommand(command, null), null, context);
+			assertThat(opened).isTrue();
+			assertThat(FileLanguageSelection.hasSavedLanguage(file)).isFalse();
 		} finally {
 			page.hideView(explorer);
 		}
@@ -145,6 +189,7 @@ class FileLanguageMenuTest {
 			assertThat(reconciler.isEnabled()).isFalse();
 			// Requiring active highlighting would hide the action needed to choose the file's first grammar.
 			assertThat(isLanguageMenuVisible()).isTrue();
+			assertThat(isLanguageCommandEnabled()).isTrue();
 			final var items = createMenu().getItems();
 			assertThat(items).extracting(MenuItem::getText).containsExactly("Current language: None", "Choose Language...");
 			assertThat(items[0].getEnabled()).isFalse();
@@ -171,6 +216,7 @@ class FileLanguageMenuTest {
 			editor = (ITextEditor) castNonNull(UI.getActivePage()).openEditor(input, "org.eclipse.ui.genericeditor.GenericEditor");
 			assertThat(editor.getEditorInput().getAdapter(IFile.class)).isNull();
 			assertThat(isLanguageMenuVisible()).isTrue();
+			assertThat(isLanguageCommandEnabled()).isFalse();
 			final var items = createMenu().getItems();
 			assertThat(items).extracting(MenuItem::getText).containsExactly("Current language: TypeScript");
 			assertThat(items[0].getEnabled()).isFalse();
@@ -276,7 +322,8 @@ class FileLanguageMenuTest {
 		final var grammarFile = project.getFile("matching-metadata.tmLanguage.json");
 		grammarFile.create(new ByteArrayInputStream(("{\"scopeName\":\"" + scope
 				+ "\",\"name\":\"Metadata match\",\"fileTypes\":[\"TS\"],\"patterns\":[]}")
-						.getBytes(StandardCharsets.UTF_8)), true, null);
+						.getBytes(StandardCharsets.UTF_8)),
+				true, null);
 		final var grammar = new GrammarDefinition(scope, castNonNull(grammarFile.getLocation()).toOSString());
 		try {
 			final var add = registry.newEditSession();
@@ -390,6 +437,17 @@ class FileLanguageMenuTest {
 		});
 	}
 
+	private boolean isLanguageCommandEnabled() {
+		final var window = castNonNull(UI.getActivePage()).getWorkbenchWindow();
+		final var commands = castNonNull(window.getService(ICommandService.class));
+		final var handlers = castNonNull(window.getService(IHandlerService.class));
+		final var command = commands.getCommand(CHOOSE_LANGUAGE_COMMAND);
+		assertThat(command.isDefined()).isTrue();
+		assertThat(command.isHandled()).isTrue();
+		command.setEnabled(handlers.getCurrentState());
+		return command.isEnabled();
+	}
+
 	private boolean isLanguageMenuVisible() throws CoreException {
 		final var definition = Arrays.stream(Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.ui.menus"))
 				.flatMap(element -> Arrays.stream(element.getChildren("menu")))
@@ -408,7 +466,7 @@ class FileLanguageMenuTest {
 	}
 
 	private void openEditor() throws CoreException {
-		editor = (ITextEditor) IDE.openEditor(castNonNull(UI.getActivePage()), file, "org.eclipse.ui.genericeditor.GenericEditor");
+		editor = (ITextEditor) IDE.openEditor(UI.getActivePage(), file, "org.eclipse.ui.genericeditor.GenericEditor");
 		assertThat(TMPresentationReconciler.getTMPresentationReconciler(editor)).isNotNull();
 	}
 

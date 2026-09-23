@@ -263,6 +263,11 @@ under `Text > TM4E Syntax Highlighting`, then add the required file associations
    Languages that match the file name appear first, in alphabetical order.
    You can search by language name; entries also show their TextMate scope to distinguish different providers.
 
+You can also press `Ctrl+3` in the editor and search for `Choose Language` in Quick Access.
+To assign your own shortcut, open `Window > Preferences > General > Keys`
+and find `Choose Language...` in the `TextMate` category.
+No shortcut is assigned by default.
+
 After you choose a language:
 
 - **Immediate update:** All open editors for the file use the new language.

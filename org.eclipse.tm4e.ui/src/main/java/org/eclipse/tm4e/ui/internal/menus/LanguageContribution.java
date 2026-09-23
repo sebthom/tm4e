@@ -45,6 +45,8 @@ import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.dialogs.FilteredList;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.IWorkbenchContribution;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -54,16 +56,19 @@ import org.eclipse.ui.texteditor.ITextEditor;
  */
 public final class LanguageContribution extends CompoundContributionItem implements IWorkbenchContribution {
 
-	private @Nullable IHandlerService handlerService;
+	private @Nullable IServiceLocator serviceLocator;
 
 	@Override
 	public void initialize(final IServiceLocator serviceLocator) {
-		handlerService = serviceLocator.getService(IHandlerService.class);
+		this.serviceLocator = serviceLocator;
 	}
 
 	@Override
 	protected IContributionItem[] getContributionItems() {
-		final IHandlerService service = handlerService;
+		final IServiceLocator locator = serviceLocator;
+		if (locator == null)
+			return new IContributionItem[0];
+		final IHandlerService service = locator.getService(IHandlerService.class);
 		if (service == null || !(service.getCurrentState().getVariable(ISources.ACTIVE_PART_NAME) instanceof final IEditorPart editor))
 			return new IContributionItem[0];
 
@@ -76,27 +81,21 @@ public final class LanguageContribution extends CompoundContributionItem impleme
 		if (!(editor instanceof final ITextEditor textEditor))
 			return new IContributionItem[] { currentLangItem };
 
-		final var input = editor.getEditorInput();
-		final var file = input.getAdapter(IFile.class);
-		final var provider = textEditor.getDocumentProvider();
-		final var doc = provider == null ? null : provider.getDocument(input);
-		if (file == null || !file.isAccessible() || doc == null)
+		final var file = ChooseLanguageHandler.getSelectableFile(textEditor);
+		if (file == null)
 			return new IContributionItem[] { currentLangItem };
 
-		final var chooseLang = new Action(TMUIMessages.LanguageSelection_action) {
-			@Override
-			public void run() {
-				chooseLanguage(textEditor, file);
-			}
-		};
-		final var chooseLangItem = new ActionContributionItem(chooseLang);
+		final var chooseLang = new CommandContributionItemParameter(locator, null, ChooseLanguageHandler.COMMAND_ID,
+				CommandContributionItem.STYLE_PUSH);
+		// Keep the saved-language label local to this menu; Quick Access and Keys use the stable command name.
+		chooseLang.label = TMUIMessages.LanguageSelection_action;
 		try {
 			// Removing a grammar leaves the file's saved choice in place. Keep reset available even if the grammar is gone.
 			if (FileLanguageSelection.hasSavedLanguage(file)) {
 				final Language saved = FileLanguageSelection.getSavedLanguage(file);
 				final String name = saved == null ? TMUIMessages.LanguageSelection_unavailable : getLanguageName(saved);
 				// Grammar names are text, not menu mnemonics.
-				chooseLang.setText(NLS.bind(TMUIMessages.LanguageSelection_actionWithSelection, name.replace("&", "&&")));
+				chooseLang.label = NLS.bind(TMUIMessages.LanguageSelection_actionWithSelection, name.replace("&", "&&"));
 				// Keep reset outside the searchable list so filtering cannot hide it.
 				final var reset = new Action(TMUIMessages.LanguageSelection_reset) {
 					@Override
@@ -104,12 +103,12 @@ public final class LanguageContribution extends CompoundContributionItem impleme
 						saveLanguage(textEditor, file, null);
 					}
 				};
-				return new IContributionItem[] { currentLangItem, chooseLangItem, new ActionContributionItem(reset) };
+				return new IContributionItem[] { currentLangItem, new CommandContributionItem(chooseLang), new ActionContributionItem(reset) };
 			}
 		} catch (final CoreException ex) {
 			TMUIPlugin.logError(ex);
 		}
-		return new IContributionItem[] { currentLangItem, chooseLangItem };
+		return new IContributionItem[] { currentLangItem, new CommandContributionItem(chooseLang) };
 	}
 
 	private static IContributionItem createCurrentLanguageItem(final TMPresentationReconciler reconciler) {
@@ -127,7 +126,7 @@ public final class LanguageContribution extends CompoundContributionItem impleme
 		return new ActionContributionItem(currentLang);
 	}
 
-	private static void chooseLanguage(final ITextEditor editor, final IFile file) {
+	static void chooseLanguage(final ITextEditor editor, final IFile file) {
 		final var shell = editor.getSite().getShell();
 		try {
 			final Language saved = FileLanguageSelection.getSavedLanguage(file);

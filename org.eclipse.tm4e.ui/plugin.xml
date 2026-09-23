@@ -116,11 +116,19 @@
 
    <!-- Contextual Menu -->
    <extension point="org.eclipse.ui.commands">
+      <category id="org.eclipse.tm4e.ui.category" name="%command.category.name" />
+      <!-- Register independently of the popup so Quick Access and user key bindings work before the menu is opened. -->
+      <!-- Leave the shortcut unassigned so users can choose one that fits their editor setup. -->
+      <command id="org.eclipse.tm4e.ui.chooseLanguageCommand"
+            categoryId="org.eclipse.tm4e.ui.category"
+            name="%command.chooseLanguage.name" />
       <command id="org.eclipse.tm4e.ui.openTextMatePreferencesCommand"
             name="%menu.textmate.preferences.label" />
    </extension>
 
    <extension point="org.eclipse.ui.handlers">
+      <handler commandId="org.eclipse.tm4e.ui.chooseLanguageCommand"
+            class="org.eclipse.tm4e.ui.internal.menus.ChooseLanguageHandler" />
       <handler commandId="org.eclipse.tm4e.ui.openTextMatePreferencesCommand"
             class="org.eclipse.tm4e.ui.internal.menus.TextMatePreferencesContribution" />
    </extension>
