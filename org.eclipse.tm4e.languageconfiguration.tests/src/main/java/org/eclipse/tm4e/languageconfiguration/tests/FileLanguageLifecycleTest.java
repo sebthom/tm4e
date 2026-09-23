@@ -41,6 +41,7 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IPainter;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.PaintManager;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.graphics.Color;
@@ -82,6 +83,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Checks that file language choices are saved, survive reopening, and update editor features even when workspace defaults differ.
@@ -439,6 +442,51 @@ class FileLanguageLifecycleTest {
 			assertThat(command.text).isEqualTo("[]");
 			assertThat(matcher.match(document, 9)).isNull();
 			assertThat(matcher.match(document, 5)).isNotNull();
+		} finally {
+			matcher.dispose();
+		}
+	}
+
+	@Test
+	void fileChoiceWithMultiCharacterAutoClosingPairKeepsCharacterMatching() throws Exception {
+		// ANTLR falls back from empty surroundingPairs to autoClosingPairs, including the unequal-length comment delimiters.
+		registerConfiguration(fileType, """
+			{"autoClosingPairs":[["(",")"],["'","'"],["/*"," */"]],"surroundingPairs":[]}
+			""");
+		final var file = createFile("antlr-choice.m", "( ) /");
+		FileLanguageSelection.setLanguage(file, new Language(fileGrammar.getScope().getQualifiedName(), fileType.getId()));
+		final var document = connect(file);
+		final var matcher = new LanguageConfigurationCharacterPairMatcher();
+		try {
+			assertThat(matcher.match(document, 1, 0)).isEqualTo(new Region(0, 3));
+			assertThat(matcher.isMatchedChar('\'')).isTrue();
+			assertThat(matcher.isMatchedChar('/')).isFalse();
+			assertThat(matcher.isMatchedChar('*')).isFalse();
+		} finally {
+			matcher.dispose();
+		}
+		// Filtering for character matching must not remove string delimiters from the shared auto-closing configuration.
+		TestUtils.waitForAndAssertCondition(5_000, () -> TMPartitions.getContentTypesForOffset(document, 0).length > 0);
+		assertInsertion(document, "*", "* */");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "[\"/*\",\"*/\"]", "[\"**\",\"**\"]", "[\"\",\"!\"]", "[\"!\",\"\"]" })
+	void fileChoiceIgnoresNonCharacterSurroundingPairs(final String pair) throws Exception {
+		// Even-length strings can pass JFace's assertion while creating false character pairs; empty sides can unbalance it.
+		registerConfiguration(fileType, """
+			{"surroundingPairs":[["(",")"],["'","'"],%s]}
+			""".formatted(pair));
+		final var file = createFile("string-pairs.m", "( ) / * !");
+		FileLanguageSelection.setLanguage(file, new Language(fileGrammar.getScope().getQualifiedName(), fileType.getId()));
+		final var document = connect(file);
+		final var matcher = new LanguageConfigurationCharacterPairMatcher();
+		try {
+			assertThat(matcher.match(document, 1)).isEqualTo(new Region(0, 3));
+			assertThat(matcher.isMatchedChar('\'')).isTrue();
+			assertThat(matcher.isMatchedChar('/')).isFalse();
+			assertThat(matcher.isMatchedChar('*')).isFalse();
+			assertThat(matcher.isMatchedChar('!')).isFalse();
 		} finally {
 			matcher.dispose();
 		}
