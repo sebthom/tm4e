@@ -1,5 +1,6 @@
-/*******************************************************************************
+/**
  * Copyright (c) 2025 Vegard IT GmbH and others.
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -7,8 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- * Sebastian Thomschke (Vegard IT) - initial implementation
- *******************************************************************************/
+ * - Sebastian Thomschke (Vegard IT) - initial implementation
+ */
 package org.eclipse.tm4e.ui.text;
 
 import java.util.ArrayList;
@@ -19,13 +20,17 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
-import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.ITMScope;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
+import org.eclipse.tm4e.ui.internal.text.TMPartitioner;
+import org.eclipse.tm4e.ui.internal.utils.ContentTypeHelper;
+import org.eclipse.tm4e.ui.internal.utils.ContentTypeInfo;
+import org.eclipse.tm4e.ui.internal.utils.FileLanguageSelection;
 
 /**
- * Constants for the TM partitioning and partition types.
+ * Defines TM partition IDs and finds the content types used to apply editing rules within each partition.
  */
 public final class TMPartitions {
 
@@ -62,32 +67,60 @@ public final class TMPartitions {
 	 * Returns an empty array when no mapping exists or no TM partitioner is installed.
 	 */
 	public static IContentType[] getContentTypesForOffset(final IDocument doc, final int offset) {
-		final ITypedRegion part = getPartition(doc, offset);
+		final ITMPartitionRegion part = getPartition(doc, offset);
 		if (part == null)
 			return NO_CONTENT_TYPES;
 
-		if (!(part instanceof final ITMPartitionRegion tmPart))
-			return NO_CONTENT_TYPES;
+		final ContentTypeInfo info = ContentTypeHelper.findContentTypes(doc);
+		return getContentTypes(doc, part, info == null ? NO_CONTENT_TYPES : info.getContentTypes());
+	}
 
-		final String scopeName = tmPart.getGrammarScope();
+	/**
+	 * Resolves partition content types without repeating document content detection.
+	 * Returns an empty array when no mapping exists or no TM partitioner is installed.
+	 *
+	 * @param documentContentTypes the content types selected for the document, including any user binding
+	 */
+	public static IContentType[] getContentTypesForOffset(final IDocument doc, final int offset,
+			final IContentType[] documentContentTypes) {
+		final ITMPartitionRegion part = getPartition(doc, offset);
+		return part == null ? NO_CONTENT_TYPES : getContentTypes(doc, part, documentContentTypes);
+	}
+
+	private static IContentType[] getContentTypes(final IDocument doc, final ITMPartitionRegion part,
+			final IContentType[] documentContentTypes) {
+		final String scopeName = part.getGrammarScope();
+		final ContentTypeInfo fileSelection = FileLanguageSelection.getForDocument(doc);
+		final IGrammar fileGrammar = fileSelection == null ? null : fileSelection.getExplicitGrammar();
+		// A file choice takes priority over workspace bindings, including for its editing rules.
+		// Partition types drop scope suffixes such as .jsx. Use the partitioner's mapping for both file and workspace choices.
+		// Other partition types keep their own bindings so embedded languages retain their editing rules.
+		if (fileSelection != null && fileGrammar != null
+				&& part.getType().equals(TMPartitioner.scopeToPartitionType(fileGrammar.getScopeName())))
+			return fileSelection.getContentTypes();
 		final var mgr = TMEclipseRegistryPlugin.getGrammarRegistryManager();
-		// Try direct lookup (works when scope was contributed unqualified)
-		final Collection<IContentType> cts = mgr.getContentTypesForScope(ITMScope.parse(scopeName));
-		if (cts != null && !cts.isEmpty())
-			return cts.toArray(IContentType[]::new);
+		// Several content types can bind to the same scope. Only use the binding selected for this document.
+		if (documentContentTypes.length == 1) {
+			final IGrammarDefinition binding = mgr.getUserGrammarBinding(documentContentTypes[0]);
+			if (binding != null && part.getType().equals(TMPartitioner.scopeToPartitionType(binding.getScope().getName())))
+				return documentContentTypes;
+		}
 
-		// Fallback: match by unqualified scope name across all definitions and union their content types
+		// Partition scopes have no plugin IDs. Find matching plugin bindings for the document and its embedded languages.
+		// Ignore user bindings for other documents, even when they use the same scope.
 		final List<IContentType> result = new ArrayList<>();
 		for (final IGrammarDefinition def : mgr.getDefinitions()) {
-			final var defScope = def.getScope();
-			if (scopeName.equals(defScope.getName())) {
+			final ITMScope defScope = def.getScope();
+			if (def.getPluginId() != null && scopeName.equals(defScope.getName())) {
 				final Collection<IContentType> mapped = mgr.getContentTypesForScope(defScope);
 				if (mapped != null && !mapped.isEmpty()) {
 					result.addAll(mapped);
 				}
 			}
 		}
-		return result.isEmpty() ? NO_CONTENT_TYPES : result.toArray(IContentType[]::new);
+		return result.isEmpty() //
+				? NO_CONTENT_TYPES
+				: result.toArray(IContentType[]::new);
 	}
 
 	private TMPartitions() {

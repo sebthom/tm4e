@@ -26,19 +26,23 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+/**
+ * Enables folding for the file's selected language, including checks made before the editor is fully initialized.
+ */
 public final class HasFoldingRulesPropertyTester extends PropertyTester {
 
 	@Override
 	public boolean test(final @Nullable Object receiver, final String property, final Object[] args, final @Nullable Object expectedValue) {
 		switch (receiver) {
 			case IFileEditorInput fileInput -> {
-				return hasFoldingConfiguration(ContentTypeHelper.findContentTypesByFileName(fileInput.getFile().getName()));
+				return hasFoldingConfiguration(ContentTypeHelper.findContentTypes(fileInput.getFile()));
 			}
 			case IPathEditorInput pathInput -> {
-				return hasFoldingConfiguration(ContentTypeHelper.findContentTypesByFileName(castNonNull(pathInput.getPath().lastSegment())));
+				return hasFoldingConfiguration(
+						ContentTypeHelper.findContentTypesByFileName(castNonNull(pathInput.getPath().lastSegment())));
 			}
 			case IFile file -> {
-				return hasFoldingConfiguration(ContentTypeHelper.findContentTypesByFileName(file.getName()));
+				return hasFoldingConfiguration(ContentTypeHelper.findContentTypes(file));
 			}
 			case null, default -> {
 			}

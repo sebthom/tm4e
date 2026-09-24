@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 class TMModelTest {
 
 	@Test
-	void changingGrammarRefreshesEveryLine() throws Exception {
+	void changingAndClearingGrammarRefreshesEveryLine() throws Exception {
 		// Separate registries allow different rules for the same root scope, as when an imported grammar is replaced.
 		final var first = new Registry().addGrammar(fromString(ContentType.JSON, """
 			{"scopeName":"source.test","patterns":[{"match":"body","name":"keyword.first"}]}
@@ -62,6 +62,16 @@ class TMModelTest {
 							.allSatisfy(token -> assertThat(token.scopes).containsExactlyElementsOf(expectedScopes));
 				}
 			}
+			model.setGrammar(null);
+			assertThat(changes.poll(5, TimeUnit.SECONDS)).as("Clearing syntax must notify existing listeners").isNotNull();
+			assertThat(model.getNumberOfLines()).isEqualTo(3);
+			for (int line = 0; line < 3; line++) {
+				assertThat(model.getLineTokens(line)).isNull();
+			}
+			model.setGrammar(first);
+			assertThat(changes.poll(5, TimeUnit.SECONDS)).isNotNull();
+			assertThat(model.getLineTokens(2)).isNotEmpty()
+					.allSatisfy(token -> assertThat(token.scopes).containsExactly("source.test", "keyword.first"));
 		} finally {
 			model.dispose();
 		}

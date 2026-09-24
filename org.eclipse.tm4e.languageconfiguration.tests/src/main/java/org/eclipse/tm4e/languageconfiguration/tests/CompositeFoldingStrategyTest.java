@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
@@ -29,6 +30,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tm4e.languageconfiguration.internal.folding.CompositeFoldingStrategy;
 import org.eclipse.tm4e.ui.internal.utils.UI;
+import org.eclipse.tm4e.ui.tests.support.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,12 @@ import org.junit.jupiter.api.Test;
  * Also checks that background scans publish on the UI thread and cannot outlive their document contents or folding lifecycle.
  */
 class CompositeFoldingStrategyTest {
+
+	private enum LifecycleChange {
+		TOGGLE_FOLDING,
+		CHANGE_LANGUAGE,
+		UNINSTALL
+	}
 
 	/** Pauses one real folding scan without depending on document size or regex performance. */
 	private static final class PausingDocument extends Document {
@@ -176,12 +184,17 @@ class CompositeFoldingStrategyTest {
 
 	@Test
 	void togglingProjectionDiscardsTheRunningScan() throws Exception {
-		assertLifecycleChangeDoesNotWaitForScan(false);
+		assertLifecycleChangeDoesNotWaitForScan(LifecycleChange.TOGGLE_FOLDING);
+	}
+
+	@Test
+	void languageChangeDoesNotWaitForTheRunningScan() throws Exception {
+		assertLifecycleChangeDoesNotWaitForScan(LifecycleChange.CHANGE_LANGUAGE);
 	}
 
 	@Test
 	void uninstallDoesNotWaitOrAllowLateAnnotations() throws Exception {
-		assertLifecycleChangeDoesNotWaitForScan(true);
+		assertLifecycleChangeDoesNotWaitForScan(LifecycleChange.UNINSTALL);
 	}
 
 	@Test
@@ -196,7 +209,7 @@ class CompositeFoldingStrategyTest {
 		assertThat(annotations.getAnnotationIterator().hasNext()).as("No queued annotations after uninstall").isFalse();
 	}
 
-	private void assertLifecycleChangeDoesNotWaitForScan(final boolean uninstall) throws Exception {
+	private void assertLifecycleChangeDoesNotWaitForScan(final LifecycleChange change) throws Exception {
 		final var document = new PausingDocument();
 		firstViewer.setDocument(document, new AnnotationModel());
 		firstViewer.enableProjection();
@@ -214,8 +227,13 @@ class CompositeFoldingStrategyTest {
 						document.releaseScan.countDown();
 					return null;
 				});
-				if (uninstall) {
+				if (change == LifecycleChange.UNINSTALL) {
 					firstStrategy.uninstall();
+				} else if (change == LifecycleChange.CHANGE_LANGUAGE) {
+					// Exercise the real callback without introducing a workspace file into this scan-lifecycle test.
+					final var refresh = CompositeFoldingStrategy.class.getDeclaredMethod("refreshLanguage", IDocument.class);
+					refresh.setAccessible(true);
+					refresh.invoke(firstStrategy, document);
 				} else {
 					// The document stays the same, so document identity alone cannot invalidate this scan.
 					firstViewer.disableProjection();
@@ -229,9 +247,13 @@ class CompositeFoldingStrategyTest {
 				document.releaseScan.countDown();
 			}
 			scan.get(5, TimeUnit.SECONDS);
-			if (uninstall) {
+			if (change == LifecycleChange.UNINSTALL) {
 				dispatchUiUpdates();
 				assertThat(annotations.getAnnotationIterator().hasNext()).as("No annotations after uninstall").isFalse();
+			} else if (change == LifecycleChange.CHANGE_LANGUAGE) {
+				// A language change schedules its own scan; it must publish without waiting for a text edit.
+				TestUtils.waitForAndAssertCondition(5_000, () -> annotations.getAnnotationIterator().hasNext());
+				assertFoldingRegions(firstViewer, "root\n    child\n");
 			} else {
 				assertFoldingRegions(firstViewer);
 				// A fresh scan can publish after folding has been enabled again.

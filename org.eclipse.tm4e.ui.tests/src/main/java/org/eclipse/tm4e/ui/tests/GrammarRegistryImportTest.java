@@ -12,8 +12,7 @@
  */
 package org.eclipse.tm4e.ui.tests;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * Verifies isolation, save failures, overlapping edits, import order and cache updates through the grammar registry's edit-session API.
+ * Verifies suggestion persistence, isolation, save failures, overlapping edits, import order and cache updates through edit sessions.
  * Each test removes its own imports and temporary files without changing other registered grammars.
  */
 class GrammarRegistryImportTest {
@@ -112,6 +111,107 @@ class GrammarRegistryImportTest {
 
 		session.reset();
 		assertDefinitions(session, scope, grammar);
+	}
+
+	@Test
+	void matchingFilesPersistIncludingAnExplicitEmptyList() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var grammar = createGrammar(scope, "matching-files");
+		final var session = registry.newEditSession();
+		session.importGrammar(grammar, null, List.of("*.m", "Makefile"));
+
+		assertThat(session.getSavedGrammarFileAssociations(grammar)).containsExactly("*.m", "Makefile");
+		assertThat(registry.getSavedGrammarFileAssociations(grammar)).isNull();
+		session.save();
+		assertThat(registry.getSavedGrammarFileAssociations(grammar)).containsExactly("*.m", "Makefile");
+		assertThat(reloadRegistry().getSavedGrammarFileAssociations(grammar)).containsExactly("*.m", "Makefile");
+
+		final var clear = registry.newEditSession();
+		clear.importGrammar(grammar, null, List.of());
+		clear.save();
+		assertThat(registry.getSavedGrammarFileAssociations(grammar)).isEmpty();
+		assertThat(reloadRegistry().getSavedGrammarFileAssociations(grammar)).isEmpty();
+	}
+
+	@Test
+	void resettingMatchingFilesRestoresTheSavedValue() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var grammar = createGrammar(scope, "matching-files-reset");
+		final var saved = registry.newEditSession();
+		saved.importGrammar(grammar, null, List.of("*.saved"));
+		saved.save();
+		final var session = registry.newEditSession();
+		session.importGrammar(grammar, null, List.of("*.cancelled"));
+		assertThat(session.getSavedGrammarFileAssociations(grammar)).containsExactly("*.cancelled");
+
+		session.reset();
+		assertThat(session.getSavedGrammarFileAssociations(grammar)).containsExactly("*.saved");
+		assertThat(registry.getSavedGrammarFileAssociations(grammar)).containsExactly("*.saved");
+	}
+
+	@Test
+	void staleSessionCannotOverwriteMatchingFilesSavedByAnotherSession() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var grammar = createGrammar(scope, "matching-files-stale");
+		final var saved = registry.newEditSession();
+		saved.importGrammar(grammar, null, List.of("*.original"));
+		saved.save();
+		final var first = registry.newEditSession();
+		final var stale = registry.newEditSession();
+		first.importGrammar(grammar, null, List.of("*.first"));
+		stale.importGrammar(grammar, null, List.of("*.stale"));
+
+		first.save();
+		assertThatThrownBy(stale::save).isInstanceOf(BackingStoreException.class)
+				.hasCauseInstanceOf(IllegalArgumentException.class);
+		assertThat(registry.getSavedGrammarFileAssociations(grammar)).containsExactly("*.first");
+		assertThat(reloadRegistry().getSavedGrammarFileAssociations(grammar)).containsExactly("*.first");
+	}
+
+	@Test
+	void matchingFileEditFailsWhenAnotherSessionRemovesTheGrammar() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var grammar = createGrammar(scope, "matching-files-concurrent-removal");
+		saveImport(grammar);
+		final var stale = registry.newEditSession();
+		stale.importGrammar(grammar, null, List.of("*.stale"));
+		final var remove = registry.newEditSession();
+		remove.unregisterGrammarDefinition(grammar);
+		remove.save();
+
+		assertThatThrownBy(stale::save).isInstanceOf(BackingStoreException.class)
+				.hasCauseInstanceOf(IllegalArgumentException.class);
+		assertThat(registry.getDefinitions()).doesNotContain(grammar);
+		assertThat(registry.getSavedGrammarFileAssociations(grammar)).isNull();
+	}
+
+	@Test
+	void matchingFileEditMayBeDiscardedByRemovingTheGrammarInTheSameSession() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var grammar = createGrammar(scope, "matching-files-local-removal");
+		saveImport(grammar);
+		final var session = registry.newEditSession();
+		session.importGrammar(grammar, null, List.of("*.discarded"));
+		session.unregisterGrammarDefinition(grammar);
+
+		session.save();
+		assertThat(registry.getDefinitions()).doesNotContain(grammar);
+		assertThat(registry.getSavedGrammarFileAssociations(grammar)).isNull();
+	}
+
+	@Test
+	void removingAnImportRemovesItsMatchingFiles() throws Exception {
+		final var scope = "source.tm4e-import-test-" + UUID.randomUUID();
+		final var grammar = createGrammar(scope, "matching-files-removal");
+		final var saved = registry.newEditSession();
+		saved.importGrammar(grammar, null, List.of("*.removed"));
+		saved.save();
+		final var remove = registry.newEditSession();
+		remove.unregisterGrammarDefinition(grammar);
+		remove.save();
+
+		assertThat(registry.getSavedGrammarFileAssociations(grammar)).isNull();
+		assertThat(reloadRegistry().getSavedGrammarFileAssociations(grammar)).isNull();
 	}
 
 	@Test

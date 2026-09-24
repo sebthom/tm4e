@@ -31,9 +31,10 @@ import org.eclipse.tm4e.languageconfiguration.internal.registry.LanguageConfigur
 import org.eclipse.tm4e.ui.internal.model.TMModelManager;
 import org.eclipse.tm4e.ui.internal.utils.ContentTypeHelper;
 import org.eclipse.tm4e.ui.internal.utils.ContentTypeInfo;
+import org.eclipse.tm4e.ui.internal.utils.FileLanguageSelection;
 
 /**
- * Support of matching bracket with language configuration.
+ * Matches single-character brackets and quotes from a document's language configuration.
  */
 public class LanguageConfigurationCharacterPairMatcher implements ICharacterPairMatcher, ICharacterPairMatcherExtension {
 
@@ -43,6 +44,7 @@ public class LanguageConfigurationCharacterPairMatcher implements ICharacterPair
 
 	private @Nullable DefaultCharacterPairMatcher matcher;
 	private @Nullable IDocument document;
+	private @Nullable ContentTypeInfo fileSelection;
 	private char[] bracketPairs = NO_BRACKETS;
 	private char[] quoteChars = NO_QUOTES;
 	private int anchor = -1;
@@ -155,8 +157,14 @@ public class LanguageConfigurationCharacterPairMatcher implements ICharacterPair
 	 */
 	private DefaultCharacterPairMatcher getMatcher(final IDocument document) {
 		var matcher = this.matcher;
-		if (matcher == null || !document.equals(this.document)) {
+		final @Nullable ContentTypeInfo selection = FileLanguageSelection.getForDocument(document);
+		// A language change keeps the same document, but its cached pairs must be replaced.
+		if (matcher == null || !document.equals(this.document) || selection != fileSelection) {
+			if (matcher != null && matcher != NOOP_MATCHER) {
+				matcher.dispose();
+			}
 			this.document = document;
+			fileSelection = selection;
 
 			// initialize a DefaultCharacterPairMatcher by using character pairs of the language configuration.
 			final ContentTypeInfo info = ContentTypeHelper.findContentTypes(document);
@@ -173,7 +181,13 @@ public class LanguageConfigurationCharacterPairMatcher implements ICharacterPair
 				for (final IContentType contentType : contentTypes) {
 					if (registry.shouldSurroundingPairs(contentType)) {
 						for (final AutoClosingPair surroundingPair : registry.getSurroundingPairs(contentType)) {
-							if (Objects.equals(surroundingPair.open, surroundingPair.close) && surroundingPair.open.length() == 1) {
+							// Both matching paths require one UTF-16 char per delimiter. Keep this restriction here:
+							// longer delimiters remain valid for auto-closing, but flattening them can violate JFace's
+							// even-length requirement or create false character pairs.
+							if (surroundingPair.open.length() != 1 || surroundingPair.close.length() != 1) {
+								continue;
+							}
+							if (Objects.equals(surroundingPair.open, surroundingPair.close)) {
 								// symmetric, single-character pairs like " and '
 								surroundingQuotes.add(surroundingPair.open.charAt(0));
 							} else {

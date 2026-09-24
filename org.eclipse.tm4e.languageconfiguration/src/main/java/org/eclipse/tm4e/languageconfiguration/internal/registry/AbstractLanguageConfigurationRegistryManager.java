@@ -18,7 +18,11 @@ import java.util.Map;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.languageconfiguration.internal.model.LanguageConfiguration;
+import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 
+/**
+ * Looks up editing configurations for content types, with or without applying workspace grammar bindings.
+ */
 abstract class AbstractLanguageConfigurationRegistryManager implements ILanguageConfigurationRegistryManager {
 
 	final Map<IContentType, ILanguageConfigurationDefinition> pluginDefinitions = new HashMap<>();
@@ -42,6 +46,13 @@ abstract class AbstractLanguageConfigurationRegistryManager implements ILanguage
 
 	@Override
 	public @Nullable LanguageConfiguration getLanguageConfigurationFor(final IContentType... contentTypes) {
+		// Some callers supply types directly rather than going through the document helper (for example folding).
+		return getLanguageConfigurationForResolvedTypes(
+				TMEclipseRegistryPlugin.getGrammarRegistryManager().getEffectiveContentTypes(contentTypes));
+	}
+
+	@Override
+	public @Nullable LanguageConfiguration getLanguageConfigurationForResolvedTypes(final IContentType... contentTypes) {
 		for (final IContentType contentType : contentTypes) {
 			final var userDefinition = userDefinitions.get(contentType);
 			if (userDefinition != null) {

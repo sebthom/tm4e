@@ -58,6 +58,9 @@ import org.eclipse.tm4e.languageconfiguration.internal.widgets.LanguageConfigura
 import org.eclipse.tm4e.ui.internal.utils.ContentTypeHelper;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 
+/**
+ * Selects and validates a language configuration file and the content type that will receive its imported rules.
+ */
 final class SelectLanguageConfigurationWizardPage extends WizardPage implements Listener {
 	private static final String PAGE_NAME = SelectLanguageConfigurationWizardPage.class.getName();
 
@@ -284,7 +287,9 @@ final class SelectLanguageConfigurationWizardPage extends WizardPage implements 
 		if (contentType == null)
 			return new Status(IStatus.ERROR, LanguageConfigurationPlugin.PLUGIN_ID,
 					SelectLanguageConfigurationWizardPage_contentTypeError_invalid);
-		if (registryManager.getLanguageConfigurationFor(contentType) != null)
+		// Import replaces rules for this exact type. Workspace grammar bindings may select a parent for editing,
+		// but that parent's configuration is not the one being replaced.
+		if (registryManager.getLanguageConfigurationForResolvedTypes(contentType) != null)
 			return new Status(IStatus.WARNING, LanguageConfigurationPlugin.PLUGIN_ID,
 					SelectLanguageConfigurationWizardPage_contentTypeWarning_duplicate);
 		return null;

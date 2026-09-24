@@ -55,12 +55,10 @@ public final class TMFoldingStrategy extends AbstractFoldingStrategy {
 		final var document = this.document;
 		final var annoModel = projectionAnnotationModel;
 		final var contentTypeInfo = this.contentTypeInfo;
-		if (document == null || annoModel == null || contentTypeInfo == null)
+		if (document == null || annoModel == null)
 			return;
 
-		final var folding = FoldingSupport.getFoldingRules(contentTypeInfo);
-		if (folding == null)
-			return;
+		final var folding = contentTypeInfo == null ? null : FoldingSupport.getFoldingRules(contentTypeInfo);
 
 		try {
 			/*
@@ -73,7 +71,8 @@ public final class TMFoldingStrategy extends AbstractFoldingStrategy {
 			final var foldingRanges = new ArrayList<FoldingRange>();
 			final var openRanges = new ArrayList<Integer>();
 
-			for (int lineIndex = startLineIndex; lineIndex < endLineIndexExclusive; lineIndex++) {
+			// An empty scan removes the previous language's marker folds when the new language has no rules.
+			for (int lineIndex = startLineIndex; folding != null && lineIndex < endLineIndexExclusive; lineIndex++) {
 				if (!isCurrentReconcile(version))
 					return;
 

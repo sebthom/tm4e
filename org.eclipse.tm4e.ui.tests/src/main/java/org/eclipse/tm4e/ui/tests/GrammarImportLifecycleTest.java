@@ -1,7 +1,10 @@
 /**
  * Copyright (c) 2026 Vegard IT GmbH and others.
- * This program and the accompanying materials are made available under the terms of
- * the Eclipse Public License 2.0 which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -9,8 +12,7 @@
  */
 package org.eclipse.tm4e.ui.tests;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,8 +21,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferencePage;
+import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.tm4e.core.TMException;
@@ -31,7 +38,7 @@ import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.ui.IImportWizard;
 import org.junit.jupiter.api.Test;
 
-/** Verifies grammar import errors, retries, shared edit sessions and recovery from missing grammar files. */
+/** Verifies import retries, shared edit sessions, missing-file recovery and workspace content-type compatibility. */
 class GrammarImportLifecycleTest {
 
 	@Test
@@ -59,6 +66,7 @@ class GrammarImportLifecycleTest {
 				final var fileInput = page.getClass().getDeclaredField("grammarFileText");
 				fileInput.setAccessible(true);
 				((Text) fileInput.get(page)).setText(file.toString());
+				disableWorkspaceSetup(page);
 				assertThat(page.isPageComplete()).isTrue();
 				assertThat(wizard.performFinish()).isFalse();
 				assertThat(page.getErrorMessage()).contains("different scope", "Remove the old import first");
@@ -91,6 +99,7 @@ class GrammarImportLifecycleTest {
 				final var fileInput = page.getClass().getDeclaredField("grammarFileText");
 				fileInput.setAccessible(true);
 				((Text) fileInput.get(page)).setText(file.toString());
+				disableWorkspaceSetup(page);
 				assertThat(page.isPageComplete()).isTrue();
 
 				// The wizard already validated the old scope. Finish must check it against the latest saved imports.
@@ -137,6 +146,7 @@ class GrammarImportLifecycleTest {
 				fileInput.setAccessible(true);
 				final var input = (Text) fileInput.get(page);
 				input.setText(firstFile.toString());
+				disableWorkspaceSetup(page);
 				assertThat(page.isPageComplete()).isTrue();
 				Files.writeString(firstFile, "{\"scopeName\":\"source.changed\",\"patterns\":[]}");
 				final var otherSession = registry.newEditSession();
@@ -147,6 +157,7 @@ class GrammarImportLifecycleTest {
 
 				// Leave the competing import in place: selecting a different file must discard the rejected attempt.
 				input.setText(secondFile.toString());
+				disableWorkspaceSetup(page);
 				assertThat(page.isPageComplete()).isTrue();
 				assertThat(wizard.performFinish()).isTrue();
 				assertThat(page.getErrorMessage()).isNull();
@@ -185,6 +196,7 @@ class GrammarImportLifecycleTest {
 				fileInput.setAccessible(true);
 				final var input = (Text) fileInput.get(page);
 				input.setText(firstFile.toString());
+				disableWorkspaceSetup(page);
 				assertThat(page.isPageComplete()).isTrue();
 				prefs.put(markerKey, "test");
 				prefs.flush();
@@ -199,6 +211,7 @@ class GrammarImportLifecycleTest {
 					Files.delete(blocker);
 				}
 				input.setText(secondFile.toString());
+				disableWorkspaceSetup(page);
 				assertThat(page.isPageComplete()).isTrue();
 				assertThat(wizard.performFinish()).isTrue();
 				assertThat(page.getErrorMessage()).isNull();
@@ -240,6 +253,7 @@ class GrammarImportLifecycleTest {
 				final var fileInput = page.getClass().getDeclaredField("grammarFileText");
 				fileInput.setAccessible(true);
 				((Text) fileInput.get(page)).setText(secondFile.toString());
+				disableWorkspaceSetup(page);
 				assertThat(page.isPageComplete()).isTrue();
 				assertThat(wizard.performFinish()).isTrue();
 				assertThat(session.getDefinitions()).contains(pending);
@@ -270,7 +284,9 @@ class GrammarImportLifecycleTest {
 		final var competing = new GrammarDefinition("source.changed", file.toString());
 		try {
 			final var page = createGrammarPreferencePage();
+			final var shell = new Shell();
 			try {
+				page.createControl(shell);
 				// Stage through the page's own session without widening the production API for tests.
 				final var managerField = page.getClass().getDeclaredField("grammarManager");
 				managerField.setAccessible(true);
@@ -291,6 +307,7 @@ class GrammarImportLifecycleTest {
 				assertThat(registry.getDefinitions()).filteredOn(def -> def.getURI().equals(file.toUri())).containsExactly(pending);
 			} finally {
 				page.dispose();
+				shell.dispose();
 			}
 		} finally {
 			removeImportsFor(file);
@@ -426,6 +443,76 @@ class GrammarImportLifecycleTest {
 			}
 		}
 		cleanup.save();
+	}
+
+	@Test
+	void loadingOldPreferencesPreservesManualTypesAndBindings() throws Exception {
+		final var manager = Platform.getContentTypeManager();
+		final var id = "org.eclipse.tm4e.tests.legacy." + UUID.randomUUID();
+		final var type = manager.addContentType(id, "Manual language", manager.getContentType("org.eclipse.core.runtime.text"));
+		final var file = createGrammar();
+		final var preferences = InstanceScope.INSTANCE.getNode(TMEclipseRegistryPlugin.PLUGIN_ID);
+		final var grammarKey = "org.eclipse.tm4e.registry.grammars";
+		final var bindingKey = "org.eclipse.tm4e.registry.grammarBindings";
+		final var previousGrammars = preferences.get(grammarKey, null);
+		final var previousBindings = preferences.get(bindingKey, null);
+		try {
+			final var before = manager.getAllContentTypes();
+			// This is the existing on-disk format, deliberately without any setup ownership information.
+			preferences.put(grammarKey, "[{\"scopeName\":\"source.legacy\",\"path\":\""
+					+ file.toString().replace("\\", "\\\\") + "\"}]");
+			preferences.put(bindingKey, "{\"" + id + "\":\"source.legacy\"}");
+			final var implementation = TMEclipseRegistryPlugin.getGrammarRegistryManager().getClass();
+			final var constructor = implementation.getDeclaredConstructor();
+			constructor.setAccessible(true);
+			final var restored = (IGrammarRegistryManager) constructor.newInstance();
+			final var load = implementation.getDeclaredMethod("load");
+			load.setAccessible(true);
+			load.invoke(restored);
+			assertThat(restored.getUserGrammarBinding(type)).isNotNull().extracting(def -> def.getScope().getName())
+					.isEqualTo("source.legacy");
+			assertThat(manager.getAllContentTypes()).containsExactlyInAnyOrder(before);
+		} finally {
+			if (previousGrammars == null)
+				preferences.remove(grammarKey);
+			else
+				preferences.put(grammarKey, previousGrammars);
+			if (previousBindings == null)
+				preferences.remove(bindingKey);
+			else
+				preferences.put(bindingKey, previousBindings);
+			manager.removeContentType(id);
+			Files.deleteIfExists(file);
+		}
+	}
+
+	@Test
+	void removingAContentTypeClearsItsFilenameMatches() throws Exception {
+		final var manager = Platform.getContentTypeManager();
+		final var id = "org.eclipse.tm4e.tests.import." + UUID.randomUUID();
+		final var type = manager.addContentType(id, "Import cleanup", manager.getContentType("org.eclipse.core.runtime.text"));
+		final var extension = "tm4ecleanup" + UUID.randomUUID();
+		try {
+			type.addFileSpec(extension, IContentType.FILE_EXTENSION_SPEC);
+			assertThat(manager.findContentTypesFor("test." + extension)).extracting(IContentType::getId).contains(id);
+			// Match import rollback: the platform's removal API alone leaves this match behind on Eclipse 4.32.
+			type.removeFileSpec(extension, IContentType.FILE_EXTENSION_SPEC);
+			manager.removeContentType(id);
+			assertThat(manager.findContentTypesFor("test." + extension)).extracting(IContentType::getId).doesNotContain(id);
+		} finally {
+			// The baseline platform can retain the association even after removing the type.
+			type.removeFileSpec(extension, IContentType.FILE_EXTENSION_SPEC);
+			manager.removeContentType(id);
+		}
+	}
+
+	private static void disableWorkspaceSetup(final IWizardPage page) throws Exception {
+		// These tests exercise import-only retries; managed content-type setup has separate coverage.
+		final var workspaceDefault = page.getClass().getDeclaredField("workspaceDefault");
+		workspaceDefault.setAccessible(true);
+		final var checkbox = (Button) workspaceDefault.get(page);
+		checkbox.setSelection(false);
+		checkbox.notifyListeners(SWT.Selection, new Event());
 	}
 
 	private static Path createGrammar() throws Exception {

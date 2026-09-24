@@ -35,6 +35,8 @@ import org.eclipse.tm4e.languageconfiguration.internal.utils.TextEditorPrefs;
 import org.eclipse.tm4e.languageconfiguration.internal.utils.TextUtils;
 import org.eclipse.tm4e.ui.internal.model.TMModelManager;
 import org.eclipse.tm4e.ui.internal.utils.ContentTypeHelper;
+import org.eclipse.tm4e.ui.internal.utils.ContentTypeInfo;
+import org.eclipse.tm4e.ui.internal.utils.FileLanguageSelection;
 import org.eclipse.tm4e.ui.internal.utils.UI;
 import org.eclipse.tm4e.ui.text.TMPartitions;
 
@@ -47,6 +49,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 
 	private IContentType[] contentTypes = EMPTY_CONTENT_TYPES;
 	private @Nullable IDocument document;
+	private @Nullable ContentTypeInfo fileSelection;
 
 	/**
 	 * @see <a href=
@@ -58,10 +61,13 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		if (command.text.isEmpty())
 			return;
 
-		if (!doc.equals(this.document)) {
+		final @Nullable ContentTypeInfo selection = FileLanguageSelection.getForDocument(doc);
+		// The cached selection changes when the user switches language, without repeating content detection per keystroke.
+		if (!doc.equals(this.document) || selection != fileSelection) {
 			final var contentTypeInfo = ContentTypeHelper.findContentTypes(doc);
 			this.contentTypes = contentTypeInfo == null ? EMPTY_CONTENT_TYPES : contentTypeInfo.getContentTypes();
 			this.document = doc;
+			fileSelection = selection;
 		}
 
 		if (contentTypes.length == 0 || command.getCommandCount() > 1)
@@ -69,7 +75,8 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 
 		// Determine effective content types based on TM4E partition at the edit location
 		IContentType[] effectiveContentTypes = contentTypes;
-		final var tmPartitionContentTypes = TMPartitions.getContentTypesForOffset(doc, command.offset);
+		// Reuse the document selection so partition lookup does not repeat content detection on every keystroke.
+		final var tmPartitionContentTypes = TMPartitions.getContentTypesForOffset(doc, command.offset, contentTypes);
 		if (tmPartitionContentTypes.length > 0) {
 			effectiveContentTypes = tmPartitionContentTypes;
 		}
